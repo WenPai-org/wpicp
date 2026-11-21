@@ -1,236 +1,54 @@
-=== wpban Pro ===
-Contributors: wpban
-Tags: security, firewall, ban, geo-blocking, rate-limiting, crawler-blocking, brute-force, ip-blocking
-Requires at least: 6.7.2
-Tested up to: 6.7.2
-Stable tag: 5.0
+=== WPICP ===
+Contributors: wenpai
+Tags: icp, compliance, china, beian, wangan
+Requires at least: 6.2
+Tested up to: 6.8
 Requires PHP: 7.4
+Stable tag: 4.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Advanced WordPress security plugin with geo-blocking, rate limiting, AI crawler blocking, and intelligent threat detection.
+中国站点一站式备案资质公示、电子证照信任徽章与离线《广告法》内容合规巡检中枢。
 
 == Description ==
 
-wpban Pro is a comprehensive security solution for WordPress that protects your site from various threats including malicious bots, brute force attacks, content scrapers, and unauthorized access attempts.
+文派备案（WPICP 4.0）面向在中国大陆部署与运营的 WordPress 网站，提供统一的监管备案公示、电子证照亮照、信任徽章管理与离线《广告法》内容合规检查能力。
 
-= Key Features =
+主要功能：
 
-**🛡️ IP Management**
-* Ban IPs with wildcard support (e.g., 192.168.*.*)
-* IP range blocking (CIDR and range notation)
-* Whitelist trusted IPs
-* Automatic reverse proxy detection
-
-**🌍 Geographic Blocking**
-* Block or allow specific countries
-* Real-time IP geolocation
-* Cached country lookups for performance
-* Whitelist/blacklist modes
-
-**⚡ Rate Limiting**
-* Protect against DDoS and flood attacks
-* Separate limits for general requests, login attempts, and API calls
-* Automatic temporary bans for violators
-* Customizable thresholds
-
-**🤖 Crawler Control**
-* Block 40+ AI crawlers (GPTBot, ClaudeBot, etc.)
-* Control SEO crawler access
-* Protect content from AI training datasets
-* robots.txt integration
-
-**📊 Advanced Logging**
-* Detailed security event logs
-* Filter by date, action, IP, or country
-* Export logs to CSV
-* Automatic log rotation
-
-**📧 Email Notifications**
-* Real-time security alerts
-* Customizable alert thresholds
-* Multiple event types
-* Test email functionality
-
-**🚪 Login Protection**
-* Restrict wp-login.php access by IP
-* Brute force detection
-* Failed login tracking
-* Emergency bypass URL
-
-**🎯 Security Templates**
-* Quick setup with pre-configured templates
-* Basic, Strict, Content Protection, and Performance modes
-* One-click application
-* Customizable settings
-
-**🔧 Additional Features**
-* Browser restrictions (block WeChat/QQ)
-* User agent filtering
-* Referer blocking
-* Host-based banning
-* Import/export settings
-* Database optimization tools
-
-= Performance Optimized =
-
-* Smart caching system
-* Optimized database queries with indexes
-* Minimal performance impact
-* Lazy loading of features
-
-= Emergency Access =
-
-Never get locked out! WPBan provides an emergency bypass URL that allows you to access your site even if your IP gets banned accidentally.
+* **全渠道监管备案真源**：集中管理工信部 ICP 备案号、公安机关互联网站安全备案（31 省简称识别与 14 位备案码查验跳转）、增值电信业务经营许可证（EDI）、生成式人工智能服务备案号、境内互联网算法备案号、APP/小程序备案号、自定义行业许可证及违法不良信息举报渠道。
+* **双向实时无感同步**：与 WordPress 简体中文核心选项 `zh_cn_l10n_icp_num` 及文派语言包 `cn_icp` / `cn_ga` 实时双向同步，并与文派叶子（WP-China-Yes）、笔笙（Bisheng HTML）共享资质数据。
+* **电子证照亮照与信任徽章**：内置多款 HTTPS 官方监管与公共服务预设徽标，支持上传电子营业执照与行业资质图片，提供原生 `<dialog>` 灯箱查看或跳转画廊页。
+* **零代码现代化前台输出**：提供 `wpicp/compliance-bar` 与 `wpicp/trust-badges` 两个原生古腾堡动态区块、经典主题页脚自动挂载开关（三套纯 CSS 版式预设，自适应浅色与深色页脚），以及 `[wpicp]` 语义短代码与 12 个旧版短代码别名兼容。
+* **离线《广告法》极限词巡检**：本地毫秒级 DOM 解析扫描，内置 45 条常见风险词与 30 条日常安全复合词豁免（如「第一时间」「第一步」「唯一标识」），支持全站分批巡检、古腾堡编辑器实时侧栏提醒及文派心思（WPMind）协同改写。
+* **旧版无损平滑接管**：自动识别并迁移旧版 `wpicp-license` 全部 17 项配置，零自定义数据表，不收集任何个人敏感证件号码。
 
 == Installation ==
 
-1. Upload the `wpban` folder to `/wp-content/plugins/`
-2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Go to 'WPBan Security' in your admin menu
-4. Choose a security template or configure settings manually
-5. Save your emergency bypass URL in a safe place
-
-= Minimum Requirements =
-
-* WordPress 6.7.2 or higher
-* PHP 7.4 or higher
-* MySQL 5.7 or higher
+1. 上传 `wpicp` 目录至 `/wp-content/plugins/`，或在后台插件页直接安装启用。
+2. 若站点此前已启用旧版 `WPICP License`，启用本插件时会自动无损迁入原有配置并平滑停用旧插件。
+3. 前往「设置 → 备案」（多站点为「网络管理 → 设置 → 备案」）填写备案与主体信息。
 
 == Frequently Asked Questions ==
 
-= Will this plugin slow down my website? =
+= 升级到 4.0 后原有的 `[wpicp_license]` 和 `[wpicp_wangan]` 短代码还能用吗？ =
 
-No. WPBan is designed with performance in mind. It uses intelligent caching, optimized database queries, and only loads features when needed.
+完全兼容。旧版全部 12 个短代码均保留支持，老页面无需改动任何内容即可正常渲染，同时自动修复了旧版公安图标路径与 HTTPS 跳转链接。
 
-= What happens if I accidentally ban myself? =
+= 离线《广告法》扫描会把文章内容发送到外部服务器吗？ =
 
-Use the emergency bypass URL provided in the dashboard. This special URL allows you to access your site and disable the ban. Always save this URL in a secure location.
+不会。极限词扫描完全在站点本地 PHP 环境中通过 DOM 解析完成，不向任何外部接口传输文章内容。仅在管理员主动点击「心思 AI 改写」且站点已安装配置 WPMind 时，才会将单句摘录交由站点自配的 AI 通道改写。
 
-= Can I block entire countries? =
+= 插件会创建自定义数据库表吗？ =
 
-Yes! WPBan includes geographic blocking that allows you to block or exclusively allow specific countries. The plugin uses free IP geolocation services for this feature.
-
-= Will blocking SEO crawlers hurt my rankings? =
-
-Yes, blocking major search engine crawlers (Googlebot, Bingbot) will negatively impact your SEO. The plugin shows warnings for these critical crawlers. Only block SEO crawlers if you have a specific reason.
-
-= How do I protect against AI content scraping? =
-
-Use the "Content Protection" template which blocks major AI crawlers, or manually select AI crawlers to block in the Crawlers settings. The plugin blocks access and adds robots.txt rules.
-
-= Can I import/export settings? =
-
-Yes! Go to Tools > Import/Export to backup your settings or migrate them to another site.
-
-= How long are logs kept? =
-
-Logs are automatically cleaned after 30 days to prevent database bloat. You can export logs before they're deleted or manually clear them at any time.
-
-= Does it work with Cloudflare? =
-
-Yes! Enable the "Reverse Proxy" option in General settings to properly detect visitor IPs when using Cloudflare or other proxy services.
-
-== Screenshots ==
-
-1. Dashboard - Overview of security statistics and quick actions
-2. Security Templates - One-click security configurations
-3. IP Rules - Manage banned IPs, ranges, and whitelists
-4. Rate Limiting - Configure request limits
-5. Geographic Blocking - Block or allow countries
-6. Crawler Management - Control bot access
-7. Security Logs - Detailed event tracking
-8. Email Notifications - Real-time alerts
+不会。WPICP 4.0 采用零自定义数据表架构，配置存储于标准 `wp_options` / `wp_sitemeta` 中，默认卸载时保留备案配置以防误删。
 
 == Changelog ==
 
-= 5.0 =
-* Added geographic blocking with real-time IP geolocation
-* Implemented advanced rate limiting system
-* Added email notifications for security events
-* Improved logging with country tracking and pagination
-* Added import/export functionality
-* Optimized database performance with indexes
-* Added emergency bypass URL feature
-* Improved UI with WordPress native design
-* Added security templates for quick setup
-* Fixed array structure issue in templates
-
-= 4.0 =
-* Complete rewrite with improved architecture
-* Added caching system
-* Enhanced performance
-* Better code organization
-
-= 3.3 =
-* Initial public release
-* Basic IP blocking functionality
-* Crawler blocking
-* Simple logging
-
-== Upgrade Notice ==
-
-= 5.0 =
-Major update with geographic blocking, rate limiting, and email notifications. Backup your settings before upgrading.
-
-== Advanced Usage ==
-
-= Custom Templates =
-
-You can create custom security templates by hooking into the `wpban_templates` filter:
-
-`
-add_filter('wpban_templates', function($templates) {
-    $templates['custom'] = [
-        'name' => 'My Custom Template',
-        'description' => 'Custom security configuration',
-        'settings' => [
-            'banned_ips' => ['1.2.3.4'],
-            'rate_limits' => [
-                'requests_per_minute' => 45
-            ]
-        ]
-    ];
-    return $templates;
-});
-`
-
-= Custom Country Detection =
-
-Integrate with premium GeoIP services:
-
-`
-add_filter('wpban_ip_country', function($country, $ip) {
-    // Your custom country detection logic
-    return $detected_country;
-}, 10, 2);
-`
-
-= Whitelist Specific Pages =
-
-Exclude certain pages from security checks:
-
-`
-add_filter('wpban_skip_checks', function($skip) {
-    if (is_page('special-page')) {
-        return true;
-    }
-    return $skip;
-});
-`
-
-== Support ==
-
-For support, feature requests, or bug reports, please visit our [support forum](https://wordpress.org/support/plugin/wpban/) or [GitHub repository](https://github.com/wpban/wpban).
-
-== Privacy Policy ==
-
-This plugin stores:
-* Security logs containing IP addresses, user agents, and geographic data
-* Your security configuration settings
-
-This plugin may connect to external services:
-* IP geolocation APIs (ip-api.com, ipinfo.io) for country detection
-* These services only receive IP addresses for lookup
-
-All data is stored locally in your WordPress database and is not shared with third parties.
+= 4.0.0 =
+* 全新重设为文派备案（WPICP 4.0），接入 `wenpai-admin-ui` 标准后台架构（概览 / 设置 / 合规巡检）。
+* 新增生成式人工智能服务备案号、境内互联网算法备案号与自定义扩展行业许可证管理。
+* 新增与 WordPress 核心 `zh_cn_l10n_icp_num` 及 `cn_icp` / `cn_ga` 双向实时同步。
+* 新增 `wpicp/compliance-bar` 与 `wpicp/trust-badges` 原生古腾堡动态区块及三套页脚自动注入版式。
+* 集成离线《广告法》极限词扫描核（45 条违禁表达 + 30 条安全复合词白名单 + 全站分批巡检 + 编辑器实时提示）。
+* 内置旧版 `wpicp-license` 17 项配置无损迁移器与自动接管机制，零自定义数据库表。

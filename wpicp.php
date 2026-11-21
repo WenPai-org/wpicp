@@ -1,106 +1,95 @@
 <?php
 /**
- * Plugin Name: WPICP - WordPress ICP备案插件
- * Plugin URI: https://example.com/wpicp
- * Description: 帮助中国WordPress站点进行ICP备案管理和显示的插件
- * Version: 1.0.0
- * Author: WordPress开发者
- * Author URI: https://example.com/
- * License: GPL-2.0+
- * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain: wpicp
- * Domain Path: /languages
+ * Plugin Name:       WPICP
+ * Plugin URI:        https://wpcy.com/icp
+ * Description:       中国站点一站式备案资质公示、电子证照信任徽章与离线《广告法》内容合规巡检中枢。
+ * Version:           4.0.0
+ * Requires at least: 6.2
+ * Requires PHP:      7.4
+ * Author:            WenPai
+ * Author URI:        https://wpcy.com/icp
+ * License:           GPL-2.0-or-later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain:       wpicp
+ * Domain Path:       /languages
+ * Update URI:        https://updates.wenpai.net
+ * Network:           true
+ *
+ * @package WenPai\ICP
  */
 
-// 如果直接访问此文件，则退出
-if (!defined('WPINC')) {
-    die;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
-// 定义插件版本
-define('WPICP_VERSION', '1.0.0');
-
-// 定义插件目录
-define('WPICP_PLUGIN_DIR', plugin_dir_path(__FILE__));
-
-// 定义插件URL
-define('WPICP_PLUGIN_URL', plugin_dir_url(__FILE__));
-
-/**
- * 插件激活函数
- */
-function activate_wpicp() {
-    require_once WPICP_PLUGIN_DIR . 'includes/class-wpicp-core.php';
-    $core = new WPICP_Core();
-    $core->create_database_tables();
-
-    // 添加默认选项
-    $default_options = array(
-        'icp_number' => '',
-        'display_location' => 'footer',
-        'display_style' => 'default',
-        'verification_method' => 'manual',
-        'api_key' => '',
-        'custom_link' => 'https://beian.miit.gov.cn/',
-        'enable_sensitive_check' => 'no',
-        // 新增选项
-        'police_number' => '',
-        'police_link' => 'http://www.beian.gov.cn/',
-        'status_notification' => 'yes',
-        'verification_api_provider' => 'none',
-        'verification_api_key' => '',
-        'beian_query_method' => 'manual',
-        'beian_query_api_key' => '',
-        'check_on_publish' => 'no',
-        'scheduled_check' => 'no'
-    );
-
-    add_option('wpicp_options', $default_options);
+if ( ! defined( 'WPICP_VERSION' ) ) {
+	define( 'WPICP_VERSION', '4.0.0' );
 }
-register_activation_hook(__FILE__, 'activate_wpicp');
-
-/**
- * 插件停用函数
- */
-function deactivate_wpicp() {
-    // 停用时的操作
-    flush_rewrite_rules();
-
-    // 清除计划任务
-    wp_clear_scheduled_hook('wpicp_daily_status_check');
-    wp_clear_scheduled_hook('wpicp_weekly_compliance_check');
+if ( ! defined( 'WPICP_PLUGIN_FILE' ) ) {
+	define( 'WPICP_PLUGIN_FILE', __FILE__ );
 }
-register_deactivation_hook(__FILE__, 'deactivate_wpicp');
-
-/**
- * 加载插件文本域
- */
-function wpicp_load_textdomain() {
-    load_plugin_textdomain('wpicp', false, dirname(plugin_basename(__FILE__)) . '/languages/');
+if ( ! defined( 'WPICP_PLUGIN_DIR' ) ) {
+	define( 'WPICP_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 }
-add_action('plugins_loaded', 'wpicp_load_textdomain');
-
-/**
- * 加载插件组件
- */
-require_once WPICP_PLUGIN_DIR . 'includes/class-wpicp-core.php';
-require_once WPICP_PLUGIN_DIR . 'admin/class-wpicp-admin.php';
-require_once WPICP_PLUGIN_DIR . 'public/class-wpicp-public.php';
-
-/**
- * 加载样式
- */
-function wpicp_enqueue_styles() {
-    wp_enqueue_style('wpicp-style', WPICP_PLUGIN_URL . 'style.css', array(), WPICP_VERSION);
+if ( ! defined( 'WPICP_PLUGIN_URL' ) ) {
+	define( 'WPICP_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 }
-add_action('wp_enqueue_scripts', 'wpicp_enqueue_styles');
-add_action('admin_enqueue_scripts', 'wpicp_enqueue_styles');
-
-/**
- * 初始化插件组件
- */
-function run_wpicp() {
-    new WPICP_Admin();
-    new WPICP_Public(); // 这里使用WPICP_Public类名
+if ( ! defined( 'WPICP_PLUGIN_BASENAME' ) ) {
+	define( 'WPICP_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 }
-add_action('plugins_loaded', 'run_wpicp');
+
+// Register vendored wenpai-admin-ui copy at file load time so plugins_loaded@1 winner election picks the newest kit.
+$wpicp_kit_load = WPICP_PLUGIN_DIR . 'lib/wenpai-admin-ui/php/load.php';
+if ( is_readable( $wpicp_kit_load ) ) {
+	require_once $wpicp_kit_load;
+}
+
+spl_autoload_register(
+	static function ( $class_name ) {
+		$prefix = 'WenPai\\ICP\\';
+		$len    = strlen( $prefix );
+		if ( 0 !== strncmp( $prefix, $class_name, $len ) ) {
+			return;
+		}
+		$relative = substr( $class_name, $len );
+		$file     = WPICP_PLUGIN_DIR . 'src/' . str_replace( '\\', '/', $relative ) . '.php';
+		if ( is_readable( $file ) ) {
+			require_once $file;
+		}
+	}
+);
+
+if ( ! class_exists( 'WPICP_Ad_Law', false ) ) {
+	class_alias( \WenPai\ICP\Compliance\AdLawScanner::class, 'WPICP_Ad_Law' );
+}
+
+if ( ! function_exists( 'wpicp_scan_ad_law_html' ) ) {
+	/**
+	 * Public helper function for scanning HTML against Chinese Advertising Law triggers.
+	 *
+	 * @param string   $html      HTML fragment.
+	 * @param string[] $allowlist Optional extra allowlisted phrases.
+	 * @return array<int, array{term:string, category:string, selector:string, excerpt:string, suggestions:string[]}>
+	 */
+	function wpicp_scan_ad_law_html( $html, array $allowlist = array() ) {
+		$merged = array_merge( \WenPai\ICP\Compliance\AdLawScanner::get_site_allowlist(), $allowlist );
+		return \WenPai\ICP\Compliance\AdLawScanner::scan_html( (string) $html, $merged );
+	}
+}
+
+register_activation_hook(
+	__FILE__,
+	static function ( $network_wide = false ) {
+		\WenPai\ICP\Migration\LegacyMigrator::on_activate( (bool) $network_wide );
+	}
+);
+
+register_deactivation_hook(
+	__FILE__,
+	static function () {
+		wp_clear_scheduled_hook( 'wpicp_daily_status_check' );
+		wp_clear_scheduled_hook( 'wpicp_weekly_compliance_check' );
+	}
+);
+
+add_action( 'plugins_loaded', array( \WenPai\ICP\Plugin::class, 'boot' ), 10 );

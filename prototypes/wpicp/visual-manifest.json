@@ -1,0 +1,13 @@
+{
+  "plugin": "wpicp",
+  "widths": [1280, 390],
+  "pages": [
+    { "id": "overview", "state": "ok", "path": "overview.html" },
+    { "id": "overview", "state": "empty", "path": "overview-empty.html" },
+    { "id": "overview", "state": "error", "path": "overview-error.html" },
+    { "id": "settings", "state": "simple", "path": "settings.html" },
+    { "id": "settings", "state": "advanced", "path": "settings-advanced.html?mode=advanced" },
+    { "id": "audit", "state": "ok", "path": "audit.html" },
+    { "id": "help", "state": "ok", "path": "help.html" }
+  ]
+}

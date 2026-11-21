@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 40" width="132" height="40" role="img" aria-label="公安机关联网备案">
+  <rect x="0.5" y="0.5" width="131" height="39" rx="5" fill="#ffffff" stroke="#d0d7de"/>
+  <rect x="7" y="7" width="26" height="26" rx="4" fill="#b91c1c"/>
+  <path d="M20 11.5l6.5 2.4v5.1c0 4.5-2.8 8.3-6.5 9.8-3.7-1.5-6.5-5.3-6.5-9.8v-5.1L20 11.5zm0 3.7l1.2 2.5 2.8.4-2 2 .5 2.7-2.5-1.3-2.5 1.3.5-2.7-2-2 2.8-.4 1.2-2.5z" fill="#fde047"/>
+  <text x="40" y="18" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="11" font-weight="600" fill="#1e293b">全国网安平台</text>
+  <text x="40" y="31" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="10" fill="#475569">公安联网备案</text>
+</svg>

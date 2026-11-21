@@ -1,65 +1,46 @@
 <?php
 /**
- * 在插件卸载时执行的操作
+ * Uninstall handler for WPICP.
  *
- * @package WPICP
+ * Strictly preserves user filing data unless `clean_on_uninstall` was explicitly enabled.
+ * WordPress Core `zh_cn_l10n_icp_num` and media library attachments are never deleted.
+ *
+ * @package WenPai\ICP
  */
 
-// 如果未通过WordPress调用卸载，则退出
-if (!defined('WP_UNINSTALL_PLUGIN')) {
-    exit;
+if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
+	exit;
 }
 
-// 删除插件选项
-delete_option('wpicp_options');
-delete_option('wpicp_last_scheduled_check');
-delete_option('wpicp_last_check_results');
+$wpicp_clean_site = static function () {
+	$settings = get_option( 'wpicp_settings', array() );
+	if ( ! is_array( $settings ) || empty( $settings['clean_on_uninstall'] ) ) {
+		return;
+	}
+	delete_option( 'wpicp_settings' );
+	delete_option( 'wpicp_audit_summary' );
+	delete_option( 'wpicp_migrated_at' );
+	delete_option( 'wpicp_legacy_takeover_notice' );
+};
 
-// 删除所有临时选项
-delete_transient('wpicp_sensitive_words');
-delete_transient('wpicp_verification_result');
-delete_transient('wpicp_admin_notice_dismissed');
+if ( is_multisite() ) {
+	$wpicp_net = get_site_option( 'wpicp_network_settings', array() );
+	if ( is_array( $wpicp_net ) && ! empty( $wpicp_net['clean_on_uninstall'] ) ) {
+		delete_site_option( 'wpicp_network_settings' );
+		delete_site_option( 'wpicp_legacy_takeover_notice' );
+	}
 
-// 删除任何以wpicp_开头的选项
-global $wpdb;
-$wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE 'wpicp_%'");
-
-// 删除插件创建的表
-$tables = array(
-    'wpicp_records',
-    'wpicp_sensitive_words',
-    'wpicp_real_name_info',
-    'wpicp_record_history',
-    'wpicp_status'
-);
-
-foreach($tables as $table) {
-    $wpdb->query("DROP TABLE IF EXISTS " . $wpdb->prefix . $table);
-}
-
-// 清除用户元数据
-$wpdb->query("DELETE FROM $wpdb->usermeta WHERE meta_key LIKE 'wpicp_%'");
-
-// 清除评论元数据
-$wpdb->query("DELETE FROM $wpdb->commentmeta WHERE meta_key LIKE 'wpicp_%'");
-
-// 清除已计划的事件
-wp_clear_scheduled_hook('wpicp_daily_verification');
-wp_clear_scheduled_hook('wpicp_daily_status_check');
-
-// 删除上传的文件
-$upload_dir = wp_upload_dir();
-$verification_dir = $upload_dir['basedir'] . '/wpicp-verification/';
-
-if(file_exists($verification_dir)) {
-    // 删除目录中的所有文件
-    $files = glob($verification_dir . '*');
-    foreach($files as $file) {
-        if(is_file($file)) {
-            unlink($file);
-        }
-    }
-
-    // 删除目录
-    rmdir($verification_dir);
+	$wpicp_site_ids = get_sites(
+		array(
+			'fields' => 'ids',
+			'number' => 0,
+		)
+	);
+	foreach ( $wpicp_site_ids as $wpicp_site_id ) {
+		switch_to_blog( (int) $wpicp_site_id );
+		$wpicp_clean_site();
+		restore_current_blog();
+	}
+} else {
+	$wpicp_clean_site();
 }

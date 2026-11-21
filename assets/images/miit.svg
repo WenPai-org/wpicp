@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 40" width="132" height="40" role="img" aria-label="工信部ICP备案">
+  <rect x="0.5" y="0.5" width="131" height="39" rx="5" fill="#ffffff" stroke="#d0d7de"/>
+  <rect x="7" y="7" width="26" height="26" rx="4" fill="#1d4ed8"/>
+  <path d="M20 12l6 2.5v4.8c0 4.2-2.6 7.8-6 9.2-3.4-1.4-6-5-6-9.2v-4.8L20 12zm-1.1 10.6l4.4-4.4-1.1-1.1-3.3 3.3-1.6-1.6-1.1 1.1 2.7 2.7z" fill="#ffffff"/>
+  <text x="40" y="18" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="11" font-weight="600" fill="#1e293b">工信部政务</text>
+  <text x="40" y="31" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="10" fill="#475569">ICP 备案公示</text>
+</svg>

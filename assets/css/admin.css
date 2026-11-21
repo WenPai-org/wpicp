@@ -1,0 +1,38 @@
+/**
+ * WPICP 4.0 Admin Product Stylesheet (strictly consumes `--wenpai-*` kit tokens).
+ */
+
+.wenpai-app .wpicp-preview {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wenpai-space-2);
+}
+
+.wenpai-app .wpicp-preview__stage {
+	padding: var(--wenpai-space-4) var(--wenpai-space-5);
+	background: var(--wenpai-surface-soft);
+	border: 1px solid var(--wenpai-line-card);
+	border-radius: var(--wenpai-radius-md);
+	color: var(--wenpai-ink-2);
+}
+
+.wenpai-app .wpicp-audit__progress {
+	margin-top: var(--wenpai-space-3);
+}
+
+.wenpai-app .wpicp-audit__results {
+	margin-top: var(--wenpai-space-3);
+}
+
+.wenpai-app .wpicp-audit__excerpt {
+	color: var(--wenpai-ink-2);
+	font-size: var(--wenpai-text-meta);
+	line-height: var(--wenpai-leading-meta);
+}
+
+.wenpai-app .wpicp-audit__mark {
+	padding: 0 var(--wenpai-space-1);
+	background: var(--wenpai-warn-soft);
+	color: var(--wenpai-warn-ink);
+	border-radius: var(--wenpai-radius-sm);
+}

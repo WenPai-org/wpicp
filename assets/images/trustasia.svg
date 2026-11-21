@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 40" width="132" height="40" role="img" aria-label="TrustAsia 数字安全认证">
+  <rect x="0.5" y="0.5" width="131" height="39" rx="5" fill="#ffffff" stroke="#d0d7de"/>
+  <rect x="7" y="7" width="26" height="26" rx="4" fill="#047857"/>
+  <rect x="15" y="19" width="10" height="8" rx="1.5" fill="#ffffff"/>
+  <path d="M17 19v-2.2a3 3 0 0 1 6 0V19" fill="none" stroke="#ffffff" stroke-width="1.6"/>
+  <text x="40" y="18" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="11" font-weight="600" fill="#1e293b">TrustAsia</text>
+  <text x="40" y="31" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="10" fill="#475569">HTTPS 安全认证</text>
+</svg>

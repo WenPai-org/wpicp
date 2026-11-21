@@ -1,0 +1,227 @@
+/**
+ * WPICP 4.0 Frontend Stylesheet.
+ *
+ * Pure semantic CSS consuming host `currentColor` and `--wenpai-*` / `--bs-*` tokens.
+ * Zero raw hex colors, zero raw px spacing, adapts automatically to light & dark footers.
+ */
+
+.wpicp-bar {
+	box-sizing: border-box;
+	width: 100%;
+	padding: var(--wenpai-space-3, 0.75em) var(--wenpai-space-4, 1em);
+	color: inherit;
+	font-size: 0.875em;
+	line-height: 1.65;
+}
+
+.wpicp-bar--align-center {
+	text-align: center;
+}
+
+.wpicp-bar--align-left {
+	text-align: left;
+}
+
+.wpicp-bar--align-between {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wenpai-space-2, 0.5em) var(--wenpai-space-4, 1em);
+}
+
+.wpicp-bar--theme-dark {
+	background-color: CanvasText;
+	color: Canvas;
+}
+
+.wpicp-bar--theme-light {
+	background-color: Canvas;
+	color: CanvasText;
+}
+
+.wpicp-bar__line {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: var(--wenpai-space-1-5, 0.375em) var(--wenpai-space-2-5, 0.625em);
+}
+
+.wpicp-bar--align-left .wpicp-bar__line {
+	justify-content: flex-start;
+}
+
+.wpicp-bar--align-between .wpicp-bar__line {
+	justify-content: flex-start;
+}
+
+.wpicp-bar__line--sub {
+	margin-top: var(--wenpai-space-1, 0.25em);
+	opacity: 0.82;
+	font-size: 0.94em;
+}
+
+.wpicp-bar__item {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wenpai-space-1, 0.25em);
+}
+
+.wpicp-bar__sep {
+	opacity: 0.42;
+	user-select: none;
+}
+
+.wpicp-bar__link {
+	color: inherit;
+	text-decoration: none;
+	opacity: 0.92;
+	transition: opacity 0.15s ease;
+}
+
+.wpicp-bar__link:hover,
+.wpicp-bar__link:focus-visible {
+	opacity: 1;
+	text-decoration: underline;
+}
+
+.wpicp-bar__mps {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wenpai-space-1, 0.25em);
+}
+
+.wpicp-bar__emblem {
+	display: inline-block;
+	width: 1.1em;
+	height: 1.1em;
+	vertical-align: middle;
+	object-fit: contain;
+}
+
+.wpicp-bar__badges {
+	margin-top: var(--wenpai-space-2-5, 0.625em);
+}
+
+/* Trust Badges */
+.wpicp-badges {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: var(--wenpai-space-2-5, 0.625em);
+}
+
+.wpicp-badges--left {
+	justify-content: flex-start;
+}
+
+.wpicp-badges__item {
+	display: inline-flex;
+	align-items: center;
+	text-decoration: none;
+	opacity: 0.94;
+	transition: opacity 0.15s ease;
+}
+
+.wpicp-badges__item:hover,
+.wpicp-badges__item:focus-visible {
+	opacity: 1;
+}
+
+.wpicp-badges__img {
+	display: block;
+	max-height: 2.25em;
+	width: auto;
+	border-radius: var(--wenpai-radius-sm, 0.25em);
+	object-fit: contain;
+}
+
+/* Electronic Certificates Gallery & Lightbox */
+.wpicp-certificates {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	justify-content: center;
+	gap: var(--wenpai-space-4, 1em);
+}
+
+.wpicp-certificates--left {
+	justify-content: flex-start;
+}
+
+.wpicp-certificates__item {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 0;
+	gap: var(--wenpai-space-1-5, 0.375em);
+}
+
+.wpicp-certificates__trigger,
+.wpicp-certificates__link {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--wenpai-space-1-5, 0.375em);
+	padding: var(--wenpai-space-2, 0.5em);
+	background: transparent;
+	border: 1px solid currentColor;
+	border-radius: var(--wenpai-radius-md, 0.5em);
+	color: inherit;
+	font: inherit;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.wpicp-certificates__img {
+	display: block;
+	max-width: 12em;
+	height: auto;
+	object-fit: contain;
+}
+
+.wpicp-certificates__title {
+	font-size: 0.875em;
+	text-align: center;
+}
+
+.wpicp-certificates__dialog {
+	max-width: min(92vw, 52rem);
+	padding: var(--wenpai-space-4, 1em);
+	border: 1px solid currentColor;
+	border-radius: var(--wenpai-radius-lg, 0.625em);
+	background: Canvas;
+	color: CanvasText;
+}
+
+.wpicp-certificates__modal {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--wenpai-space-3, 0.75em);
+}
+
+.wpicp-certificates__full {
+	display: block;
+	max-width: 100%;
+	max-height: 75vh;
+	height: auto;
+	object-fit: contain;
+}
+
+.wpicp-certificates__caption {
+	margin: 0;
+	font-size: 0.95em;
+}
+
+.wpicp-certificates__close {
+	padding: var(--wenpai-space-1-5, 0.375em) var(--wenpai-space-4, 1em);
+	border: 1px solid currentColor;
+	border-radius: var(--wenpai-radius-sm, 0.375em);
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+}
