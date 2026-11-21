@@ -21,7 +21,20 @@
 }
 
 .wenpai-app .wpicp-audit__results {
-	margin-top: var(--wenpai-space-3);
+	margin-top: var(--wenpai-space-4);
+}
+
+.wenpai-app .wpicp-audit__results .tbl :is(th, td) {
+	padding-inline-end: var(--wenpai-space-4);
+}
+
+.wenpai-app .wpicp-audit__results .tbl :is(th, td):last-child {
+	padding-inline-end: 0;
+}
+
+.wenpai-app .wpicp-audit__term,
+.wenpai-app .wpicp-audit__actions {
+	white-space: nowrap;
 }
 
 .wenpai-app .wpicp-audit__excerpt {

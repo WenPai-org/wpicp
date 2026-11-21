@@ -37,9 +37,9 @@
 		}
 
 		var summary = ( i18n.doneHits || '扫描完成，共发现 %d 处风险表达。' ).replace( '%d', String( findings.length ) );
-		var html = '<div class="wenpai-stack wenpai-stack--sm">';
+		var html = '<div class="wenpai-stack">';
 		html += '<div class="notice is-warn"><p>' + escHtml( summary ) + '</p></div>';
-		html += '<table class="tbl"><thead><tr>';
+		html += '<div class="wenpai-table-wrap"><table class="tbl"><thead><tr>';
 		html += '<th scope="col">来源内容</th>';
 		html += '<th scope="col">风险用语</th>';
 		html += '<th scope="col">上下文摘录</th>';
@@ -50,20 +50,20 @@
 		findings.forEach( function ( item ) {
 			var suggestions = Array.isArray( item.suggestions ) ? item.suggestions.join( ' / ' ) : '';
 			html += '<tr>';
-			html += '<td><strong>' + escHtml( item.post_title || '' ) + '</strong><br><span class="meta">' + escHtml( item.post_type || '' ) + '</span></td>';
-			html += '<td><strong>' + escHtml( item.term || '' ) + '</strong><br><span class="meta">' + escHtml( item.category_label || item.category || '' ) + '</span></td>';
+			html += '<td><span class="t">' + escHtml( item.post_title || '' ) + '</span><div class="d">' + escHtml( item.post_type || '' ) + '</div></td>';
+			html += '<td class="wpicp-audit__term"><span class="t">' + escHtml( item.term || '' ) + '</span><div class="d">' + escHtml( item.category_label || item.category || '' ) + '</div></td>';
 			html += '<td class="wpicp-audit__excerpt">' + highlightTerm( item.excerpt || '', item.term || '' ) + '</td>';
 			html += '<td>' + escHtml( suggestions ) + '</td>';
-			html += '<td><div class="wenpai-row wenpai-row--tight">';
+			html += '<td class="wpicp-audit__actions"><div class="wenpai-row">';
 			if ( item.edit_url ) {
-				html += '<a class="btn btn-ghost" href="' + escHtml( item.edit_url ) + '" target="_blank" rel="noopener noreferrer">' + escHtml( i18n.editPost || '直达编辑' ) + '</a>';
+				html += '<a class="btn btn-sm btn-ghost" href="' + escHtml( item.edit_url ) + '" target="_blank" rel="noopener noreferrer">' + escHtml( i18n.editPost || '直达编辑' ) + '</a>';
 			}
-			html += '<button type="button" class="btn btn-ghost" data-wpicp-allowlist-add="' + escHtml( item.term || '' ) + '">' + escHtml( i18n.addAllowlist || '加入白名单' ) + '</button>';
+			html += '<button type="button" class="btn btn-sm btn-ghost" data-wpicp-allowlist-add="' + escHtml( item.term || '' ) + '">' + escHtml( i18n.addAllowlist || '加入白名单' ) + '</button>';
 			html += '</div></td>';
 			html += '</tr>';
 		} );
 
-		html += '</tbody></table></div>';
+		html += '</tbody></table></div></div>';
 		container.innerHTML = html;
 	}
 
@@ -124,6 +124,9 @@
 					progressFill.style.width = pct + '%';
 				}
 				page += 1;
+			}
+			if ( progressWrap ) {
+				progressWrap.hidden = true;
 			}
 			renderScanResults( resultsWrap, allFindings );
 		} catch ( err ) {

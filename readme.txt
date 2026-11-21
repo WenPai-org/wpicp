@@ -2,7 +2,7 @@
 Contributors: wenpai
 Tags: icp, compliance, china, beian, wangan
 Requires at least: 6.2
-Tested up to: 6.8
+Tested up to: 7.1
 Requires PHP: 7.4
 Stable tag: 4.0.0
 License: GPLv2 or later
@@ -46,7 +46,7 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 == Changelog ==
 
 = 4.0.0 =
-* 全新重设为文派备案（WPICP 4.0），接入 `wenpai-admin-ui` 标准后台架构（概览 / 设置 / 合规巡检）。
+* 全新重设为文派备案（WPICP 4.0），接入 `wenpai-admin-ui` 标准后台架构（概览 / 备案资质 / 证照徽章 / 前台展示 / 合规巡检 / 工具）。
 * 新增生成式人工智能服务备案号、境内互联网算法备案号与自定义扩展行业许可证管理。
 * 新增与 WordPress 核心 `zh_cn_l10n_icp_num` 及 `cn_icp` / `cn_ga` 双向实时同步。
 * 新增 `wpicp/compliance-bar` 与 `wpicp/trust-badges` 原生古腾堡动态区块及三套页脚自动注入版式。
