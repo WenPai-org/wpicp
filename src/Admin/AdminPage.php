@@ -405,6 +405,19 @@ class AdminPage {
 	}
 
 	/**
+	 * Dedicated monochrome brand mark SVG for WPICP (distinct from Remix page icons, D-04).
+	 *
+	 * @return string
+	 */
+	public static function brand_mark_svg() {
+		return '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+			. '<rect x="3.5" y="3.5" width="17" height="17" rx="4"/>'
+			. '<path d="M8 9.25h8M8 12.75h5"/>'
+			. '<circle cx="15.5" cy="14.75" r="2.25"/>'
+			. '</svg>';
+	}
+
+	/**
 	 * Build shared `Wenpai_Admin_Shell::open` / `close` configuration with 6 compact tabs.
 	 *
 	 * @param string                $current  Active tab (`overview`, `filing`, `badges`, `display`, `audit`, `tools`, `help`).
@@ -420,7 +433,7 @@ class AdminPage {
 		$ico      = static function ( $name ) {
 			return class_exists( 'Wenpai_Admin_Icons', false ) ? Wenpai_Admin_Icons::svg( $name ) : '';
 		};
-		$mark_svg = $ico( 'shield-check' );
+		$mark_svg = self::brand_mark_svg();
 		$ver      = defined( 'WPICP_VERSION' ) ? WPICP_VERSION : '4.0.0';
 
 		return array(

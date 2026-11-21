@@ -1,7 +1,6 @@
 /**
  * WPICP 4.0 Admin Interactions:
- * 1. Paginated full-site offline Ad-Law batch scanner + one-click allowlist.
- * 2. WordPress Media Library picker enhancement for repeater `image_id` inputs.
+ * Paginated full-site offline Ad-Law batch scanner + one-click allowlist.
  */
 ( function () {
 	'use strict';
@@ -9,10 +8,23 @@
 	var cfg = window.wpicpAdminData || {};
 	var i18n = cfg.i18n || {};
 
+	var NOTICE_ICONS = {
+		ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 12.5 11.2 14.7 15.5 9.8M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>',
+		warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4m0 4h.01M10.3 4.8 2.8 18a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 4.8a2 2 0 0 0-3.4 0Z"/></svg>',
+		bad: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 9 9 15m0-6 6 6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>',
+	};
+
 	function escHtml( str ) {
 		var div = document.createElement( 'div' );
 		div.textContent = String( str == null ? '' : str );
 		return div.innerHTML;
+	}
+
+	function noticeHtml( level, text ) {
+		var cls = level === 'ok' || level === 'warn' || level === 'bad' ? 'notice ' + level : 'notice';
+		var role = level === 'bad' ? 'alert' : 'status';
+		var icon = NOTICE_ICONS[ level ] || NOTICE_ICONS.warn;
+		return '<div class="' + cls + '" role="' + role + '">' + icon + '<span>' + escHtml( text ) + '</span></div>';
 	}
 
 	function highlightTerm( excerpt, term ) {
@@ -29,16 +41,16 @@
 			return;
 		}
 		if ( ! findings.length ) {
-			container.innerHTML =
-				'<div class="notice is-ok"><p>' +
-				escHtml( i18n.doneZero || '扫描完成，未发现《广告法》极限词风险。' ) +
-				'</p></div>';
+			container.innerHTML = noticeHtml(
+				'ok',
+				i18n.doneZero || '扫描完成，未发现《广告法》极限词风险。'
+			);
 			return;
 		}
 
 		var summary = ( i18n.doneHits || '扫描完成，共发现 %d 处风险表达。' ).replace( '%d', String( findings.length ) );
 		var html = '<div class="wenpai-stack">';
-		html += '<div class="notice is-warn"><p>' + escHtml( summary ) + '</p></div>';
+		html += noticeHtml( 'warn', summary );
 		html += '<div class="wenpai-table-wrap"><table class="tbl"><thead><tr>';
 		html += '<th scope="col">来源内容</th>';
 		html += '<th scope="col">风险用语</th>';
@@ -67,13 +79,29 @@
 		container.innerHTML = html;
 	}
 
+	function setProgress( progressWrap, pct ) {
+		if ( ! progressWrap ) {
+			return;
+		}
+		var bar = progressWrap.querySelector( '.progress[role="progressbar"]' ) || progressWrap.querySelector( '.progress' );
+		var fill = progressWrap.querySelector( '.progress i' );
+		var meta = progressWrap.querySelector( '.progress-wrap .meta' );
+		if ( bar ) {
+			bar.setAttribute( 'aria-valuenow', String( pct ) );
+		}
+		if ( fill ) {
+			fill.style.width = pct + '%';
+		}
+		if ( meta ) {
+			meta.textContent = pct + '%';
+		}
+	}
+
 	async function runFullSiteScan( card ) {
 		if ( ! cfg.restScanSiteUrl ) {
 			return;
 		}
 		var progressWrap = card.querySelector( '[data-wpicp-scan-progress]' );
-		var progressBar = progressWrap ? progressWrap.querySelector( '.wenpai-progress' ) : null;
-		var progressFill = progressWrap ? progressWrap.querySelector( '.wenpai-progress__bar' ) : null;
 		var resultsWrap = card.querySelector( '[data-wpicp-scan-results]' );
 		var buttons = card.querySelectorAll( '[data-wpicp-scan-start]' );
 
@@ -84,6 +112,7 @@
 
 		if ( progressWrap ) {
 			progressWrap.hidden = false;
+			setProgress( progressWrap, 0 );
 		}
 		if ( resultsWrap ) {
 			resultsWrap.innerHTML = '<p class="meta">' + escHtml( i18n.scanning || '正在扫描站点内容…' ) + '</p>';
@@ -117,12 +146,7 @@
 					allFindings = allFindings.concat( data.items );
 				}
 				var pct = Math.min( 100, Math.round( ( page / totalPages ) * 100 ) );
-				if ( progressBar ) {
-					progressBar.setAttribute( 'aria-valuenow', String( pct ) );
-				}
-				if ( progressFill ) {
-					progressFill.style.width = pct + '%';
-				}
+				setProgress( progressWrap, pct );
 				page += 1;
 			}
 			if ( progressWrap ) {
@@ -130,8 +154,11 @@
 			}
 			renderScanResults( resultsWrap, allFindings );
 		} catch ( err ) {
+			if ( progressWrap ) {
+				progressWrap.hidden = true;
+			}
 			if ( resultsWrap ) {
-				resultsWrap.innerHTML = '<div class="notice is-bad"><p>' + escHtml( i18n.failed || '巡检请求未完成，请稍后重试。' ) + '</p></div>';
+				resultsWrap.innerHTML = noticeHtml( 'bad', i18n.failed || '巡检请求未完成，请稍后重试。' );
 			}
 		} finally {
 			buttons.forEach( function ( btn ) {
@@ -170,60 +197,6 @@
 		}
 	}
 
-	function enhanceRepeaterMediaInputs( root ) {
-		if ( ! window.wp || ! window.wp.media ) {
-			return;
-		}
-		var scope = root || document;
-		var inputs = scope.querySelectorAll( 'input[type="number"][name$="[image_id]"]' );
-		inputs.forEach( function ( input ) {
-			if ( input.dataset.wpicpMediaBound === '1' ) {
-				return;
-			}
-			input.dataset.wpicpMediaBound = '1';
-
-			var btn = document.createElement( 'button' );
-			btn.type = 'button';
-			btn.className = 'btn btn-ghost';
-			btn.textContent = i18n.pickMedia || '选择媒体图片';
-
-			btn.addEventListener( 'click', function ( e ) {
-				e.preventDefault();
-				var frame = window.wp.media( {
-					title: i18n.pickMedia || '选择媒体图片',
-					multiple: false,
-					library: { type: 'image' },
-					button: { text: i18n.useMedia || '使用此图片' },
-				} );
-				frame.on( 'select', function () {
-					var attachment = frame.state().get( 'selection' ).first().toJSON();
-					if ( attachment && attachment.id ) {
-						input.value = String( attachment.id );
-						input.dispatchEvent( new Event( 'input', { bubbles: true } ) );
-						input.dispatchEvent( new Event( 'change', { bubbles: true } ) );
-						var row = input.closest( '[data-wenpai-repeater-row]' );
-						if ( row ) {
-							var titleInput = row.querySelector( 'input[name$="[title]"]' );
-							if ( titleInput && ! titleInput.value && attachment.title ) {
-								titleInput.value = attachment.title;
-								titleInput.dispatchEvent( new Event( 'input', { bubbles: true } ) );
-							}
-						}
-					}
-				} );
-				frame.open();
-			} );
-
-			if ( input.parentNode ) {
-				var rowWrap = document.createElement( 'div' );
-				rowWrap.className = 'wenpai-row wenpai-row--tight';
-				input.parentNode.insertBefore( rowWrap, input );
-				rowWrap.appendChild( input );
-				rowWrap.appendChild( btn );
-			}
-		} );
-	}
-
 	document.addEventListener( 'click', function ( event ) {
 		var scanBtn = event.target.closest( '[data-wpicp-scan-start]' );
 		if ( scanBtn ) {
@@ -239,22 +212,6 @@
 		if ( allowBtn ) {
 			event.preventDefault();
 			addTermToAllowlist( allowBtn );
-			return;
-		}
-
-		var addRepeaterBtn = event.target.closest( '[data-wenpai-repeater-add]' );
-		if ( addRepeaterBtn ) {
-			window.setTimeout( function () {
-				enhanceRepeaterMediaInputs( document );
-			}, 30 );
 		}
 	} );
-
-	if ( document.readyState === 'loading' ) {
-		document.addEventListener( 'DOMContentLoaded', function () {
-			enhanceRepeaterMediaInputs( document );
-		} );
-	} else {
-		enhanceRepeaterMediaInputs( document );
-	}
 } )();

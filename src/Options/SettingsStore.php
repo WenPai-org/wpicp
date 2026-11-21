@@ -753,7 +753,6 @@ class SettingsStore {
 				'label'      => $preset['title'],
 				'meta'       => $preset['group'],
 				'media_html' => '<img src="' . esc_url( $img_url ) . '" alt="' . esc_attr( $preset['title'] ) . '" width="88" height="32">',
-				'desc_html'  => '<a href="' . esc_url( $preset['url'] ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( wp_parse_url( $preset['url'], PHP_URL_HOST ) ) . '</a>',
 			);
 		}
 
@@ -878,15 +877,14 @@ class SettingsStore {
 				'desc'        => __( '用于页脚公示客户投诉或违法信息举报热线。', 'wpicp' ),
 			),
 			'custom_licenses'        => array(
-				'type'         => 'repeater',
-				'tab'          => 'filing',
-				'layout'       => 'stack',
-				'presentation' => 'card',
-				'max_rows'     => 12,
-				'default'      => $defaults['custom_licenses'],
-				'label'        => __( '扩展行业行政许可证', 'wpicp' ),
-				'desc'         => __( '可添加网络文化、广播电视或出版物等行业许可证。', 'wpicp' ),
-				'fields'       => array(
+				'type'     => 'repeater',
+				'tab'      => 'filing',
+				'layout'   => 'stack',
+				'max_rows' => 12,
+				'default'  => $defaults['custom_licenses'],
+				'label'    => __( '扩展行业行政许可证', 'wpicp' ),
+				'desc'     => __( '可添加网络文化、广播电视或出版物等行业许可证。', 'wpicp' ),
+				'fields'   => array(
 					'label'  => array(
 						'type'        => 'text',
 						'label'       => __( '证照名称', 'wpicp' ),
@@ -918,19 +916,17 @@ class SettingsStore {
 				'choices'      => $preset_choices,
 			),
 			'certificates'           => array(
-				'type'         => 'repeater',
-				'tab'          => 'badges',
-				'layout'       => 'stack',
-				'presentation' => 'card',
-				'max_rows'     => 20,
-				'default'      => $defaults['certificates'],
-				'label'        => __( '电子证照亮照列表', 'wpicp' ),
-				'desc'         => __( '从媒体库选择营业执照或许可证扫描件用于前台亮照。', 'wpicp' ),
-				'fields'       => array(
+				'type'     => 'repeater',
+				'tab'      => 'badges',
+				'layout'   => 'stack',
+				'max_rows' => 20,
+				'default'  => $defaults['certificates'],
+				'label'    => __( '电子证照亮照列表', 'wpicp' ),
+				'desc'     => __( '从媒体库选择营业执照或许可证扫描件用于前台亮照。', 'wpicp' ),
+				'fields'   => array(
 					'image_id' => array(
-						'type'    => 'number',
-						'min'     => 0,
-						'label'   => __( '媒体库附件 ID', 'wpicp' ),
+						'type'    => 'media',
+						'label'   => __( '证照扫描图片', 'wpicp' ),
 						'default' => 0,
 					),
 					'title'    => array(
@@ -966,19 +962,17 @@ class SettingsStore {
 				),
 			),
 			'badges'                 => array(
-				'type'         => 'repeater',
-				'tab'          => 'badges',
-				'layout'       => 'stack',
-				'presentation' => 'card',
-				'max_rows'     => 20,
-				'default'      => $defaults['badges'],
-				'label'        => __( '自定义合作与认证徽章', 'wpicp' ),
-				'desc'         => __( '上传行业协会、云安全或合作伙伴认证图标及链接。', 'wpicp' ),
-				'fields'       => array(
+				'type'     => 'repeater',
+				'tab'      => 'badges',
+				'layout'   => 'stack',
+				'max_rows' => 20,
+				'default'  => $defaults['badges'],
+				'label'    => __( '自定义合作与认证徽章', 'wpicp' ),
+				'desc'     => __( '上传行业协会、云安全或合作伙伴认证图标及链接。', 'wpicp' ),
+				'fields'   => array(
 					'image_id' => array(
-						'type'    => 'number',
-						'min'     => 0,
-						'label'   => __( '媒体库附件 ID', 'wpicp' ),
+						'type'    => 'media',
+						'label'   => __( '徽章图标', 'wpicp' ),
 						'default' => 0,
 					),
 					'title'    => array(

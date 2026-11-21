@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin Frontend Display Tab (`tab=display`).
+ * Admin Frontend Display Tab (`tab=display`, with Simple / Advanced mode switch).
  *
  * @var Wenpai_Admin_Settings $settings
  * @var array<string, mixed>  $shell
@@ -18,19 +18,37 @@ $wpicp_is_ms          = function_exists( 'is_multisite' ) && is_multisite();
 $wpicp_subsite_locked = $wpicp_is_ms && ! $wpicp_is_network && ! SettingsStore::allows_subsite_override();
 $wpicp_effective      = SettingsStore::effective();
 
+$wpicp_mode     = Wenpai_Admin_UI::mode();
 $wpicp_base_url = isset( $shell['tabs'][3]['url'] ) ? (string) $shell['tabs'][3]['url'] : '#display';
 $wpicp_is_proto = false !== strpos( $wpicp_base_url, '.html' );
+$wpicp_sim_url  = $wpicp_is_proto ? 'display.html' : remove_query_arg( array( 'mode', 'section' ), $wpicp_base_url );
+$wpicp_adv_url  = $wpicp_is_proto ? 'display.html?mode=advanced' : add_query_arg( 'mode', 'advanced', remove_query_arg( 'section', $wpicp_base_url ) );
 
-$wpicp_groups  = array(
-	'footer' => __( '页脚自动输出与版式', 'wpicp' ),
-	'items'  => __( '显示条目与高级策略', 'wpicp' ),
+$wpicp_mode_switch = Wenpai_Admin_UI::mode_switch_html(
+	array(
+		'icon'  => 'equalizer',
+		'wrap'  => false,
+		'label' => __( '切换简单与高级展示设置', 'wpicp' ),
+		'items' => array(
+			array(
+				'label'   => __( '简单', 'wpicp' ),
+				'href'    => $wpicp_sim_url,
+				'current' => 'simple' === $wpicp_mode,
+			),
+			array(
+				'label'   => __( '高级', 'wpicp' ),
+				'href'    => $wpicp_adv_url,
+				'current' => 'advanced' === $wpicp_mode,
+			),
+		),
+	)
 );
-$wpicp_section = Wenpai_Admin_UI::section( $wpicp_groups, 'footer' );
 
 Wenpai_Admin_Shell::open( $shell );
 Wenpai_Admin_Shell::page_head(
 	__( '前台展示', 'wpicp' ),
-	__( '配置页脚合规公示栏样式、显示条目与多站点策略。', 'wpicp' )
+	__( '配置页脚合规公示栏样式、显示条目与多站点策略。', 'wpicp' ),
+	$wpicp_subsite_locked ? '' : $wpicp_mode_switch
 );
 
 echo $settings->notices_html( false ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped by kit.
@@ -39,8 +57,8 @@ echo $settings->notices_html( false ); // phpcs:ignore WordPress.Security.Escape
 if ( $wpicp_is_network && isset( $_GET['updated'] ) && 'true' === $_GET['updated'] ) {
 	Wenpai_Admin_UI::notice(
 		array(
-			'tone' => 'ok',
-			'text' => __( '多站点网络默认前台展示设置已保存。', 'wpicp' ),
+			'level' => 'ok',
+			'text'  => __( '多站点网络默认前台展示设置已保存。', 'wpicp' ),
 		)
 	);
 }
@@ -54,20 +72,14 @@ if ( $wpicp_subsite_locked ) {
 			'variant' => 'primary',
 		);
 	}
-	Wenpai_Admin_UI::card_open(
+	Wenpai_Admin_UI::next(
 		array(
-			'title' => __( '当前子站点继承多站点网络配置', 'wpicp' ),
-			'icon'  => 'equalizer',
-		)
-	);
-	Wenpai_Admin_UI::notice(
-		array(
-			'tone'    => 'info',
-			'text'    => __( '网络超级管理员已关闭子站点独立覆盖，本站自动沿用全网统一的页脚合规栏展示策略。', 'wpicp' ),
+			'icon'    => 'equalizer',
+			'title'   => __( '当前子站点继承多站点网络配置', 'wpicp' ),
+			'desc'    => __( '网络超级管理员已关闭子站点独立覆盖，本站自动沿用全网统一的页脚合规栏展示策略。', 'wpicp' ),
 			'actions' => $wpicp_net_actions,
 		)
 	);
-	Wenpai_Admin_UI::card_close();
 	Wenpai_Admin_Shell::close( $shell );
 	return;
 }
@@ -83,111 +95,93 @@ if ( function_exists( 'settings_fields' ) ) {
 }
 echo $settings->tab_input_html( 'display' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped by kit.
 ?>
-<input type="hidden" name="_wpicp_section" value="<?php echo esc_attr( $wpicp_section ); ?>">
+<input type="hidden" name="_wpicp_mode" value="<?php echo esc_attr( $wpicp_mode ); ?>">
 
 <?php
-$wpicp_subnav_items = array();
-foreach ( $wpicp_groups as $wpicp_gid => $wpicp_glabel ) {
-	$wpicp_subnav_items[] = array(
-		'id'      => $wpicp_gid,
-		'label'   => $wpicp_glabel,
-		'url'     => $wpicp_is_proto
-			? ( 'footer' === $wpicp_gid ? 'display.html' : 'display.html?section=' . $wpicp_gid )
-			: add_query_arg( 'section', $wpicp_gid, remove_query_arg( 'section', $wpicp_base_url ) ),
-		'current' => $wpicp_gid === $wpicp_section,
-	);
-}
-Wenpai_Admin_UI::subnav(
+Wenpai_Admin_UI::card_open(
 	array(
-		'label' => __( '前台展示设置分组', 'wpicp' ),
-		'items' => $wpicp_subnav_items,
+		'title' => __( '页脚合规公示栏版式', 'wpicp' ),
+		'tile'  => false,
 	)
 );
+$settings->render_field( 'auto_footer' );
+$settings->render_field( 'footer_style' );
+$settings->render_field( 'footer_align' );
+$settings->render_field( 'footer_separator' );
+?>
+<div<?php echo Wenpai_Admin_UI::mode_attrs( 'simple' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- safe kit attribute helper. ?>>
+	<?php
+	Wenpai_Admin_UI::card_foot(
+		array(
+			'start'   => true,
+			'meta'    => __( '如需精细勾选页脚条目或设置自定义类名，请切换右上角「高级」视图。', 'wpicp' ),
+			'actions' => array(
+				array(
+					'label'   => __( '保存展示版式', 'wpicp' ),
+					'type'    => 'submit',
+					'variant' => 'primary',
+				),
+			),
+		)
+	);
+	?>
+</div>
+<?php
+Wenpai_Admin_UI::card_close();
 ?>
 
-<div class="wenpai-stack" data-wenpai-groups data-wenpai-groups-default="footer">
-	<div class="wenpai-stack"<?php echo Wenpai_Admin_UI::group_attrs( 'footer', $wpicp_section ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- safe kit attribute helper. ?>>
-		<?php
-		Wenpai_Admin_UI::card_open(
-			array(
-				'title' => __( '页脚合规公示栏版式', 'wpicp' ),
-				'icon'  => 'equalizer',
-			)
-		);
-		$settings->render_field( 'auto_footer' );
-		$settings->render_field( 'footer_style' );
-		$settings->render_field( 'footer_align' );
-		$settings->render_field( 'footer_separator' );
-		Wenpai_Admin_UI::card_foot(
-			array(
-				'start'   => true,
-				'meta'    => __( '全区块主题也可在页脚模板中直接插入「备案合规栏」区块。', 'wpicp' ),
-				'actions' => array(
-					array(
-						'label'   => __( '保存展示版式', 'wpicp' ),
-						'type'    => 'submit',
-						'variant' => 'primary',
-					),
+<div<?php echo Wenpai_Admin_UI::mode_attrs( 'advanced' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- safe kit attribute helper. ?>>
+	<?php
+	Wenpai_Admin_UI::card_open(
+		array(
+			'title' => __( '合规栏显示条目与附加类名', 'wpicp' ),
+			'tile'  => false,
+		)
+	);
+	$settings->render_field( 'footer_items' );
+	$settings->render_field( 'custom_css_class' );
+	if ( $wpicp_is_network ) {
+		$settings->render_field( 'allow_subsite_override' );
+	}
+	Wenpai_Admin_UI::card_foot(
+		array(
+			'start'   => true,
+			'meta'    => __( '仅已填写具体编号或内容的条目会在前台合规栏中渲染。', 'wpicp' ),
+			'actions' => array(
+				array(
+					'label'   => __( '保存展示设置', 'wpicp' ),
+					'type'    => 'submit',
+					'variant' => 'primary',
 				),
-			)
-		);
-		Wenpai_Admin_UI::card_close();
-
-		Wenpai_Admin_UI::card_open(
-			array(
-				'title' => __( '当前版式效果预览', 'wpicp' ),
-				'icon'  => 'eye',
-			)
-		);
-		$wpicp_preview_html = Renderer::render_compliance_bar(
-			array(
-				'preset'        => (string) $wpicp_effective['footer_style'],
-				'align'         => (string) $wpicp_effective['footer_align'],
-				'separator'     => (string) $wpicp_effective['footer_separator'],
-				'demo_fallback' => true,
-				'skip_enqueue'  => true,
 			),
-			$wpicp_effective
-		);
-		?>
-		<div class="wpicp-preview"><div class="wpicp-preview__stage"><?php echo $wpicp_preview_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside Renderer::render_compliance_bar. ?></div></div>
-		<?php
-		Wenpai_Admin_UI::card_close();
-		?>
-	</div>
-
-	<div<?php echo Wenpai_Admin_UI::group_attrs( 'items', $wpicp_section ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- safe kit attribute helper. ?>>
-		<?php
-		Wenpai_Admin_UI::card_open(
-			array(
-				'title' => __( '合规栏显示条目与附加类名', 'wpicp' ),
-				'icon'  => 'settings',
-			)
-		);
-		$settings->render_field( 'footer_items' );
-		$settings->render_field( 'custom_css_class' );
-		if ( $wpicp_is_network ) {
-			$settings->render_field( 'allow_subsite_override' );
-		}
-		Wenpai_Admin_UI::card_foot(
-			array(
-				'start'   => true,
-				'meta'    => __( '仅已填写具体编号或内容的条目会在前台合规栏中渲染。', 'wpicp' ),
-				'actions' => array(
-					array(
-						'label'   => __( '保存显示条目', 'wpicp' ),
-						'type'    => 'submit',
-						'variant' => 'primary',
-					),
-				),
-			)
-		);
-		Wenpai_Admin_UI::card_close();
-		?>
-	</div>
+		)
+	);
+	Wenpai_Admin_UI::card_close();
+	?>
 </div>
 
 <?php
+Wenpai_Admin_UI::card_open(
+	array(
+		'title' => __( '当前版式效果预览', 'wpicp' ),
+		'tile'  => false,
+	)
+);
+$wpicp_preview_html = Renderer::render_compliance_bar(
+	array(
+		'preset'        => (string) $wpicp_effective['footer_style'],
+		'align'         => (string) $wpicp_effective['footer_align'],
+		'separator'     => (string) $wpicp_effective['footer_separator'],
+		'demo_fallback' => true,
+		'skip_enqueue'  => true,
+	),
+	$wpicp_effective
+);
+?>
+<div class="wpicp-preview"><div class="wpicp-preview__stage"><?php echo $wpicp_preview_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside Renderer::render_compliance_bar. ?></div></div>
+<?php
+Wenpai_Admin_UI::card_close();
+
 Wenpai_Admin_UI::savebar(
 	array(
 		'message'      => __( '有未保存的前台展示更改', 'wpicp' ),

@@ -38,8 +38,8 @@ echo $settings->notices_html( false ); // phpcs:ignore WordPress.Security.Escape
 if ( $wpicp_is_network && isset( $_GET['updated'] ) && 'true' === $_GET['updated'] ) {
 	Wenpai_Admin_UI::notice(
 		array(
-			'tone' => 'ok',
-			'text' => __( '多站点网络默认证照与徽章设置已保存。', 'wpicp' ),
+			'level' => 'ok',
+			'text'  => __( '多站点网络默认证照与徽章设置已保存。', 'wpicp' ),
 		)
 	);
 }
@@ -53,20 +53,14 @@ if ( $wpicp_subsite_locked ) {
 			'variant' => 'primary',
 		);
 	}
-	Wenpai_Admin_UI::card_open(
+	Wenpai_Admin_UI::next(
 		array(
-			'title' => __( '当前子站点继承多站点网络配置', 'wpicp' ),
-			'icon'  => 'image',
-		)
-	);
-	Wenpai_Admin_UI::notice(
-		array(
-			'tone'    => 'info',
-			'text'    => __( '网络超级管理员已关闭子站点独立覆盖，本站自动沿用全网统一的证照与信任徽章。', 'wpicp' ),
+			'icon'    => 'image',
+			'title'   => __( '当前子站点继承多站点网络配置', 'wpicp' ),
+			'desc'    => __( '网络超级管理员已关闭子站点独立覆盖，本站自动沿用全网统一的证照与信任徽章。', 'wpicp' ),
 			'actions' => $wpicp_net_actions,
 		)
 	);
-	Wenpai_Admin_UI::card_close();
 	Wenpai_Admin_Shell::close( $shell );
 	return;
 }
@@ -110,14 +104,17 @@ Wenpai_Admin_UI::subnav(
 		Wenpai_Admin_UI::card_open(
 			array(
 				'title' => __( '官方监管与权威信任徽章', 'wpicp' ),
-				'icon'  => 'image',
+				'sub'   => __( '勾选需要展示的权威机构徽标，外链均自动采用 HTTPS。', 'wpicp' ),
+				'tile'  => false,
 			)
 		);
-		$settings->render_field( 'selected_presets' );
+		echo '<div class="wpicp-badges__presets">';
+		$settings->render_control( 'selected_presets' );
+		echo '</div>';
 		Wenpai_Admin_UI::card_foot(
 			array(
 				'start'   => true,
-				'meta'    => __( '勾选后即可在页脚「完整信任徽章栏」或「信任徽章」区块中输出。', 'wpicp' ),
+				'meta'    => __( '勾选后即可在页脚「含信任徽章」版式或「信任徽章」区块中输出。', 'wpicp' ),
 				'actions' => array(
 					array(
 						'label'   => __( '保存预设徽章', 'wpicp' ),
@@ -136,10 +133,13 @@ Wenpai_Admin_UI::subnav(
 		Wenpai_Admin_UI::card_open(
 			array(
 				'title' => __( '自定义合作与安全认证徽章', 'wpicp' ),
-				'icon'  => 'link',
+				'sub'   => __( '从媒体库选择行业协会、云安全或合作伙伴认证图标及跳转链接。', 'wpicp' ),
+				'tile'  => false,
 			)
 		);
-		$settings->render_field( 'badges' );
+		echo '<div class="wpicp-badges__media">';
+		$settings->render_control( 'badges' );
+		echo '</div>';
 		Wenpai_Admin_UI::card_foot(
 			array(
 				'start'   => true,
@@ -162,10 +162,13 @@ Wenpai_Admin_UI::subnav(
 		Wenpai_Admin_UI::card_open(
 			array(
 				'title' => __( '电子营业执照与许可证书亮照', 'wpicp' ),
-				'icon'  => 'shield-check',
+				'sub'   => __( '从媒体库选择营业执照或许可证扫描件，支持灯箱放大或跳转独立亮照页。', 'wpicp' ),
+				'tile'  => false,
 			)
 		);
-		$settings->render_field( 'certificates' );
+		echo '<div class="wpicp-badges__media">';
+		$settings->render_control( 'certificates' );
+		echo '</div>';
 		$settings->render_field( 'certificate_click_mode' );
 		$settings->render_field( 'certificates_page' );
 		$settings->render_field( 'default_image_size' );
