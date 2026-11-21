@@ -16,16 +16,17 @@ use WenPai\ICP\Rest\AuditController;
 
 defined( 'ABSPATH' ) || exit;
 
-$wpicp_effective = SettingsStore::effective();
-$wpicp_audit     = SiteHealthCheck::audit( $wpicp_effective );
-$wpicp_scan_meta = get_option( AuditController::SUMMARY_OPTION, array() );
-$wpicp_scan_hits = is_array( $wpicp_scan_meta ) && isset( $wpicp_scan_meta['total_hits'] ) ? (int) $wpicp_scan_meta['total_hits'] : 0;
-$wpicp_has_scan  = is_array( $wpicp_scan_meta ) && ! empty( $wpicp_scan_meta['last_scan_at'] );
-$wpicp_set_url   = isset( $shell['tabs'][1]['url'] ) ? (string) $shell['tabs'][1]['url'] : '#settings';
-$wpicp_adv_url   = false !== strpos( $wpicp_set_url, '.html' )
-	? str_replace( 'settings.html', 'settings-advanced.html?mode=advanced', $wpicp_set_url )
+$wpicp_effective   = SettingsStore::effective();
+$wpicp_audit       = SiteHealthCheck::audit( $wpicp_effective );
+$wpicp_scan_meta   = get_option( AuditController::SUMMARY_OPTION, array() );
+$wpicp_scan_hits   = is_array( $wpicp_scan_meta ) && isset( $wpicp_scan_meta['total_hits'] ) ? (int) $wpicp_scan_meta['total_hits'] : 0;
+$wpicp_has_scan    = is_array( $wpicp_scan_meta ) && ! empty( $wpicp_scan_meta['last_scan_at'] );
+$wpicp_set_url     = isset( $shell['tabs'][1]['url'] ) ? (string) $shell['tabs'][1]['url'] : '#filing';
+$wpicp_adv_url     = false !== strpos( $wpicp_set_url, '.html' )
+	? str_replace( 'filing.html', 'filing-advanced.html?mode=advanced', $wpicp_set_url )
 	: add_query_arg( 'mode', 'advanced', $wpicp_set_url );
-$wpicp_audit_url = isset( $shell['tabs'][2]['url'] ) ? (string) $shell['tabs'][2]['url'] : '#audit';
+$wpicp_display_url = isset( $shell['tabs'][3]['url'] ) ? (string) $shell['tabs'][3]['url'] : '#display';
+$wpicp_audit_url   = isset( $shell['tabs'][4]['url'] ) ? (string) $shell['tabs'][4]['url'] : '#audit';
 
 Wenpai_Admin_Shell::open( $shell );
 Wenpai_Admin_Shell::page_head(
@@ -310,8 +311,8 @@ Wenpai_Admin_UI::card_foot(
 		'meta_html' => $wpicp_copy_row,
 		'actions'   => array(
 			array(
-				'label'   => __( '配置页脚注入与徽章', 'wpicp' ),
-				'href'    => $wpicp_set_url,
+				'label'   => __( '配置页脚展示', 'wpicp' ),
+				'href'    => $wpicp_display_url,
 				'variant' => 'ghost',
 			),
 		),

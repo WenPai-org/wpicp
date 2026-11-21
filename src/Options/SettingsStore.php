@@ -783,7 +783,7 @@ class SettingsStore {
 		$fields = array(
 			'icp_number'             => array(
 				'type'        => 'text',
-				'tab'         => 'settings',
+				'tab'         => 'filing',
 				'default'     => $defaults['icp_number'],
 				'label'       => __( '工信部 ICP 备案号', 'wpicp' ),
 				'placeholder' => '粤ICP备2023091240号-1',
@@ -795,7 +795,7 @@ class SettingsStore {
 			),
 			'province_abbr'          => array(
 				'type'    => 'select',
-				'tab'     => 'settings',
+				'tab'     => 'filing',
 				'default' => $defaults['province_abbr'],
 				'label'   => __( '公安联网备案省份', 'wpicp' ),
 				'desc'    => __( '选择备案属地简称，留空时按备案号自动识别。', 'wpicp' ),
@@ -803,7 +803,7 @@ class SettingsStore {
 			),
 			'public_security_code'   => array(
 				'type'        => 'text',
-				'tab'         => 'settings',
+				'tab'         => 'filing',
 				'default'     => $defaults['public_security_code'],
 				'label'       => __( '公安机关联网备案号', 'wpicp' ),
 				'placeholder' => '44010602000000',
@@ -815,7 +815,7 @@ class SettingsStore {
 			),
 			'company_legal_name'     => array(
 				'type'        => 'text',
-				'tab'         => 'settings',
+				'tab'         => 'filing',
 				'default'     => $defaults['company_legal_name'],
 				'label'       => __( '主办单位法定全称', 'wpicp' ),
 				'placeholder' => __( '示例科技有限公司', 'wpicp' ),
@@ -823,7 +823,7 @@ class SettingsStore {
 			),
 			'edi_number'             => array(
 				'type'        => 'text',
-				'tab'         => 'settings',
+				'tab'         => 'filing',
 				'default'     => $defaults['edi_number'],
 				'label'       => __( '增值电信业务经营许可证', 'wpicp' ),
 				'placeholder' => '粤B2-20240001',
@@ -831,7 +831,7 @@ class SettingsStore {
 			),
 			'aigc_number'            => array(
 				'type'        => 'text',
-				'tab'         => 'settings',
+				'tab'         => 'filing',
 				'default'     => $defaults['aigc_number'],
 				'label'       => __( '生成式人工智能服务备案号', 'wpicp' ),
 				'placeholder' => '广东-生成式AI备20250001号',
@@ -839,7 +839,7 @@ class SettingsStore {
 			),
 			'algorithm_number'       => array(
 				'type'        => 'text',
-				'tab'         => 'settings',
+				'tab'         => 'filing',
 				'default'     => $defaults['algorithm_number'],
 				'label'       => __( '境内互联网算法备案号', 'wpicp' ),
 				'placeholder' => '网信算备440106123456701240019号',
@@ -847,7 +847,7 @@ class SettingsStore {
 			),
 			'app_number'             => array(
 				'type'        => 'text',
-				'tab'         => 'settings',
+				'tab'         => 'filing',
 				'default'     => $defaults['app_number'],
 				'label'       => __( '移动应用 APP 备案号', 'wpicp' ),
 				'placeholder' => '粤ICP备2023091240号-2A',
@@ -855,7 +855,7 @@ class SettingsStore {
 			),
 			'miniapp_number'         => array(
 				'type'        => 'text',
-				'tab'         => 'settings',
+				'tab'         => 'filing',
 				'default'     => $defaults['miniapp_number'],
 				'label'       => __( '小程序备案号', 'wpicp' ),
 				'placeholder' => '粤ICP备2023091240号-3X',
@@ -863,7 +863,7 @@ class SettingsStore {
 			),
 			'report_email'           => array(
 				'type'        => 'email',
-				'tab'         => 'settings',
+				'tab'         => 'filing',
 				'default'     => $defaults['report_email'],
 				'label'       => __( '不良信息举报邮箱', 'wpicp' ),
 				'placeholder' => 'report@example.com',
@@ -871,7 +871,7 @@ class SettingsStore {
 			),
 			'report_phone'           => array(
 				'type'        => 'text',
-				'tab'         => 'settings',
+				'tab'         => 'filing',
 				'default'     => $defaults['report_phone'],
 				'label'       => __( '投诉与举报电话', 'wpicp' ),
 				'placeholder' => '400-000-0000',
@@ -879,7 +879,7 @@ class SettingsStore {
 			),
 			'custom_licenses'        => array(
 				'type'         => 'repeater',
-				'tab'          => 'settings',
+				'tab'          => 'filing',
 				'layout'       => 'stack',
 				'presentation' => 'card',
 				'max_rows'     => 12,
@@ -909,7 +909,7 @@ class SettingsStore {
 			),
 			'selected_presets'       => array(
 				'type'         => 'multicheck',
-				'tab'          => 'settings',
+				'tab'          => 'badges',
 				'layout'       => 'stack',
 				'presentation' => 'catalog',
 				'default'      => $defaults['selected_presets'],
@@ -919,7 +919,7 @@ class SettingsStore {
 			),
 			'certificates'           => array(
 				'type'         => 'repeater',
-				'tab'          => 'settings',
+				'tab'          => 'badges',
 				'layout'       => 'stack',
 				'presentation' => 'card',
 				'max_rows'     => 20,
@@ -944,7 +944,7 @@ class SettingsStore {
 			'certificate_click_mode' => array(
 				'type'         => 'radio',
 				'presentation' => 'seg',
-				'tab'          => 'settings',
+				'tab'          => 'badges',
 				'default'      => $defaults['certificate_click_mode'],
 				'label'        => __( '证照缩略图点击方式', 'wpicp' ),
 				'desc'         => __( '选择点击证照后原地灯箱查看或跳转亮照详情页。', 'wpicp' ),
@@ -956,7 +956,7 @@ class SettingsStore {
 			'certificates_page'      => array(
 				'type'       => 'entity',
 				'post_type'  => 'page',
-				'tab'        => 'settings',
+				'tab'        => 'badges',
 				'default'    => $defaults['certificates_page'],
 				'label'      => __( '电子证照画廊详情页', 'wpicp' ),
 				'desc'       => __( '选择放置了证照区块或短代码的已发布页面。', 'wpicp' ),
@@ -967,7 +967,7 @@ class SettingsStore {
 			),
 			'badges'                 => array(
 				'type'         => 'repeater',
-				'tab'          => 'settings',
+				'tab'          => 'badges',
 				'layout'       => 'stack',
 				'presentation' => 'card',
 				'max_rows'     => 20,
@@ -997,14 +997,14 @@ class SettingsStore {
 			),
 			'auto_footer'            => array(
 				'type'    => 'toggle',
-				'tab'     => 'settings',
+				'tab'     => 'display',
 				'default' => $defaults['auto_footer'],
 				'label'   => __( '自动注入站点页脚', 'wpicp' ),
 				'desc'    => __( '免改主题模板，自动在页脚输出合规公示栏。', 'wpicp' ),
 			),
 			'footer_style'           => array(
 				'type'       => 'choice',
-				'tab'        => 'settings',
+				'tab'        => 'display',
 				'layout'     => 'stack',
 				'default'    => $defaults['footer_style'],
 				'label'      => __( '页脚合规栏版式预设', 'wpicp' ),
@@ -1034,7 +1034,7 @@ class SettingsStore {
 			'footer_align'           => array(
 				'type'         => 'radio',
 				'presentation' => 'seg',
-				'tab'          => 'settings',
+				'tab'          => 'display',
 				'default'      => $defaults['footer_align'],
 				'label'        => __( '合规栏对齐方式', 'wpicp' ),
 				'choices'      => array(
@@ -1050,7 +1050,7 @@ class SettingsStore {
 			'footer_separator'       => array(
 				'type'         => 'radio',
 				'presentation' => 'seg',
-				'tab'          => 'settings',
+				'tab'          => 'display',
 				'default'      => $defaults['footer_separator'],
 				'label'        => __( '条目分隔符', 'wpicp' ),
 				'choices'      => array(
@@ -1062,7 +1062,7 @@ class SettingsStore {
 			'footer_items'           => array(
 				'type'         => 'multicheck',
 				'presentation' => 'checkgroup',
-				'tab'          => 'settings',
+				'tab'          => 'display',
 				'default'      => $defaults['footer_items'],
 				'label'        => __( '合规栏默认显示项', 'wpicp' ),
 				'desc'         => __( '仅实际填写了内容的项目会在前台输出。', 'wpicp' ),
@@ -1083,7 +1083,7 @@ class SettingsStore {
 			'default_image_size'     => array(
 				'type'         => 'radio',
 				'presentation' => 'seg',
-				'tab'          => 'settings',
+				'tab'          => 'badges',
 				'default'      => $defaults['default_image_size'],
 				'label'        => __( '证照与徽章默认图幅', 'wpicp' ),
 				'choices'      => array(
@@ -1093,7 +1093,7 @@ class SettingsStore {
 			),
 			'custom_css_class'       => array(
 				'type'        => 'text',
-				'tab'         => 'settings',
+				'tab'         => 'display',
 				'default'     => $defaults['custom_css_class'],
 				'label'       => __( '附加 CSS 类名', 'wpicp' ),
 				'placeholder' => 'site-footer-compliance',
@@ -1101,14 +1101,14 @@ class SettingsStore {
 			),
 			'allow_subsite_override' => array(
 				'type'    => 'toggle',
-				'tab'     => 'settings',
+				'tab'     => 'display',
 				'default' => $defaults['allow_subsite_override'],
 				'label'   => __( '允许子站点覆盖网络配置', 'wpicp' ),
 				'desc'    => __( '关闭后全网子站点强制继承网络管理端的备案配置。', 'wpicp' ),
 			),
 			'clean_on_uninstall'     => array(
 				'type'    => 'toggle',
-				'tab'     => 'settings',
+				'tab'     => 'tools',
 				'default' => $defaults['clean_on_uninstall'],
 				'label'   => __( '卸载时清理插件配置', 'wpicp' ),
 				'desc'    => __( '仅在开启此项并删除插件时移除本插件保存的设置。', 'wpicp' ),

@@ -211,23 +211,27 @@ class AdminPage {
 			: array();
 
 		$tab = isset( $raw[ Wenpai_Admin_Settings::TAB_KEY ] )
-			? sanitize_key( (string) $raw[ Wenpai_Admin_Settings::TAB_KEY ] )
-			: 'settings';
-		if ( ! in_array( $tab, array( 'settings', 'audit' ), true ) ) {
-			$tab = 'settings';
+			? self::normalize_tab( (string) $raw[ Wenpai_Admin_Settings::TAB_KEY ] )
+			: 'filing';
+		if ( ! in_array( $tab, array( 'filing', 'badges', 'display', 'audit', 'tools' ), true ) ) {
+			$tab = 'filing';
 		}
 
 		$sanitized = $fw->sanitize( $raw );
 		SettingsStore::save_network( $sanitized );
 
-		$mode = isset( $_POST['_wpicp_mode'] ) ? sanitize_key( wp_unslash( (string) $_POST['_wpicp_mode'] ) ) : '';
-		$args = array(
+		$mode    = isset( $_POST['_wpicp_mode'] ) ? sanitize_key( wp_unslash( (string) $_POST['_wpicp_mode'] ) ) : '';
+		$section = isset( $_POST['_wpicp_section'] ) ? sanitize_key( wp_unslash( (string) $_POST['_wpicp_section'] ) ) : '';
+		$args    = array(
 			'page'    => 'wpicp',
 			'tab'     => $tab,
 			'updated' => 'true',
 		);
 		if ( 'advanced' === $mode ) {
 			$args['mode'] = 'advanced';
+		}
+		if ( '' !== $section ) {
+			$args['section'] = $section;
 		}
 
 		wp_safe_redirect( add_query_arg( $args, network_admin_url( 'settings.php' ) ) );
@@ -249,8 +253,8 @@ class AdminPage {
 		Wenpai_Admin_Loader::enqueue( array( 'body' => 'wpicp-admin' ) );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only tab check.
-		$tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( (string) $_GET['tab'] ) ) : 'overview';
-		if ( 'settings' === $tab && function_exists( 'wp_enqueue_media' ) ) {
+		$tab = isset( $_GET['tab'] ) ? self::normalize_tab( wp_unslash( (string) $_GET['tab'] ) ) : 'overview';
+		if ( 'badges' === $tab && function_exists( 'wp_enqueue_media' ) ) {
 			wp_enqueue_media();
 		}
 
@@ -314,7 +318,7 @@ class AdminPage {
 		if ( ! is_array( $links ) ) {
 			$links = array();
 		}
-		$set_url   = self::tab_url( 'settings', false );
+		$set_url   = self::tab_url( 'filing', false );
 		$audit_url = self::tab_url( 'audit', false );
 		$custom    = array(
 			'settings' => '<a href="' . esc_url( $set_url ) . '">' . esc_html__( '设置', 'wpicp' ) . '</a>',
@@ -333,7 +337,7 @@ class AdminPage {
 		if ( ! is_array( $links ) ) {
 			$links = array();
 		}
-		$set_url = self::tab_url( 'settings', true );
+		$set_url = self::tab_url( 'filing', true );
 		$custom  = array(
 			'settings' => '<a href="' . esc_url( $set_url ) . '">' . esc_html__( '网络设置', 'wpicp' ) . '</a>',
 		);
@@ -360,14 +364,30 @@ class AdminPage {
 	}
 
 	/**
+	 * Normalize raw `?tab=` parameter, supporting `settings` as alias for `filing`.
+	 *
+	 * @param string $raw Raw tab slug.
+	 * @return string
+	 */
+	public static function normalize_tab( $raw ) {
+		$key = sanitize_key( (string) $raw );
+		if ( 'settings' === $key ) {
+			return 'filing';
+		}
+		$allowed = array( 'overview', 'filing', 'badges', 'display', 'audit', 'tools', 'help' );
+		return in_array( $key, $allowed, true ) ? $key : 'overview';
+	}
+
+	/**
 	 * Build URL for a tab in single-site or network admin.
 	 *
-	 * @param string               $tab        Tab id (`overview`, `settings`, `audit`, `help`).
+	 * @param string               $tab        Tab id (`overview`, `filing`, `badges`, `display`, `audit`, `tools`, `help`).
 	 * @param bool|null            $is_network Null auto-detects `is_network_admin()`.
 	 * @param array<string, mixed> $extra      Optional extra query parameters.
 	 * @return string
 	 */
 	public static function tab_url( $tab, $is_network = null, array $extra = array() ) {
+		$tab = self::normalize_tab( $tab );
 		if ( null === $is_network ) {
 			$is_network = function_exists( 'is_network_admin' ) && is_network_admin();
 		}
@@ -385,18 +405,22 @@ class AdminPage {
 	}
 
 	/**
-	 * Build shared `Wenpai_Admin_Shell::open` / `close` configuration.
+	 * Build shared `Wenpai_Admin_Shell::open` / `close` configuration with 6 compact tabs.
 	 *
-	 * @param string                $current  Active tab (`overview`, `settings`, `audit`, `help`).
+	 * @param string                $current  Active tab (`overview`, `filing`, `badges`, `display`, `audit`, `tools`, `help`).
 	 * @param array<string, string> $tab_urls Optional offline prototype URL map.
 	 * @return array<string, mixed>
 	 */
 	public static function shell_args( $current, array $tab_urls = array() ) {
+		$current  = self::normalize_tab( $current );
 		$display  = self::display_meta();
 		$url_for  = static function ( $id ) use ( $tab_urls ) {
 			return isset( $tab_urls[ $id ] ) ? $tab_urls[ $id ] : self::tab_url( $id );
 		};
-		$mark_svg = class_exists( 'Wenpai_Admin_Icons', false ) ? Wenpai_Admin_Icons::svg( 'shield-check' ) : '';
+		$ico      = static function ( $name ) {
+			return class_exists( 'Wenpai_Admin_Icons', false ) ? Wenpai_Admin_Icons::svg( $name ) : '';
+		};
+		$mark_svg = $ico( 'shield-check' );
 		$ver      = defined( 'WPICP_VERSION' ) ? WPICP_VERSION : '4.0.0';
 
 		return array(
@@ -410,27 +434,45 @@ class AdminPage {
 					'id'        => 'overview',
 					'label'     => __( '概览', 'wpicp' ),
 					'url'       => $url_for( 'overview' ),
-					'icon_html' => class_exists( 'Wenpai_Admin_Icons', false ) ? Wenpai_Admin_Icons::svg( 'overview' ) : '',
+					'icon_html' => $ico( 'overview' ),
 				),
 				array(
-					'id'        => 'settings',
-					'label'     => __( '设置', 'wpicp' ),
-					'url'       => $url_for( 'settings' ),
-					'icon_html' => class_exists( 'Wenpai_Admin_Icons', false ) ? Wenpai_Admin_Icons::svg( 'settings' ) : '',
+					'id'        => 'filing',
+					'label'     => __( '备案资质', 'wpicp' ),
+					'url'       => $url_for( 'filing' ),
+					'icon_html' => $ico( 'shield-check' ),
+				),
+				array(
+					'id'        => 'badges',
+					'label'     => __( '证照徽章', 'wpicp' ),
+					'url'       => $url_for( 'badges' ),
+					'icon_html' => $ico( 'image' ),
+				),
+				array(
+					'id'        => 'display',
+					'label'     => __( '前台展示', 'wpicp' ),
+					'url'       => $url_for( 'display' ),
+					'icon_html' => $ico( 'equalizer' ),
 				),
 				array(
 					'id'        => 'audit',
 					'label'     => __( '合规巡检', 'wpicp' ),
 					'url'       => $url_for( 'audit' ),
-					'icon_html' => class_exists( 'Wenpai_Admin_Icons', false ) ? Wenpai_Admin_Icons::svg( 'search' ) : '',
+					'icon_html' => $ico( 'search' ),
+				),
+				array(
+					'id'        => 'tools',
+					'label'     => __( '工具', 'wpicp' ),
+					'url'       => $url_for( 'tools' ),
+					'icon_html' => $ico( 'tools' ),
 				),
 			),
 			'help_url'           => $url_for( 'help' ),
 			'help_label'         => __( '帮助', 'wpicp' ),
-			'help_icon_html'     => class_exists( 'Wenpai_Admin_Icons', false ) ? Wenpai_Admin_Icons::svg( 'help' ) : '',
+			'help_icon_html'     => $ico( 'help' ),
 			'feedback_url'       => $display['feedback_url'],
 			'feedback_label'     => __( '反馈', 'wpicp' ),
-			'feedback_icon_html' => class_exists( 'Wenpai_Admin_Icons', false ) ? Wenpai_Admin_Icons::svg( 'feedback' ) : '',
+			'feedback_icon_html' => $ico( 'feedback' ),
 			'version'            => $display['plugin_name'] . ' ' . $ver,
 			'doc_url'            => $display['docs_url'],
 			'doc_label'          => __( '使用文档', 'wpicp' ),
@@ -456,10 +498,7 @@ class AdminPage {
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only tab routing.
-		$tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( (string) $_GET['tab'] ) ) : 'overview';
-		if ( ! in_array( $tab, array( 'overview', 'settings', 'audit', 'help' ), true ) ) {
-			$tab = 'overview';
-		}
+		$tab = isset( $_GET['tab'] ) ? self::normalize_tab( wp_unslash( (string) $_GET['tab'] ) ) : 'overview';
 
 		$settings   = self::get_settings_instance( $is_network );
 		$shell      = self::shell_args( $tab );

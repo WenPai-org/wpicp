@@ -260,8 +260,11 @@ $display  = \WenPai\ICP\Admin\AdminPage::display_meta();
 
 $tab_urls = array(
 	'overview' => 'overview.html',
-	'settings' => 'settings.html',
+	'filing'   => 'filing.html',
+	'badges'   => 'badges.html',
+	'display'  => 'display.html',
 	'audit'    => 'audit.html',
+	'tools'    => 'tools.html',
 	'help'     => 'help.html',
 );
 
@@ -330,25 +333,41 @@ $pages = array(
 			),
 		),
 	),
-	'settings.html'          => array(
-		'tab'     => 'settings',
-		'title'   => '设置 · 简单视图',
+	'filing.html'          => array(
+		'tab'     => 'filing',
+		'title'   => '备案资质 · 简单视图',
 		'mode'    => 'simple',
 		'options' => array(
 			'wpicp_settings' => $normal_settings,
 		),
 	),
-	'settings-advanced.html' => array(
-		'tab'     => 'settings',
-		'title'   => '设置 · 高级视图',
+	'filing-advanced.html' => array(
+		'tab'     => 'filing',
+		'title'   => '备案资质 · 高级视图',
 		'mode'    => 'advanced',
 		'options' => array(
 			'wpicp_settings' => $normal_settings,
 		),
 	),
-	'audit.html'             => array(
+	'badges.html'          => array(
+		'tab'     => 'badges',
+		'title'   => '证照徽章',
+		'mode'    => 'simple',
+		'options' => array(
+			'wpicp_settings' => $normal_settings,
+		),
+	),
+	'display.html'         => array(
+		'tab'     => 'display',
+		'title'   => '前台展示',
+		'mode'    => 'simple',
+		'options' => array(
+			'wpicp_settings' => $normal_settings,
+		),
+	),
+	'audit.html'           => array(
 		'tab'     => 'audit',
-		'title'   => '合规巡检与工具',
+		'title'   => '合规巡检',
 		'mode'    => 'simple',
 		'options' => array(
 			'wpicp_settings'      => $normal_settings,
@@ -360,7 +379,15 @@ $pages = array(
 			),
 		),
 	),
-	'help.html'              => array(
+	'tools.html'           => array(
+		'tab'     => 'tools',
+		'title'   => '工具与迁移',
+		'mode'    => 'simple',
+		'options' => array(
+			'wpicp_settings' => $normal_settings,
+		),
+	),
+	'help.html'            => array(
 		'tab'     => 'help',
 		'title'   => '使用帮助',
 		'mode'    => 'simple',

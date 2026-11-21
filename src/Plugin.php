@@ -120,7 +120,7 @@ final class Plugin {
 
 		$cfg        = SettingsStore::effective();
 		$audit      = SiteHealthCheck::audit( $cfg );
-		$manage_url = AdminPage::tab_url( 'settings' );
+		$manage_url = AdminPage::tab_url( 'filing' );
 
 		$parts = array();
 		if ( '' !== $cfg['icp_number'] ) {
@@ -186,7 +186,7 @@ final class Plugin {
 				'report_phone'           => (string) $cfg['report_phone'],
 				'privacy_url'            => $privacy_url,
 				'source'                 => 'wpicp',
-				'manage_url'             => AdminPage::tab_url( 'settings' ),
+				'manage_url'             => AdminPage::tab_url( 'filing' ),
 				'wpicp_active'           => true,
 			)
 		);
