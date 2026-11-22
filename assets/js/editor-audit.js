@@ -183,6 +183,7 @@
 							hit.category_label || hit.category
 						),
 						el( 'p', null, hit.excerpt ),
+						hit.ai_reason ? el( 'p', null, '语义复核：' + hit.ai_reason ) : null,
 						el(
 							'div',
 							null,

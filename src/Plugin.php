@@ -14,6 +14,7 @@ use WenPai\ICP\Compliance\AccessMonitor;
 use WenPai\ICP\Compliance\AdLawScanner;
 use WenPai\ICP\Compliance\SiteHealthCheck;
 use WenPai\ICP\Compliance\WordYeahClient;
+use WenPai\ICP\Compliance\WpmindReviewer;
 use WenPai\ICP\Frontend\Renderer;
 use WenPai\ICP\Media\CertificateWatermark;
 use WenPai\ICP\Migration\LegacyMigrator;
@@ -93,10 +94,11 @@ final class Plugin {
 	 * Register suite-wide filter contracts consumed by WP-China-Yes 4.0 and Bisheng HTML.
 	 *
 	 * Contracts:
-	 *  1. `wenpai_plugin_display` (consumed in `AdminPage::display_meta()`)
-	 *  2. `wpcy_service_status`   (populates `$status['compliance']` for WPCY Services tab)
-	 *  3. `wenpai_site_compliance`(single source of truth for Bisheng HTML & themes)
-	 *  4. `wenpai_ad_law_scan`    (registered in `AdLawScanner::register()`)
+	 *  1. `wenpai_plugin_display`         (consumed in `AdminPage::display_meta()`)
+	 *  2. `wpcy_service_status`           (populates `$status['compliance']` for WPCY Services tab)
+	 *  3. `wenpai_site_compliance`        (single source of truth for Bisheng HTML & themes)
+	 *  4. `wenpai_ad_law_scan`            (registered in `AdLawScanner::register()`)
+	 *  5. `wpmind_ecosystem_integrations` (registers active semantic review integration in WPMind)
 	 *
 	 * @return void
 	 */
@@ -109,6 +111,8 @@ final class Plugin {
 		add_filter( 'wpcy_service_status', array( __CLASS__, 'filter_wpcy_service_status' ), 10, 2 );
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Shared WenPai suite contract.
 		add_filter( 'wenpai_site_compliance', array( __CLASS__, 'filter_site_compliance' ), 10, 1 );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Shared WenPai suite contract.
+		add_filter( 'wpmind_ecosystem_integrations', array( __CLASS__, 'filter_wpmind_ecosystem_integrations' ), 10, 2 );
 	}
 
 	/**
@@ -196,5 +200,69 @@ final class Plugin {
 				'wpicp_active'           => true,
 			)
 		);
+	}
+
+	/**
+	 * Register WPICP's active semantic review entry in WPMind's ecosystem integrations list.
+	 *
+	 * @param array<int, array<string, mixed>>        $integrations Existing integration entries.
+	 * @param array<string, array<string, int|float>> $by_caller    Optional per-caller stats keyed by slug.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public static function filter_wpmind_ecosystem_integrations( $integrations, $by_caller = array() ) {
+		if ( ! is_array( $integrations ) ) {
+			$integrations = array();
+		}
+
+		if ( ! WpmindReviewer::is_enabled() ) {
+			$filtered = array();
+			foreach ( $integrations as $item ) {
+				if ( is_array( $item ) && isset( $item['slug'] ) && 'wpicp' === (string) $item['slug'] && empty( $item['requests'] ) ) {
+					continue;
+				}
+				$filtered[] = $item;
+			}
+			return array_values( $filtered );
+		}
+
+		$display = AdminPage::display_meta();
+		$stats   = is_array( $by_caller ) && isset( $by_caller['wpicp'] ) && is_array( $by_caller['wpicp'] )
+			? $by_caller['wpicp']
+			: array(
+				'requests' => 0,
+				'tokens'   => 0,
+			);
+
+		$entry = array(
+			'slug'         => 'wpicp',
+			'name'         => sprintf(
+				/* translators: %s: plugin brand name */
+				__( '%s（WPICP）', 'wpicp' ),
+				$display['brand']
+			),
+			'desc'         => __( '广告法极限词巡检已开启文派心思语义复核，结合语境剔除明显误报。', 'wpicp' ),
+			'feature'      => __( '广告法语义复核', 'wpicp' ),
+			'icon'         => 'lock',
+			'version'      => defined( 'WPICP_VERSION' ) ? (string) WPICP_VERSION : '4.0.0',
+			'settings_url' => AdminPage::tab_url( 'audit', false, array( 'section' => 'adlaw' ) ),
+			'requests'     => (int) ( $stats['requests'] ?? 0 ),
+			'tokens'       => (int) ( $stats['tokens'] ?? 0 ),
+			'active'       => true,
+		);
+
+		$replaced = false;
+		foreach ( $integrations as $idx => $item ) {
+			if ( is_array( $item ) && isset( $item['slug'] ) && 'wpicp' === (string) $item['slug'] ) {
+				$integrations[ $idx ] = array_merge( $item, $entry );
+				$replaced             = true;
+				break;
+			}
+		}
+
+		if ( ! $replaced ) {
+			$integrations[] = $entry;
+		}
+
+		return array_values( $integrations );
 	}
 }

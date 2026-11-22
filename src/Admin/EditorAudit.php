@@ -8,6 +8,7 @@
 namespace WenPai\ICP\Admin;
 
 use WenPai\ICP\Compliance\AdLawScanner;
+use WenPai\ICP\Compliance\WpmindReviewer;
 use WenPai\ICP\Options\SettingsStore;
 use Wenpai_Admin_Loader;
 use Wenpai_Admin_UI;
@@ -91,7 +92,8 @@ class EditorAudit {
 				'restScanPath'      => '/wpicp/v1/ad-law/scan',
 				'restAllowlistPath' => '/wpicp/v1/ad-law/allowlist',
 				'restRewritePath'   => '/wpicp/v1/ad-law/rewrite',
-				'wpmindAvailable'   => function_exists( 'wpmind_is_available' ) && wpmind_is_available(),
+				'wpmindAvailable'   => WpmindReviewer::is_wpmind_available(),
+				'aiReviewActive'    => WpmindReviewer::is_active(),
 				'canManageAllow'    => current_user_can( 'manage_options' ),
 			)
 		);

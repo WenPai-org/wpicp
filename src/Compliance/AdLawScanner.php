@@ -63,7 +63,27 @@ class AdLawScanner {
 		$extra          = is_array( $allowlist ) ? $allowlist : array();
 		$merged_allow   = array_merge( $site_allowlist, $extra );
 
-		return self::scan_html( (string) $html, $merged_allow );
+		return self::scan_with_review( (string) $html, $merged_allow );
+	}
+
+	/**
+	 * Scan an HTML fragment offline and optionally apply WPMind semantic false-positive review.
+	 *
+	 * Falls back cleanly to offline dictionary results when WPMind is disabled,
+	 * unavailable, or returns an error.
+	 *
+	 * @param string               $html      HTML fragment to scan.
+	 * @param string[]             $allowlist Optional site-specific allowlisted phrases.
+	 * @param array<string, mixed> $options   Optional reviewer flags passed to `WpmindReviewer::review_findings()`.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public static function scan_with_review( $html, array $allowlist = array(), array $options = array() ) {
+		$findings = self::scan_html( $html, $allowlist );
+		if ( empty( $findings ) ) {
+			return array();
+		}
+
+		return WpmindReviewer::review_findings( $findings, $options );
 	}
 
 	/**

@@ -589,6 +589,8 @@ else :
 		);
 		$settings->render_field( 'ad_law_enabled' );
 		$settings->render_field( 'ad_law_remote_sync' );
+		$settings->render_field( 'ai_engine' );
+		$settings->render_field( 'ai_engine_status' );
 		$settings->render_field( 'ad_law_editor_panel' );
 		$settings->render_field( 'ad_law_allowlist' );
 
