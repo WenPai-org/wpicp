@@ -639,6 +639,72 @@ wpicp_assert(
 	'Certificate gallery routes image through server watermark REST endpoint and sets anti-save attribute'
 );
 
+// Public Certificates Directory & 4 Native Gutenberg Blocks.
+\WenPai\ICP\Options\SettingsStore::save_site(
+	array(
+		'certificates' => array(
+			array(
+				'image_id'   => 42,
+				'title'      => '企业营业执照副本',
+				'type'       => '营业执照',
+				'number'     => '91440106MA9W00001X',
+				'expires_at' => '',
+				'visible'    => true,
+			),
+			array(
+				'image_id'   => 43,
+				'title'      => '食品经营许可证',
+				'type'       => '食品经营许可',
+				'number'     => 'JY14401060008888',
+				'expires_at' => '2029-12-31',
+				'visible'    => true,
+			),
+			array(
+				'image_id'   => 44,
+				'title'      => '软件著作权登记证书',
+				'type'       => '软件著作权',
+				'number'     => '2025SR0123456',
+				'expires_at' => '',
+				'visible'    => true,
+			),
+		),
+	)
+);
+$dir_html = \WenPai\ICP\Blocks\ComplianceBlocks::render_certificates_directory_block(
+	array(
+		'columns'     => 3,
+		'showHeader'  => true,
+		'showFilters' => true,
+		'showBadges'  => true,
+	)
+);
+wpicp_assert(
+	false !== strpos( $dir_html, 'data-wpicp-cert-dir="1"' )
+	&& false !== strpos( $dir_html, '食品经营许可' )
+	&& false !== strpos( $dir_html, '软件著作权' )
+	&& false !== strpos( $dir_html, 'data-wpicp-dir-prev' )
+	&& false === strpos( $dir_html, 'style=' ),
+	'Certificates directory block renders custom categories, filters, prev/next dialog, and zero inline styles'
+);
+
+$field_block_html = \WenPai\ICP\Blocks\ComplianceBlocks::render_filing_field_block(
+	array(
+		'field'  => 'icp',
+		'prefix' => '备案号：',
+	)
+);
+wpicp_assert(
+	false !== strpos( $field_block_html, '备案号：' )
+	&& false !== strpos( $field_block_html, 'https://beian.miit.gov.cn/' ),
+	'Single filing-field block renders prefix and official MIIT link'
+);
+
+$bar_with_cert_link = do_test_shortcode( 'wpicp' );
+wpicp_assert(
+	false !== strpos( $bar_with_cert_link, '?page_id=18' ),
+	'Compliance bar renders bound certificates directory page link when certificates_page is set'
+);
+
 if ( $failed > 0 ) {
 	fwrite( STDERR, "FAILED: {$failed} failed, {$passed} passed\n" );
 	exit( 1 );

@@ -70,20 +70,25 @@ Wenpai_Admin_UI::help(
 				),
 			),
 			array(
-				'title'       => __( '语义短代码与旧版兼容对照', 'wpicp' ),
-				'desc'        => __( '兼容旧版 12 个短代码，老站无缝升级', 'wpicp' ),
+				'title'       => __( '古腾堡原生区块与传统短代码对照', 'wpicp' ),
+				'desc'        => __( '推荐新站优先使用 4 个原生区块，同时 100% 兼容旧版 12 个短代码', 'wpicp' ),
 				'icon'        => 'copy',
 				'collapsible' => true,
 				'open'        => false,
 				'numbered'    => false,
 				'steps'       => array(
 					array(
-						'title'     => __( '新一代统一短代码', 'wpicp' ),
-						'body_html' => '<p><code>[wpicp]</code> ' . esc_html__( '输出完整合规公示栏；支持按字段单独调用：', 'wpicp' ) . '<code>[wpicp field="icp|mps|company|edi|aigc|algorithm|app|miniapp|report|badges|certificates"]</code>。</p>',
+						'title'     => __( '4 个原生古腾堡动态区块（推荐）', 'wpicp' ),
+						'body_html' => '<p>' . esc_html__( '在区块编辑器或全站编辑（FSE）中直接搜索「文派」即可插入：', 'wpicp' )
+							. '<code>文派合规公示栏 (wpicp/compliance-bar)</code>、'
+							. '<code>文派信任徽章 (wpicp/trust-badges)</code>、'
+							. '<code>文派证照公示合集 (wpicp/certificates-directory)</code>、'
+							. '<code>文派单条备案信息 (wpicp/filing-field)</code>。'
+							. esc_html__( '旧短代码区块亦支持在编辑器中一键转换为对应原生区块。', 'wpicp' ) . '</p>',
 					),
 					array(
-						'title'     => __( '旧版 WPICP License 短代码兼容', 'wpicp' ),
-						'body_html' => '<p>' . esc_html__( '完整保留全部 12 个历史短代码别名：', 'wpicp' ) . '<code>[wpicp_license]</code>、<code>[wpicp_wangan]</code>、<code>[wpicp_province]</code>、<code>[wpicp_p]</code>、<code>[wpicp_company]</code>、<code>[wpicp_email]</code>、<code>[wpicp_phone]</code>、<code>[wpicp_edi]</code>、<code>[wpicp_app]</code>、<code>[wpicp_miniapp]</code>、<code>[wpicp_certificates]</code>、<code>[wpicp_badges]</code>。</p>',
+						'title'     => __( '统一短代码与旧版 WPICP License 兼容', 'wpicp' ),
+						'body_html' => '<p><code>[wpicp]</code> ' . esc_html__( '输出完整合规栏；', 'wpicp' ) . '<code>[wpicp_certificates layout="directory"]</code> ' . esc_html__( '输出带分类筛选的证照公示合集；完整保留全部 12 个历史短代码：', 'wpicp' ) . '<code>[wpicp_license]</code>、<code>[wpicp_wangan]</code>、<code>[wpicp_province]</code>、<code>[wpicp_p]</code>、<code>[wpicp_company]</code>、<code>[wpicp_email]</code>、<code>[wpicp_phone]</code>、<code>[wpicp_edi]</code>、<code>[wpicp_app]</code>、<code>[wpicp_miniapp]</code>、<code>[wpicp_certificates]</code>、<code>[wpicp_badges]</code>。</p>',
 					),
 				),
 			),

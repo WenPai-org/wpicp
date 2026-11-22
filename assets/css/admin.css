@@ -304,6 +304,10 @@ body.wenpai-ui-page .wenpai-app .wpicp-badges__search {
 	border-radius: var(--wenpai-radius-md);
 }
 
+.wenpai-app .wpicp-certificates__card[hidden] {
+	display: none;
+}
+
 .wenpai-app .wpicp-certificates__stage {
 	position: relative;
 	display: flex;

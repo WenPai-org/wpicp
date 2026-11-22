@@ -70,6 +70,9 @@ Wenpai_Admin_Shell::page_head(
 );
 
 echo $settings->notices_html( false ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped by kit.
+if ( class_exists( 'Wenpai_Admin_Action', false ) ) {
+	echo Wenpai_Admin_Action::notice_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped by kit.
+}
 
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only network save confirmation flag.
 if ( $wpicp_is_network && isset( $_GET['updated'] ) && 'true' === $_GET['updated'] ) {
@@ -320,14 +323,139 @@ Wenpai_Admin_UI::subnav(
 
 	<div class="wenpai-stack"<?php echo Wenpai_Admin_UI::group_attrs( 'certificates', $wpicp_section ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- safe kit attribute helper. ?>>
 		<?php
+		$wpicp_cert_page_id    = absint( $wpicp_effective['certificates_page'] );
+		$wpicp_cert_page_ready = $wpicp_cert_page_id > 0
+			&& ( ! function_exists( 'get_post_status' ) || 'publish' === get_post_status( $wpicp_cert_page_id ) );
+		$wpicp_cert_page_url   = $wpicp_cert_page_ready && function_exists( 'get_permalink' )
+			? (string) get_permalink( $wpicp_cert_page_id )
+			: '';
+		$wpicp_cert_page_edit  = $wpicp_cert_page_ready && function_exists( 'get_edit_post_link' )
+			? (string) get_edit_post_link( $wpicp_cert_page_id, 'raw' )
+			: '';
+		$wpicp_cert_page_title = $wpicp_cert_page_ready && function_exists( 'get_the_title' )
+			? (string) get_the_title( $wpicp_cert_page_id )
+			: __( '资质与证照公示', 'wpicp' );
+
+		if ( ! $wpicp_is_network ) {
+			Wenpai_Admin_UI::card_open(
+				array(
+					'title' => __( '前台资质与证照公示合集页', 'wpicp' ),
+					'sub'   => __( '适合上传了多张营业执照、行业许可、软著、商标或体系认证的站点，访客可通过页脚「证照公示」入口集中查阅。', 'wpicp' ),
+					'tile'  => false,
+				)
+			);
+			if ( $wpicp_cert_page_ready && '' !== $wpicp_cert_page_url ) {
+				$wpicp_dir_controls = '<div class="wenpai-head-actions">';
+				if ( '' !== $wpicp_cert_page_edit ) {
+					$wpicp_dir_controls .= Wenpai_Admin_UI::button_html(
+						array(
+							'label'   => __( '编辑页面（区块）', 'wpicp' ),
+							'href'    => $wpicp_cert_page_edit,
+							'variant' => 'ghost',
+							'size'    => 'sm',
+						)
+					);
+				}
+				$wpicp_dir_controls .= Wenpai_Admin_UI::button_html(
+					array(
+						'label'   => __( '预览前台合集页', 'wpicp' ),
+						'href'    => $wpicp_cert_page_url,
+						'variant' => 'secondary',
+						'size'    => 'sm',
+						'attrs'   => array(
+							'target' => '_blank',
+							'rel'    => 'noopener noreferrer',
+						),
+					)
+				);
+				$wpicp_dir_controls .= '</div>';
+
+				Wenpai_Admin_UI::row(
+					array(
+						'icon'         => 'shield-check',
+						'state'        => 'ok',
+						'title'        => sprintf(
+							/* translators: %s: bound page title */
+							__( '已绑定合集页：%s', 'wpicp' ),
+							$wpicp_cert_page_title
+						),
+						'desc'         => $wpicp_cert_page_url . ' · ' . __( '内置「文派证照公示合集」区块（支持按分类筛选、水印大图与左右翻页）。', 'wpicp' ),
+						'control_html' => $wpicp_dir_controls,
+					)
+				);
+			} else {
+				Wenpai_Admin_UI::row(
+					array(
+						'icon'         => 'image',
+						'title'        => __( '尚未生成独立的前台证照公示合集页', 'wpicp' ),
+						'desc'         => __( '一键自动创建含「文派证照公示合集」区块的公开页面并绑定，页脚合规栏将同步出现「证照公示」入口。', 'wpicp' ),
+						'control_html' => Wenpai_Admin_UI::button_html(
+							array(
+								'label'   => __( '一键生成公示合集页', 'wpicp' ),
+								'type'    => 'submit',
+								'variant' => 'secondary',
+								'size'    => 'sm',
+								'attrs'   => array( 'form' => 'wpicp-create-cert-page-form' ),
+							)
+						),
+					)
+				);
+			}
+			Wenpai_Admin_UI::card_close();
+		}
+
+		$wpicp_cert_cats = array(
+			/* translators: %d: total uploaded certificate count */
+			'all' => sprintf( __( '全部 (%d)', 'wpicp' ), count( $wpicp_certs ) ),
+		);
+		foreach ( $wpicp_certs as $wpicp_ci ) {
+			$wpicp_ct = is_array( $wpicp_ci ) && ! empty( $wpicp_ci['type'] ) ? trim( (string) $wpicp_ci['type'] ) : __( '营业执照', 'wpicp' );
+			if ( ! isset( $wpicp_cert_cats[ $wpicp_ct ] ) ) {
+				$wpicp_cert_cats[ $wpicp_ct ] = $wpicp_ct;
+			}
+		}
+
 		Wenpai_Admin_UI::card_open(
 			array(
-				'title' => __( '电子证照与营业执照复印件管理', 'wpicp' ),
-				'sub'   => __( '集中管理营业执照、ICP/EDI 许可证与行业资质扫描件；缩略图实时预览下方配置的输出水印。', 'wpicp' ),
-				'tile'  => false,
+				'title'             => __( '电子证照与营业执照复印件管理', 'wpicp' ),
+				'sub'               => __( '支持批量上传营业执照、食品/出版/网络文化/医药许可、软著商标与体系认证（最多 100 项）；支持自定义分类与实时水印预览。', 'wpicp' ),
+				'tile'              => false,
+				'head_control_html' => Wenpai_Admin_UI::button_html(
+					array(
+						'label'   => __( '批量上传证照', 'wpicp' ),
+						'type'    => 'button',
+						'variant' => 'secondary',
+						'size'    => 'sm',
+						'attrs'   => array( 'data-wpicp-add-cert' => '1' ),
+					)
+				),
 			)
 		);
 		?>
+		<div class="wpicp-badges__bar" data-wpicp-cert-toolbar<?php echo empty( $wpicp_certs ) ? ' hidden' : ''; ?>>
+			<div class="wpicp-badges__filters" role="group" aria-label="<?php esc_attr_e( '按证照分类筛选', 'wpicp' ); ?>" data-wpicp-cert-filters>
+				<?php foreach ( $wpicp_cert_cats as $wpicp_ck => $wpicp_cl ) : ?>
+					<?php
+					$wpicp_cbtn = Wenpai_Admin_UI::button_html(
+						array(
+							'label'   => $wpicp_cl,
+							'type'    => 'button',
+							'variant' => 'all' === $wpicp_ck ? 'secondary' : 'ghost',
+							'size'    => 'sm',
+							'attrs'   => array(
+								'data-wpicp-cert-group' => $wpicp_ck,
+								'aria-pressed'          => 'all' === $wpicp_ck ? 'true' : 'false',
+							),
+						)
+					);
+					echo $wpicp_cbtn; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped by kit.
+					?>
+				<?php endforeach; ?>
+			</div>
+			<div class="wpicp-badges__right">
+				<input type="search" class="wpicp-badges__search" placeholder="<?php esc_attr_e( '搜索证照标题或编号…', 'wpicp' ); ?>" aria-label="<?php esc_attr_e( '搜索证照', 'wpicp' ); ?>" data-wpicp-cert-search>
+			</div>
+		</div>
 		<input type="hidden" name="<?php echo esc_attr( $wpicp_option_name ); ?>[certificates][__sentinel]" value="">
 		<div class="wpicp-certificates__grid" data-wpicp-cert-grid data-option="<?php echo esc_attr( $wpicp_option_name ); ?>">
 			<?php foreach ( array_values( $wpicp_certs ) as $wpicp_cidx => $wpicp_cert ) : ?>
@@ -345,7 +473,7 @@ Wenpai_Admin_UI::subnav(
 					$wpicp_c_src = BadgeCatalog::image_url( 'dzyyzz.jpg' );
 				}
 				?>
-				<div class="wpicp-certificates__card" data-wpicp-cert-card="1" data-index="<?php echo esc_attr( (string) $wpicp_cidx ); ?>">
+				<div class="wpicp-certificates__card" data-wpicp-cert-card="1" data-cert-cat="<?php echo esc_attr( $wpicp_c_type ); ?>" data-index="<?php echo esc_attr( (string) $wpicp_cidx ); ?>">
 					<input type="hidden" data-subkey="image_id" name="<?php echo esc_attr( $wpicp_option_name . '[certificates][' . $wpicp_cidx . '][image_id]' ); ?>" value="<?php echo esc_attr( (string) $wpicp_c_id ); ?>">
 					<input type="hidden" data-subkey="type" name="<?php echo esc_attr( $wpicp_option_name . '[certificates][' . $wpicp_cidx . '][type]' ); ?>" value="<?php echo esc_attr( $wpicp_c_type ); ?>">
 					<input type="hidden" data-subkey="number" name="<?php echo esc_attr( $wpicp_option_name . '[certificates][' . $wpicp_cidx . '][number]' ); ?>" value="<?php echo esc_attr( $wpicp_c_num ); ?>">
@@ -373,7 +501,7 @@ Wenpai_Admin_UI::subnav(
 			<?php endforeach; ?>
 			<button type="button" class="wpicp-certificates__card wpicp-certificates__add" data-wpicp-add-cert>
 				<?php echo class_exists( 'Wenpai_Admin_Icons', false ) ? Wenpai_Admin_Icons::svg( 'image' ) : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG icon. ?>
-				<span><?php esc_html_e( '上传证照复印件', 'wpicp' ); ?></span>
+				<span><?php esc_html_e( '上传证照复印件（可多选）', 'wpicp' ); ?></span>
 			</button>
 		</div>
 
@@ -387,20 +515,29 @@ Wenpai_Admin_UI::subnav(
 					<div class="wenpai-field__control"><input id="wpicp-dlg-title" type="text" value=""></div>
 				</div>
 				<div class="wenpai-field">
-					<label class="wenpai-field__label" for="wpicp-dlg-type"><?php esc_html_e( '证照分类', 'wpicp' ); ?></label>
+					<label class="wenpai-field__label" for="wpicp-dlg-type"><?php esc_html_e( '证照分类（可自定义输入）', 'wpicp' ); ?></label>
 					<div class="wenpai-field__control">
-						<select id="wpicp-dlg-type">
-							<option value="<?php esc_attr_e( '营业执照', 'wpicp' ); ?>"><?php esc_html_e( '营业执照', 'wpicp' ); ?></option>
-							<option value="<?php esc_attr_e( '电信许可', 'wpicp' ); ?>"><?php esc_html_e( '电信许可', 'wpicp' ); ?></option>
-							<option value="<?php esc_attr_e( '主体亮照', 'wpicp' ); ?>"><?php esc_html_e( '主体亮照', 'wpicp' ); ?></option>
-							<option value="<?php esc_attr_e( '行业资质', 'wpicp' ); ?>"><?php esc_html_e( '行业资质', 'wpicp' ); ?></option>
-							<option value="<?php esc_attr_e( '荣誉认证', 'wpicp' ); ?>"><?php esc_html_e( '荣誉认证', 'wpicp' ); ?></option>
-						</select>
+						<input id="wpicp-dlg-type" type="text" list="wpicp-cert-type-presets" placeholder="<?php esc_attr_e( '点选常用分类或直接输入任意分类名', 'wpicp' ); ?>">
+						<datalist id="wpicp-cert-type-presets">
+							<option value="<?php esc_attr_e( '营业执照', 'wpicp' ); ?>">
+							<option value="<?php esc_attr_e( '增值电信许可', 'wpicp' ); ?>">
+							<option value="<?php esc_attr_e( '网络文化许可', 'wpicp' ); ?>">
+							<option value="<?php esc_attr_e( '食品经营许可', 'wpicp' ); ?>">
+							<option value="<?php esc_attr_e( '出版物经营许可', 'wpicp' ); ?>">
+							<option value="<?php esc_attr_e( '医药/医疗器械资质', 'wpicp' ); ?>">
+							<option value="<?php esc_attr_e( '主体亮照', 'wpicp' ); ?>">
+							<option value="<?php esc_attr_e( '软件著作权', 'wpicp' ); ?>">
+							<option value="<?php esc_attr_e( '商标注册证', 'wpicp' ); ?>">
+							<option value="<?php esc_attr_e( 'ISO 体系认证', 'wpicp' ); ?>">
+							<option value="<?php esc_attr_e( '高新技术/荣誉认证', 'wpicp' ); ?>">
+							<option value="<?php esc_attr_e( '行业授权书', 'wpicp' ); ?>">
+							<option value="<?php esc_attr_e( '其他资质', 'wpicp' ); ?>">
+						</datalist>
 					</div>
 				</div>
 				<div class="wenpai-field">
 					<label class="wenpai-field__label" for="wpicp-dlg-number"><?php esc_html_e( '证照编号', 'wpicp' ); ?></label>
-					<div class="wenpai-field__control"><input id="wpicp-dlg-number" type="text" placeholder="<?php esc_attr_e( '统一社会信用代码或许可证号', 'wpicp' ); ?>"></div>
+					<div class="wenpai-field__control"><input id="wpicp-dlg-number" type="text" placeholder="<?php esc_attr_e( '统一社会信用代码、许可证号或证书编号', 'wpicp' ); ?>"></div>
 				</div>
 				<div class="wenpai-field">
 					<label class="wenpai-field__label" for="wpicp-dlg-exp"><?php esc_html_e( '有效期（到期前 30 天提醒）', 'wpicp' ); ?></label>
@@ -409,7 +546,7 @@ Wenpai_Admin_UI::subnav(
 				<div class="wenpai-field">
 					<label class="wenpai-field__label" for="wpicp-dlg-visible"><?php esc_html_e( '前台画廊展示', 'wpicp' ); ?></label>
 					<div class="wenpai-field__control">
-						<label><input id="wpicp-dlg-visible" type="checkbox" checked> <?php esc_html_e( '在亮照画廊与区块中公开展示此证照', 'wpicp' ); ?></label>
+						<label><input id="wpicp-dlg-visible" type="checkbox" checked> <?php esc_html_e( '在亮照画廊、公示合集页与区块中公开展示此证照', 'wpicp' ); ?></label>
 					</div>
 				</div>
 			</div>
@@ -465,5 +602,14 @@ Wenpai_Admin_UI::savebar(
 );
 ?>
 </form>
+<?php if ( ! $wpicp_is_network ) : ?>
+<form id="wpicp-create-cert-page-form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" hidden>
+	<?php
+	if ( class_exists( 'Wenpai_Admin_Action', false ) ) {
+		Wenpai_Admin_Action::fields( 'wpicp_create_certificates_page' );
+	}
+	?>
+</form>
+<?php endif; ?>
 <?php
 Wenpai_Admin_Shell::close( $shell );

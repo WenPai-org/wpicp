@@ -224,19 +224,32 @@
 		} );
 	}
 
-	function openMediaFrame( callback ) {
+	function openMediaFrame( callback, multiple ) {
 		if ( ! window.wp || ! window.wp.media ) {
 			toast( '媒体库脚本未就绪，请刷新重试。' );
 			return;
 		}
 		var frame = window.wp.media( {
 			title: i18n.pickMedia || '选择媒体图片',
-			multiple: false,
+			multiple: !! multiple,
 			library: { type: 'image' },
 			button: { text: i18n.useMedia || '使用此图片' },
 		} );
 		frame.on( 'select', function () {
-			var first = frame.state().get( 'selection' ).first();
+			var selection = frame.state().get( 'selection' );
+			if ( multiple ) {
+				var items = [];
+				selection.each( function ( model ) {
+					var data = typeof model.toJSON === 'function' ? model.toJSON() : model;
+					var url = ( data.sizes && data.sizes.medium && data.sizes.medium.url ) || ( data.sizes && data.sizes.thumbnail && data.sizes.thumbnail.url ) || data.url || '';
+					items.push( { id: data.id || 0, url: url, title: data.title || '' } );
+				} );
+				if ( items.length ) {
+					callback( items );
+				}
+				return;
+			}
+			var first = selection.first();
 			if ( ! first ) {
 				return;
 			}
@@ -245,6 +258,77 @@
 			callback( { id: data.id || 0, url: url, title: data.title || '' } );
 		} );
 		frame.open();
+	}
+
+	function initCertCatalog() {
+		var grid = document.querySelector( '[data-wpicp-cert-grid]' );
+		if ( ! grid ) {
+			return;
+		}
+		var toolbar = document.querySelector( '[data-wpicp-cert-toolbar]' );
+		var filterWrap = document.querySelector( '[data-wpicp-cert-filters]' );
+		var searchEl = document.querySelector( '[data-wpicp-cert-search]' );
+		var activeCat = 'all';
+
+		function applyFilter() {
+			var q = searchEl ? searchEl.value.trim().toLowerCase() : '';
+			var cards = Array.from( grid.querySelectorAll( '[data-wpicp-cert-card]' ) );
+			cards.forEach( function ( card ) {
+				var cat = card.getAttribute( 'data-cert-cat' ) || '';
+				var titleInp = card.querySelector( 'input[data-subkey="title"]' );
+				var numInp = card.querySelector( 'input[data-subkey="number"]' );
+				var hay = ( ( titleInp ? titleInp.value : '' ) + ' ' + ( numInp ? numInp.value : '' ) + ' ' + cat ).toLowerCase();
+				card.hidden = ! ( ( activeCat === 'all' || cat === activeCat ) && ( ! q || hay.indexOf( q ) !== -1 ) );
+			} );
+		}
+
+		function rebuildFilters() {
+			var cards = Array.from( grid.querySelectorAll( '[data-wpicp-cert-card]' ) );
+			if ( toolbar ) {
+				toolbar.hidden = cards.length === 0;
+			}
+			if ( ! filterWrap ) {
+				return;
+			}
+			var seen = {};
+			cards.forEach( function ( card ) {
+				var cat = card.getAttribute( 'data-cert-cat' ) || '营业执照';
+				seen[ cat ] = ( seen[ cat ] || 0 ) + 1;
+			} );
+			if ( activeCat !== 'all' && ! seen[ activeCat ] ) {
+				activeCat = 'all';
+			}
+			var html = '<button type="button" class="btn btn-sm ' + ( activeCat === 'all' ? 'btn-secondary' : 'btn-ghost' ) + '" data-wpicp-cert-group="all" aria-pressed="' + ( activeCat === 'all' ? 'true' : 'false' ) + '">全部 (' + cards.length + ')</button>';
+			Object.keys( seen ).forEach( function ( cat ) {
+				var on = activeCat === cat;
+				html += '<button type="button" class="btn btn-sm ' + ( on ? 'btn-secondary' : 'btn-ghost' ) + '" data-wpicp-cert-group="' + escHtml( cat ) + '" aria-pressed="' + ( on ? 'true' : 'false' ) + '">' + escHtml( cat ) + '</button>';
+			} );
+			filterWrap.innerHTML = html;
+			applyFilter();
+		}
+
+		grid._wpicpRebuildFilters = rebuildFilters;
+
+		if ( filterWrap ) {
+			filterWrap.addEventListener( 'click', function ( e ) {
+				var btn = e.target.closest( '[data-wpicp-cert-group]' );
+				if ( ! btn ) {
+					return;
+				}
+				activeCat = btn.getAttribute( 'data-wpicp-cert-group' ) || 'all';
+				filterWrap.querySelectorAll( '[data-wpicp-cert-group]' ).forEach( function ( b ) {
+					var on = b === btn;
+					b.classList.toggle( 'btn-secondary', on );
+					b.classList.toggle( 'btn-ghost', ! on );
+					b.setAttribute( 'aria-pressed', on ? 'true' : 'false' );
+				} );
+				applyFilter();
+			} );
+		}
+
+		if ( searchEl ) {
+			searchEl.addEventListener( 'input', applyFilter );
+		}
 	}
 
 	function reindexList( container, rowSelector, fieldName ) {
@@ -604,7 +688,7 @@
 			return;
 		}
 
-		// Add electronic certificate card via Media Library.
+		// Add electronic certificate cards via Media Library (supports multi-select batch upload).
 		if ( t.closest( '[data-wpicp-add-cert]' ) ) {
 			event.preventDefault();
 			var certGrid = document.querySelector( '[data-wpicp-cert-grid]' );
@@ -612,25 +696,31 @@
 			if ( ! certGrid || ! addSlot ) {
 				return;
 			}
-			openMediaFrame( function ( att ) {
-				var card = document.createElement( 'div' );
-				card.className = 'wpicp-certificates__card';
-				card.setAttribute( 'data-wpicp-cert-card', '1' );
-				card.innerHTML =
-					'<input type="hidden" data-subkey="image_id" value="' + escHtml( att.id ) + '">' +
-					'<input type="hidden" data-subkey="type" value="营业执照">' +
-					'<input type="hidden" data-subkey="number" value="">' +
-					'<input type="hidden" data-subkey="expires_at" value="">' +
-					'<input type="hidden" data-subkey="visible" value="1">' +
-					'<div class="wpicp-certificates__stage"><img src="' + escHtml( att.url ) + '" alt=""><div class="wpicp-certificates__wm-admin" data-wpicp-wm-layer aria-hidden="true"></div></div>' +
-					'<div class="wpicp-certificates__meta"><span data-cert-type-out>营业执照</span><span data-cert-exp-out>长期有效</span></div>' +
-					'<input type="text" data-subkey="title" value="' + escHtml( att.title || '电子证照扫描件' ) + '" aria-label="证照标题">' +
-					'<div class="wpicp-certificates__foot"><button type="button" class="btn btn-ghost btn-sm" data-wpicp-cert-edit>编辑信息</button><button type="button" class="btn btn-ghost btn-sm" data-wpicp-del-cert>移除</button></div>';
-				certGrid.insertBefore( card, addSlot );
+			openMediaFrame( function ( items ) {
+				items.forEach( function ( att ) {
+					var card = document.createElement( 'div' );
+					card.className = 'wpicp-certificates__card';
+					card.setAttribute( 'data-wpicp-cert-card', '1' );
+					card.setAttribute( 'data-cert-cat', '营业执照' );
+					card.innerHTML =
+						'<input type="hidden" data-subkey="image_id" value="' + escHtml( att.id ) + '">' +
+						'<input type="hidden" data-subkey="type" value="营业执照">' +
+						'<input type="hidden" data-subkey="number" value="">' +
+						'<input type="hidden" data-subkey="expires_at" value="">' +
+						'<input type="hidden" data-subkey="visible" value="1">' +
+						'<div class="wpicp-certificates__stage"><img src="' + escHtml( att.url ) + '" alt=""><div class="wpicp-certificates__wm-admin" data-wpicp-wm-layer aria-hidden="true"></div></div>' +
+						'<div class="wpicp-certificates__meta"><span data-cert-type-out>营业执照</span><span data-cert-exp-out>长期有效</span></div>' +
+						'<input type="text" data-subkey="title" value="' + escHtml( att.title || '电子证照扫描件' ) + '" aria-label="证照标题">' +
+						'<div class="wpicp-certificates__foot"><button type="button" class="btn btn-ghost btn-sm" data-wpicp-cert-edit>编辑信息</button><button type="button" class="btn btn-ghost btn-sm" data-wpicp-del-cert>移除</button></div>';
+					certGrid.insertBefore( card, addSlot );
+				} );
 				reindexList( certGrid, '[data-wpicp-cert-card]', 'certificates' );
+				if ( typeof certGrid._wpicpRebuildFilters === 'function' ) {
+					certGrid._wpicpRebuildFilters();
+				}
 				syncCertWatermarks();
 				markDirty( certGrid );
-			} );
+			}, true );
 			return;
 		}
 
@@ -643,6 +733,9 @@
 				cc.remove();
 			}
 			reindexList( cg, '[data-wpicp-cert-card]', 'certificates' );
+			if ( cg && typeof cg._wpicpRebuildFilters === 'function' ) {
+				cg._wpicpRebuildFilters();
+			}
 			markDirty( cg );
 			return;
 		}
@@ -709,11 +802,12 @@
 			var target = d2 && d2._wpicpCard;
 			if ( target ) {
 				var tVal = document.getElementById( 'wpicp-dlg-title' ).value;
-				var tyVal = document.getElementById( 'wpicp-dlg-type' ).value;
+				var tyVal = document.getElementById( 'wpicp-dlg-type' ).value.trim() || '营业执照';
 				var nVal = document.getElementById( 'wpicp-dlg-number' ).value;
 				var eVal = document.getElementById( 'wpicp-dlg-exp' ).value;
 				var vEl = document.getElementById( 'wpicp-dlg-visible' );
 				var vis = ! vEl || vEl.checked;
+				target.setAttribute( 'data-cert-cat', tyVal );
 				target.querySelector( 'input[data-subkey="title"]' ).value = tVal;
 				target.querySelector( 'input[data-subkey="type"]' ).value = tyVal;
 				target.querySelector( 'input[data-subkey="number"]' ).value = nVal;
@@ -726,6 +820,10 @@
 				}
 				if ( eOut ) {
 					eOut.textContent = eVal || '长期有效';
+				}
+				var hostGrid = target.closest( '[data-wpicp-cert-grid]' );
+				if ( hostGrid && typeof hostGrid._wpicpRebuildFilters === 'function' ) {
+					hostGrid._wpicpRebuildFilters();
 				}
 				markDirty( target );
 			}
@@ -749,6 +847,7 @@
 
 	document.addEventListener( 'DOMContentLoaded', function () {
 		initBadgeCatalog();
+		initCertCatalog();
 		initDisplayWorkbench();
 		syncCertWatermarks();
 	} );

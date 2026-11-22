@@ -101,6 +101,59 @@ class AdminPage {
 
 		Wenpai_Admin_Action::register(
 			array(
+				'action'     => 'wpicp_create_certificates_page',
+				'capability' => 'manage_options',
+				'callback'   => static function () {
+					$cfg         = SettingsStore::effective();
+					$existing_id = absint( $cfg['certificates_page'] );
+					if ( $existing_id > 0 && function_exists( 'get_post_status' ) && 'publish' === get_post_status( $existing_id ) ) {
+						return array(
+							'level'   => 'info',
+							'message' => __( '站点已绑定有效的前台「资质与证照公示」页面，可直接点击预览。', 'wpicp' ),
+						);
+					}
+					if ( ! function_exists( 'wp_insert_post' ) ) {
+						return array(
+							'level'   => 'bad',
+							'message' => __( '当前环境不支持自动创建页面。', 'wpicp' ),
+						);
+					}
+					$page_id = wp_insert_post(
+						array(
+							'post_title'   => __( '资质与证照公示', 'wpicp' ),
+							'post_name'    => 'certificates',
+							'post_status'  => 'publish',
+							'post_type'    => 'page',
+							'post_content' => "<!-- wp:wpicp/certificates-directory {\"align\":\"wide\"} /-->\n",
+						),
+						true
+					);
+					if ( is_wp_error( $page_id ) || ! $page_id ) {
+						return array(
+							'level'   => 'bad',
+							'message' => __( '创建证照公示合集页失败，请检查站点写入权限。', 'wpicp' ),
+						);
+					}
+					$footer_items = isset( $cfg['footer_items'] ) && is_array( $cfg['footer_items'] ) ? $cfg['footer_items'] : array();
+					if ( ! in_array( 'certificates', $footer_items, true ) ) {
+						$footer_items[] = 'certificates';
+					}
+					SettingsStore::save_site(
+						array(
+							'certificates_page' => (int) $page_id,
+							'footer_items'      => $footer_items,
+						)
+					);
+					return array(
+						'level'   => 'ok',
+						'message' => __( '已创建并绑定前台「资质与证照公示」合集页（内置「文派证照公示合集」区块），现在可点击预览。', 'wpicp' ),
+					);
+				},
+			)
+		);
+
+		Wenpai_Admin_Action::register(
+			array(
 				'action'     => 'wpicp_drop_legacy_tables',
 				'capability' => 'manage_options',
 				'confirm'    => 'wenpai_confirm',

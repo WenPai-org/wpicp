@@ -115,6 +115,7 @@ class SettingsStore {
 				'algorithm',
 				'report',
 				'policy',
+				'certificates',
 			),
 			'default_image_size'     => 'thumbnail',
 			'custom_css_class'       => '',
@@ -319,6 +320,7 @@ class SettingsStore {
 			'custom_licenses',
 			'report',
 			'policy',
+			'certificates',
 		);
 		$footer_items         = array();
 		if ( is_array( $merged['footer_items'] ) ) {
@@ -998,7 +1000,7 @@ class SettingsStore {
 				'type'     => 'repeater',
 				'tab'      => 'badges',
 				'layout'   => 'stack',
-				'max_rows' => 20,
+				'max_rows' => 100,
 				'default'  => $defaults['certificates'],
 				'label'    => __( '电子证照亮照列表', 'wpicp' ),
 				'desc'     => __( '从媒体库选择营业执照或许可证扫描件用于前台亮照。', 'wpicp' ),
@@ -1124,16 +1126,12 @@ class SettingsStore {
 				),
 			),
 			'certificates_page'      => array(
-				'type'       => 'entity',
-				'post_type'  => 'page',
-				'tab'        => 'badges',
-				'default'    => $defaults['certificates_page'],
-				'label'      => __( '电子证照画廊详情页', 'wpicp' ),
-				'desc'       => __( '选择放置了证照区块或短代码的已发布页面。', 'wpicp' ),
-				'depends_on' => array(
-					'field' => 'certificate_click_mode',
-					'value' => 'page',
-				),
+				'type'      => 'entity',
+				'post_type' => 'page',
+				'tab'       => 'badges',
+				'default'   => $defaults['certificates_page'],
+				'label'     => __( '电子证照公示合集页', 'wpicp' ),
+				'desc'      => __( '绑定含「文派证照公示合集」区块或短代码的公开页面，页脚「证照公示」入口将自动指向该页。', 'wpicp' ),
 			),
 			'badges'                 => array(
 				'type'     => 'repeater',
@@ -1234,6 +1232,7 @@ class SettingsStore {
 					'custom_licenses' => __( '扩展行业行政许可证', 'wpicp' ),
 					'report'          => __( '举报邮箱与投诉电话', 'wpicp' ),
 					'policy'          => __( '站点合规政策声明链接', 'wpicp' ),
+					'certificates'    => __( '电子证照公示合集页入口', 'wpicp' ),
 				),
 			),
 			'default_image_size'     => array(

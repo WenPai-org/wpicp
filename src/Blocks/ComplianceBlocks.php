@@ -1,6 +1,10 @@
 <?php
 /**
- * Native Gutenberg dynamic blocks (`wpicp/compliance-bar` and `wpicp/trust-badges`).
+ * Native Gutenberg dynamic blocks:
+ * - `wpicp/compliance-bar`
+ * - `wpicp/trust-badges`
+ * - `wpicp/certificates-directory`
+ * - `wpicp/filing-field`
  *
  * @package WenPai\ICP
  */
@@ -33,7 +37,7 @@ class ComplianceBlocks {
 	}
 
 	/**
-	 * Register `wpicp/compliance-bar` and `wpicp/trust-badges`.
+	 * Register all 4 WPICP Gutenberg dynamic blocks.
 	 *
 	 * @return void
 	 */
@@ -69,12 +73,22 @@ class ComplianceBlocks {
 		$manage_url = class_exists( 'Wenpai_Admin_Menu', false )
 			? Wenpai_Admin_Menu::url( 'wpicp', array( 'tab' => 'filing' ) )
 			: admin_url( 'options-general.php?page=wpicp&tab=filing' );
+		$certs_url  = class_exists( 'Wenpai_Admin_Menu', false )
+			? Wenpai_Admin_Menu::url(
+				'wpicp',
+				array(
+					'tab'     => 'badges',
+					'section' => 'certificates',
+				)
+			)
+			: admin_url( 'options-general.php?page=wpicp&tab=badges&section=certificates' );
 
 		wp_localize_script(
 			'wpicp-blocks-editor',
 			'wpicpBlocksData',
 			array(
 				'manageUrl' => $manage_url,
+				'certsUrl'  => $certs_url,
 			)
 		);
 
@@ -87,59 +101,63 @@ class ComplianceBlocks {
 				'editor_style'    => 'wpicp-frontend',
 				'render_callback' => array( __CLASS__, 'render_compliance_bar_block' ),
 				'attributes'      => array(
-					'preset'        => array(
+					'preset'           => array(
 						'type'    => 'string',
 						'default' => 'standard',
 					),
-					'align'         => array(
+					'align'            => array(
 						'type'    => 'string',
 						'default' => 'center',
 					),
-					'separator'     => array(
+					'separator'        => array(
 						'type'    => 'string',
 						'default' => '|',
 					),
-					'theme'         => array(
+					'theme'            => array(
 						'type'    => 'string',
 						'default' => 'auto',
 					),
-					'showCompany'   => array(
+					'showCompany'      => array(
 						'type'    => 'boolean',
 						'default' => true,
 					),
-					'showIcp'       => array(
+					'showIcp'          => array(
 						'type'    => 'boolean',
 						'default' => true,
 					),
-					'showMps'       => array(
+					'showMps'          => array(
 						'type'    => 'boolean',
 						'default' => true,
 					),
-					'showEdi'       => array(
+					'showEdi'          => array(
 						'type'    => 'boolean',
 						'default' => true,
 					),
-					'showAigc'      => array(
+					'showAigc'         => array(
 						'type'    => 'boolean',
 						'default' => true,
 					),
-					'showAlgorithm' => array(
+					'showAlgorithm'    => array(
 						'type'    => 'boolean',
 						'default' => true,
 					),
-					'showApp'       => array(
+					'showApp'          => array(
 						'type'    => 'boolean',
 						'default' => false,
 					),
-					'showMiniapp'   => array(
+					'showMiniapp'      => array(
 						'type'    => 'boolean',
 						'default' => false,
 					),
-					'showReport'    => array(
+					'showReport'       => array(
 						'type'    => 'boolean',
 						'default' => true,
 					),
-					'showPolicy'    => array(
+					'showPolicy'       => array(
+						'type'    => 'boolean',
+						'default' => true,
+					),
+					'showCertificates' => array(
 						'type'    => 'boolean',
 						'default' => true,
 					),
@@ -175,6 +193,68 @@ class ComplianceBlocks {
 				),
 			)
 		);
+
+		register_block_type(
+			'wpicp/certificates-directory',
+			array(
+				'api_version'     => 2,
+				'editor_script'   => 'wpicp-blocks-editor',
+				'style'           => 'wpicp-frontend',
+				'editor_style'    => 'wpicp-frontend',
+				'render_callback' => array( __CLASS__, 'render_certificates_directory_block' ),
+				'attributes'      => array(
+					'showHeader'  => array(
+						'type'    => 'boolean',
+						'default' => true,
+					),
+					'showFilters' => array(
+						'type'    => 'boolean',
+						'default' => true,
+					),
+					'showMeta'    => array(
+						'type'    => 'boolean',
+						'default' => true,
+					),
+					'showBadges'  => array(
+						'type'    => 'boolean',
+						'default' => true,
+					),
+					'columns'     => array(
+						'type'    => 'number',
+						'default' => 3,
+					),
+					'category'    => array(
+						'type'    => 'string',
+						'default' => '',
+					),
+				),
+			)
+		);
+
+		register_block_type(
+			'wpicp/filing-field',
+			array(
+				'api_version'     => 2,
+				'editor_script'   => 'wpicp-blocks-editor',
+				'style'           => 'wpicp-frontend',
+				'editor_style'    => 'wpicp-frontend',
+				'render_callback' => array( __CLASS__, 'render_filing_field_block' ),
+				'attributes'      => array(
+					'field'  => array(
+						'type'    => 'string',
+						'default' => 'icp',
+					),
+					'prefix' => array(
+						'type'    => 'string',
+						'default' => '',
+					),
+					'align'  => array(
+						'type'    => 'string',
+						'default' => 'left',
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -185,16 +265,17 @@ class ComplianceBlocks {
 	 */
 	public static function render_compliance_bar_block( $attributes = array() ) {
 		$map   = array(
-			'showCompany'   => 'company',
-			'showIcp'       => 'icp',
-			'showMps'       => 'mps',
-			'showEdi'       => 'edi',
-			'showAigc'      => 'aigc',
-			'showAlgorithm' => 'algorithm',
-			'showApp'       => 'app',
-			'showMiniapp'   => 'miniapp',
-			'showReport'    => 'report',
-			'showPolicy'    => 'policy',
+			'showCompany'      => 'company',
+			'showIcp'          => 'icp',
+			'showMps'          => 'mps',
+			'showEdi'          => 'edi',
+			'showAigc'         => 'aigc',
+			'showAlgorithm'    => 'algorithm',
+			'showApp'          => 'app',
+			'showMiniapp'      => 'miniapp',
+			'showReport'       => 'report',
+			'showPolicy'       => 'policy',
+			'showCertificates' => 'certificates',
 		);
 		$items = array( 'custom_licenses' );
 		foreach ( $map as $attr => $key ) {
@@ -270,5 +351,58 @@ class ComplianceBlocks {
 		}
 
 		return implode( '', $parts );
+	}
+
+	/**
+	 * Dynamic render callback for `wpicp/certificates-directory`.
+	 *
+	 * @param array<string, mixed> $attributes Block attributes.
+	 * @return string
+	 */
+	public static function render_certificates_directory_block( $attributes = array() ) {
+		$is_editor_preview = defined( 'REST_REQUEST' ) && REST_REQUEST;
+
+		$html = Renderer::render_certificates_directory(
+			array(
+				'show_header'   => ! array_key_exists( 'showHeader', $attributes ) || ! empty( $attributes['showHeader'] ),
+				'show_filters'  => ! array_key_exists( 'showFilters', $attributes ) || ! empty( $attributes['showFilters'] ),
+				'show_meta'     => ! array_key_exists( 'showMeta', $attributes ) || ! empty( $attributes['showMeta'] ),
+				'show_badges'   => ! array_key_exists( 'showBadges', $attributes ) || ! empty( $attributes['showBadges'] ),
+				'columns'       => isset( $attributes['columns'] ) ? (int) $attributes['columns'] : 3,
+				'category'      => isset( $attributes['category'] ) ? (string) $attributes['category'] : '',
+				'demo_fallback' => $is_editor_preview,
+			)
+		);
+		if ( function_exists( 'get_block_wrapper_attributes' ) && ! $is_editor_preview && isset( $attributes['align'] ) && in_array( (string) $attributes['align'], array( 'wide', 'full' ), true ) ) {
+			return '<div class="align' . esc_attr( (string) $attributes['align'] ) . '">' . $html . '</div>';
+		}
+		return $html;
+	}
+
+	/**
+	 * Dynamic render callback for `wpicp/filing-field` (block equivalent of legacy field shortcodes).
+	 *
+	 * @param array<string, mixed> $attributes Block attributes.
+	 * @return string
+	 */
+	public static function render_filing_field_block( $attributes = array() ) {
+		$field  = isset( $attributes['field'] ) ? sanitize_key( (string) $attributes['field'] ) : 'icp';
+		$prefix = isset( $attributes['prefix'] ) ? trim( (string) $attributes['prefix'] ) : '';
+		$align  = isset( $attributes['align'] ) && in_array( (string) $attributes['align'], array( 'left', 'center' ), true )
+			? (string) $attributes['align']
+			: 'left';
+
+		$html = Renderer::shortcode_wpicp( array( 'field' => $field ) );
+		if ( '' === $html && defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+			$html = '<span>' . esc_html__( '（当前字段未填写，请在文派备案后台补充）', 'wpicp' ) . '</span>';
+		}
+		if ( '' === $html ) {
+			return '';
+		}
+
+		Renderer::enqueue_assets();
+		$cls   = 'wpicp-bar wpicp-bar--align-' . $align;
+		$label = '' !== $prefix ? '<span class="wpicp-bar__item">' . esc_html( $prefix ) . '</span>' : '';
+		return '<div class="' . esc_attr( $cls ) . '"><span class="wpicp-bar__item">' . $label . $html . '</span></div>';
 	}
 }
