@@ -548,24 +548,70 @@ Wenpai_Admin_UI::subnav(
 
 		Wenpai_Admin_UI::card_open(
 			array(
-				'title' => __( '亮照输出水印与防盗展示设置', 'wpicp' ),
-				'sub'   => __( '修改下方水印开关、文案、排布或浓度，上方证照卡片会即时更新水印预览。', 'wpicp' ),
+				'title' => __( '亮照输出水印与防盗保护', 'wpicp' ),
+				'sub'   => __( '修改下方水印开关或文案，上方证照卡片会即时更新水印预览；高级样式与图幅按需展开。', 'wpicp' ),
 				'tile'  => false,
 			)
 		);
 		$settings->render_field( 'cert_watermark_enabled' );
 		$settings->render_field( 'cert_watermark_text' );
+		$settings->render_field( 'cert_anti_save' );
+
+		$wpicp_wm_layout_labels = array(
+			'tile'   => __( '斜向平铺', 'wpicp' ),
+			'center' => __( '居中大字', 'wpicp' ),
+			'corner' => __( '右下压印', 'wpicp' ),
+		);
+		$wpicp_wm_engine_label  = 'css' === (string) $wpicp_effective['cert_watermark_engine']
+			? __( '前端叠层', 'wpicp' )
+			: __( '服务端合成', 'wpicp' );
+		$wpicp_wm_summary       = ( $wpicp_wm_layout_labels[ $wpicp_wm_layout ] ?? $wpicp_wm_layout_labels['tile'] ) . ' · ' . $wpicp_wm_engine_label;
+
+		ob_start();
 		$settings->render_field( 'cert_watermark_layout' );
 		$settings->render_field( 'cert_watermark_tone' );
 		$settings->render_field( 'cert_watermark_engine' );
-		$settings->render_field( 'cert_anti_save' );
+		$wpicp_wm_advanced_html = (string) ob_get_clean();
+
+		$wpicp_gallery_summary = 'page' === (string) $wpicp_effective['certificate_click_mode']
+			? __( '跳转合集页', 'wpicp' )
+			: __( '灯箱放大', 'wpicp' );
+
+		ob_start();
 		$settings->render_field( 'certificate_click_mode' );
 		$settings->render_field( 'certificates_page' );
 		$settings->render_field( 'default_image_size' );
+		$wpicp_gallery_advanced_html = (string) ob_get_clean();
+
+		Wenpai_Admin_UI::fold_list(
+			array(
+				'items' => array(
+					array(
+						'title'     => __( '水印排布、浓度与合成引擎', 'wpicp' ),
+						'desc'      => __( '调整平铺/居中/右下样式、浓度配色及服务端 GD 真图合成或前端叠层模式。', 'wpicp' ),
+						'pill'      => array(
+							'label' => $wpicp_wm_summary,
+							'tone'  => '',
+						),
+						'body_html' => $wpicp_wm_advanced_html,
+					),
+					array(
+						'title'     => __( '画廊点击行为、合集页绑定与图幅', 'wpicp' ),
+						'desc'      => __( '自定义缩略图点击方式、更换绑定的证照公示合集页及默认输出图幅。', 'wpicp' ),
+						'pill'      => array(
+							'label' => $wpicp_gallery_summary,
+							'tone'  => '',
+						),
+						'body_html' => $wpicp_gallery_advanced_html,
+					),
+				),
+			)
+		);
+
 		Wenpai_Admin_UI::card_foot(
 			array(
 				'start'   => true,
-				'meta'    => __( '服务端合成模式会按需输出带水印缓存副本并防止直接保存无水印原图，支持 [wpicp_certificates] 与区块展示。', 'wpicp' ),
+				'meta'    => __( '服务端合成模式会按需输出带水印缓存副本并防止直接保存无水印原图，支持区块与 [wpicp_certificates] 展示。', 'wpicp' ),
 				'actions' => array(
 					array(
 						'label'   => __( '保存证照与水印设置', 'wpicp' ),

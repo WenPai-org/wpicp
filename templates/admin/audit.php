@@ -238,26 +238,65 @@ if ( 'access' === $wpicp_section ) :
 		Wenpai_Admin_UI::card_open(
 			array(
 				'title'             => __( '接入商合规与子域名定时保活配置', 'wpicp' ),
-				'sub'               => __( '主站直连原备案服务器时无需开启保活；采用多云或 CDN 时，可配置原接入商内地服务器子域名并按天/周低频探测。', 'wpicp' ),
+				'sub'               => __( '主站直连原备案服务器时无需开启保活；采用多云或 CDN 时，可开启子域名保活并按天/周低频探测。', 'wpicp' ),
 				'tile'              => false,
-				'head_control_html' => Wenpai_Admin_UI::button_html(
-					array(
-						'label'   => __( '导出单文件保活页 (index.html)', 'wpicp' ),
-						'href'    => $wpicp_export_url,
-						'variant' => 'ghost',
-						'size'    => 'sm',
+				'head_control_html' => ! empty( $wpicp_effective['keepalive_enabled'] )
+					? Wenpai_Admin_UI::button_html(
+						array(
+							'label'   => __( '导出单文件保活页 (index.html)', 'wpicp' ),
+							'href'    => $wpicp_export_url,
+							'variant' => 'ghost',
+							'size'    => 'sm',
+						)
 					)
-				),
+					: '',
 			)
 		);
-		$settings->render_field( 'access_provider' );
 		$settings->render_field( 'home_check_enabled' );
 		$settings->render_field( 'keepalive_enabled' );
 		$settings->render_field( 'keepalive_url' );
 		$settings->render_field( 'expected_provider_ips' );
 		$settings->render_field( 'keepalive_interval' );
 		$settings->render_field( 'keepalive_keyword' );
+
+		ob_start();
+		$settings->render_field( 'access_provider' );
 		$settings->render_field( 'alert_email' );
+		if ( empty( $wpicp_effective['keepalive_enabled'] ) ) {
+			Wenpai_Admin_UI::row(
+				array(
+					'icon'         => 'cloud',
+					'title'        => __( '单文件合规保活落地页模板', 'wpicp' ),
+					'desc'         => __( '如需在原接入商服务器部署静态备案落地页，可直接下载单文件 index.html。', 'wpicp' ),
+					'control_html' => Wenpai_Admin_UI::button_html(
+						array(
+							'label'   => __( '导出单文件保活页 (index.html)', 'wpicp' ),
+							'href'    => $wpicp_export_url,
+							'variant' => 'ghost',
+							'size'    => 'sm',
+						)
+					),
+				)
+			);
+		}
+		$wpicp_access_more_html = (string) ob_get_clean();
+
+		Wenpai_Admin_UI::fold_list(
+			array(
+				'items' => array(
+					array(
+						'title'     => __( '接入商归属、告警邮箱与保活页导出', 'wpicp' ),
+						'desc'      => __( '指定备案所属云服务商、异常告警接收邮箱，或导出单文件保活落地页。', 'wpicp' ),
+						'pill'      => array(
+							'label' => $wpicp_provider,
+							'tone'  => '',
+						),
+						'body_html' => $wpicp_access_more_html,
+					),
+				),
+			)
+		);
+
 		Wenpai_Admin_UI::card_foot(
 			array(
 				'start'   => true,
@@ -276,16 +315,17 @@ if ( 'access' === $wpicp_section ) :
 	</form>
 
 	<?php
-	Wenpai_Admin_UI::card_open(
-		array(
-			'title' => __( '最近保活访问与 DNS 核查日志', 'wpicp' ),
-			'tile'  => false,
-		)
-	);
-	if ( empty( $wpicp_logs ) ) :
-		?>
-		<p class="meta"><?php esc_html_e( '暂无子域名保活访问记录；开启子域名保活并执行探测后，将自动保留最近 10 次记录。', 'wpicp' ); ?></p>
-	<?php else : ?>
+	if ( $wpicp_keep_on || ! empty( $wpicp_logs ) ) :
+		Wenpai_Admin_UI::card_open(
+			array(
+				'title' => __( '最近保活访问与 DNS 核查日志', 'wpicp' ),
+				'tile'  => false,
+			)
+		);
+		if ( empty( $wpicp_logs ) ) :
+			?>
+		<p class="meta"><?php esc_html_e( '已开启子域名保活，执行首次探测后将在此保留最近 10 次记录。', 'wpicp' ); ?></p>
+		<?php else : ?>
 		<div class="wenpai-table-wrap">
 			<table class="tbl">
 				<thead>
@@ -327,9 +367,10 @@ if ( 'access' === $wpicp_section ) :
 				</tbody>
 			</table>
 		</div>
-	<?php endif; ?>
-	<?php
-	Wenpai_Admin_UI::card_close();
+		<?php endif; ?>
+		<?php
+		Wenpai_Admin_UI::card_close();
+	endif;
 
 else :
 	$wpicp_builtin_count = count( AdLawScanner::dictionary() );
@@ -455,34 +496,36 @@ else :
 		$wpicp_builtin_count
 	);
 
-	Wenpai_Admin_UI::card_open(
-		array(
-			'title' => __( '无言（WordYeah）合规词库服务', 'wpicp' ),
-			'sub'   => __( '词库由合规品牌无言（WordYeah）持续维护，仅单向拉取规则 JSON 至本地缓存，不回传任何站点文章内容。', 'wpicp' ),
-			'tile'  => false,
-		)
-	);
-	Wenpai_Admin_UI::row(
-		array(
-			'icon'         => 'cloud',
-			'state'        => '' !== $wpicp_wy_cache['version'] ? 'ok' : '',
-			'title'        => sprintf(
-				/* translators: %s: ruleset version */
-				__( '无言《广告法》极限词与安全复合词库（%s）', 'wpicp' ),
-				$wpicp_wy_ver
-			),
-			'desc'         => $wpicp_wy_desc,
-			'control_html' => Wenpai_Admin_UI::button_html(
-				array(
-					'label'   => __( '立即同步远程词库', 'wpicp' ),
-					'type'    => 'button',
-					'variant' => 'secondary',
-					'attrs'   => array( 'data-wpicp-sync-wordyeah' => '1' ),
-				)
-			),
-		)
-	);
-	Wenpai_Admin_UI::card_close();
+	if ( ! empty( $wpicp_effective['ad_law_enabled'] ) && ! empty( $wpicp_effective['ad_law_remote_sync'] ) ) {
+		Wenpai_Admin_UI::card_open(
+			array(
+				'title' => __( '无言（WordYeah）合规词库服务', 'wpicp' ),
+				'sub'   => __( '词库由合规品牌无言（WordYeah）持续维护，仅单向拉取规则 JSON 至本地缓存，不回传任何站点文章内容。', 'wpicp' ),
+				'tile'  => false,
+			)
+		);
+		Wenpai_Admin_UI::row(
+			array(
+				'icon'         => 'cloud',
+				'state'        => '' !== $wpicp_wy_cache['version'] ? 'ok' : '',
+				'title'        => sprintf(
+					/* translators: %s: ruleset version */
+					__( '无言《广告法》极限词与安全复合词库（%s）', 'wpicp' ),
+					$wpicp_wy_ver
+				),
+				'desc'         => $wpicp_wy_desc,
+				'control_html' => Wenpai_Admin_UI::button_html(
+					array(
+						'label'   => __( '立即同步远程词库', 'wpicp' ),
+						'type'    => 'button',
+						'variant' => 'secondary',
+						'attrs'   => array( 'data-wpicp-sync-wordyeah' => '1' ),
+					)
+				),
+			)
+		);
+		Wenpai_Admin_UI::card_close();
+	}
 	?>
 	<form method="post" action="<?php echo esc_url( $wpicp_form_action ); ?>">
 		<?php
@@ -501,11 +544,44 @@ else :
 		);
 		$settings->render_field( 'ad_law_enabled' );
 		$settings->render_field( 'ad_law_remote_sync' );
+		$settings->render_field( 'ad_law_editor_panel' );
+		$settings->render_field( 'ad_law_allowlist' );
+
+		$wpicp_sync_labels = array(
+			'daily'  => __( '每天同步', 'wpicp' ),
+			'weekly' => __( '每周同步', 'wpicp' ),
+			'manual' => __( '仅手动', 'wpicp' ),
+		);
+		$wpicp_grp_cnt     = is_array( $wpicp_effective['ad_law_rule_groups'] ) ? count( $wpicp_effective['ad_law_rule_groups'] ) : 0;
+		$wpicp_adlaw_pill  = sprintf(
+			/* translators: 1: rule group count, 2: sync interval label */
+			__( '%1$d 个分组 · %2$s', 'wpicp' ),
+			$wpicp_grp_cnt,
+			$wpicp_sync_labels[ (string) $wpicp_effective['ad_law_sync_interval'] ] ?? $wpicp_sync_labels['weekly']
+		);
+
+		ob_start();
 		$settings->render_field( 'ad_law_sync_interval' );
 		$settings->render_field( 'ad_law_rule_groups' );
-		$settings->render_field( 'ad_law_editor_panel' );
 		$settings->render_field( 'ad_law_scan_post_types' );
-		$settings->render_field( 'ad_law_allowlist' );
+		$wpicp_adlaw_more_html = (string) ob_get_clean();
+
+		Wenpai_Admin_UI::fold_list(
+			array(
+				'items' => array(
+					array(
+						'title'     => __( '词库分组、同步周期与扫描范围', 'wpicp' ),
+						'desc'      => __( '按行业勾选无言规则分组（含医疗/金融敏感词），调整同步频率与扫描文章类型。', 'wpicp' ),
+						'pill'      => array(
+							'label' => $wpicp_adlaw_pill,
+							'tone'  => '',
+						),
+						'body_html' => $wpicp_adlaw_more_html,
+					),
+				),
+			)
+		);
+
 		Wenpai_Admin_UI::card_foot(
 			array(
 				'start'   => true,
