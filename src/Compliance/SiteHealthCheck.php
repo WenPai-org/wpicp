@@ -61,8 +61,8 @@ class SiteHealthCheck {
 	public static function run_wp_site_health_test() {
 		$audit      = self::audit();
 		$manage_url = class_exists( 'Wenpai_Admin_Menu', false )
-			? Wenpai_Admin_Menu::url( 'wpicp', array( 'tab' => 'filing' ) )
-			: admin_url( 'options-general.php?page=wpicp&tab=filing' );
+			? Wenpai_Admin_Menu::url( 'wpicp', array( 'tab' => 'settings' ) )
+			: admin_url( 'options-general.php?page=wpicp&tab=settings' );
 
 		$status = 'good';
 		$label  = __( '站点 ICP 备案与公安联网备案公示完备', 'wpicp' );

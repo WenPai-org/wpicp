@@ -269,8 +269,8 @@ class AdminPage {
 		$tab     = in_array( $raw_tab, array( 'audit_access', 'audit_adlaw' ), true )
 			? 'audit'
 			: self::normalize_tab( $raw_tab );
-		if ( ! in_array( $tab, array( 'filing', 'badges', 'display', 'audit', 'tools' ), true ) ) {
-			$tab = 'filing';
+		if ( ! in_array( $tab, array( 'settings', 'badges', 'audit', 'tools' ), true ) ) {
+			$tab = 'settings';
 		}
 
 		$sanitized = $fw->sanitize( $raw );
@@ -278,7 +278,10 @@ class AdminPage {
 
 		$mode    = isset( $_POST['_wpicp_mode'] ) ? sanitize_key( wp_unslash( (string) $_POST['_wpicp_mode'] ) ) : '';
 		$section = isset( $_POST['_wpicp_section'] ) ? sanitize_key( wp_unslash( (string) $_POST['_wpicp_section'] ) ) : '';
-		$args    = array(
+		if ( '' === $section && 'settings' === $tab && in_array( $raw_tab, array( 'filing', 'display', 'modules' ), true ) ) {
+			$section = $raw_tab;
+		}
+		$args = array(
 			'page'    => 'wpicp',
 			'tab'     => $tab,
 			'updated' => 'true',
@@ -406,7 +409,7 @@ class AdminPage {
 			$links = array();
 		}
 		$cfg     = SettingsStore::effective();
-		$set_url = self::tab_url( 'filing', false );
+		$set_url = self::tab_url( 'settings', false );
 		$custom  = array(
 			'settings' => '<a href="' . esc_url( $set_url ) . '">' . esc_html__( '设置', 'wpicp' ) . '</a>',
 		);
@@ -427,7 +430,7 @@ class AdminPage {
 		if ( ! is_array( $links ) ) {
 			$links = array();
 		}
-		$set_url = self::tab_url( 'filing', true );
+		$set_url = self::tab_url( 'settings', true );
 		$custom  = array(
 			'settings' => '<a href="' . esc_url( $set_url ) . '">' . esc_html__( '网络设置', 'wpicp' ) . '</a>',
 		);
@@ -454,17 +457,17 @@ class AdminPage {
 	}
 
 	/**
-	 * Normalize raw `?tab=` parameter, supporting `settings` as alias for `filing`.
+	 * Normalize raw `?tab=` parameter, mapping legacy `filing` / `display` aliases onto `settings`.
 	 *
 	 * @param string $raw Raw tab slug.
 	 * @return string
 	 */
 	public static function normalize_tab( $raw ) {
 		$key = sanitize_key( (string) $raw );
-		if ( 'settings' === $key ) {
-			return 'filing';
+		if ( in_array( $key, array( 'filing', 'display', 'modules' ), true ) ) {
+			return 'settings';
 		}
-		$allowed = array( 'overview', 'filing', 'badges', 'display', 'audit', 'tools', 'help' );
+		$allowed = array( 'overview', 'settings', 'badges', 'audit', 'tools', 'help' );
 		return in_array( $key, $allowed, true ) ? $key : 'overview';
 	}
 
@@ -534,12 +537,46 @@ class AdminPage {
 	}
 
 	/**
+	 * Resolve a URL to a specific sub-section inside `settings` (`filing`, `display`, `modules`).
+	 *
+	 * @param array<string, mixed> $shell   Shell config from `shell_args()`.
+	 * @param string               $section Sub-section slug (`filing`, `display`, `modules`).
+	 * @param string               $mode    Optional mode (`simple` or `advanced`).
+	 * @return string
+	 */
+	public static function settings_section_url( array $shell, $section = 'filing', $mode = '' ) {
+		$section  = in_array( (string) $section, array( 'filing', 'display', 'modules' ), true ) ? (string) $section : 'filing';
+		$base_url = self::shell_tab_url( $shell, 'settings', '#settings' );
+		$is_proto = false !== strpos( $base_url, '.html' );
+
+		if ( $is_proto ) {
+			if ( 'display' === $section ) {
+				return 'advanced' === $mode ? 'display-advanced.html?section=display&mode=advanced' : 'display.html?section=display';
+			}
+			if ( 'modules' === $section ) {
+				return 'settings-modules.html?section=modules';
+			}
+			return 'advanced' === $mode ? 'filing-advanced.html?mode=advanced' : 'filing.html';
+		}
+
+		$clean = remove_query_arg( array( 'section', 'mode' ), $base_url );
+		if ( 'filing' !== $section ) {
+			$clean = add_query_arg( 'section', $section, $clean );
+		}
+		if ( 'advanced' === $mode ) {
+			$clean = add_query_arg( 'mode', 'advanced', $clean );
+		}
+		return $clean;
+	}
+
+	/**
 	 * Build shared `Wenpai_Admin_Shell::open` / `close` configuration.
 	 *
-	 * Core tabs (`概览`, `备案`, `展示`, `工具`) are always visible; optional module tabs
-	 * (`证照`, `巡检`) appear only when enabled (or when directly navigated to by URL).
+	 * Core tabs (`概览`, `设置`, `工具`) are always visible (3 tabs on fresh install);
+	 * optional workspace tabs (`证照`, `巡检`) appear only when enabled in `设置 → 功能`
+	 * (or when directly navigated to by URL), capping at 5 tabs total.
 	 *
-	 * @param string                    $current  Active tab (`overview`, `filing`, `badges`, `display`, `audit`, `tools`, `help`).
+	 * @param string                    $current  Active tab (`overview`, `settings`, `badges`, `audit`, `tools`, `help`).
 	 * @param array<string, string>     $tab_urls Optional offline prototype URL map.
 	 * @param array<string, mixed>|null $settings Optional settings snapshot.
 	 * @return array<string, mixed>
@@ -570,10 +607,10 @@ class AdminPage {
 				'icon_html' => $ico( 'overview' ),
 			),
 			array(
-				'id'        => 'filing',
-				'label'     => __( '备案', 'wpicp' ),
-				'url'       => $url_for( 'filing' ),
-				'icon_html' => $ico( 'shield-check' ),
+				'id'        => 'settings',
+				'label'     => __( '设置', 'wpicp' ),
+				'url'       => $url_for( 'settings' ),
+				'icon_html' => $ico( 'settings' ),
 			),
 		);
 
@@ -585,13 +622,6 @@ class AdminPage {
 				'icon_html' => $ico( 'image' ),
 			);
 		}
-
-		$tabs[] = array(
-			'id'        => 'display',
-			'label'     => __( '展示', 'wpicp' ),
-			'url'       => $url_for( 'display' ),
-			'icon_html' => $ico( 'equalizer' ),
-		);
 
 		if ( $show_audit ) {
 			$tabs[] = array(
@@ -611,9 +641,8 @@ class AdminPage {
 
 		$all_tab_urls = array(
 			'overview' => $url_for( 'overview' ),
-			'filing'   => $url_for( 'filing' ),
+			'settings' => $url_for( 'settings' ),
 			'badges'   => $url_for( 'badges' ),
-			'display'  => $url_for( 'display' ),
 			'audit'    => $url_for( 'audit' ),
 			'tools'    => $url_for( 'tools' ),
 			'help'     => $url_for( 'help' ),

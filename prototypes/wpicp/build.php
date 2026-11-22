@@ -272,9 +272,8 @@ $display  = \WenPai\ICP\Admin\AdminPage::display_meta();
 
 $tab_urls = array(
 	'overview' => 'overview.html',
-	'filing'   => 'filing.html',
+	'settings' => 'filing.html',
 	'badges'   => 'badges.html',
-	'display'  => 'display.html',
 	'audit'    => 'audit.html',
 	'tools'    => 'tools.html',
 	'help'     => 'help.html',
@@ -457,17 +456,19 @@ $pages = array(
 		),
 	),
 	'filing.html'              => array(
-		'tab'     => 'filing',
-		'title'   => '备案资质 · 简单视图',
+		'tab'     => 'settings',
+		'title'   => '设置 · 备案（简单）',
 		'mode'    => 'simple',
+		'section' => 'filing',
 		'options' => array(
 			'wpicp_settings' => $normal_settings,
 		),
 	),
 	'filing-advanced.html'     => array(
-		'tab'     => 'filing',
-		'title'   => '备案资质 · 高级视图',
+		'tab'     => 'settings',
+		'title'   => '设置 · 备案（高级）',
 		'mode'    => 'advanced',
+		'section' => 'filing',
 		'options' => array(
 			'wpicp_settings' => $normal_settings,
 		),
@@ -500,17 +501,28 @@ $pages = array(
 		),
 	),
 	'display.html'             => array(
-		'tab'     => 'display',
-		'title'   => '前台展示 · 简单视图',
+		'tab'     => 'settings',
+		'title'   => '设置 · 展示（简单）',
 		'mode'    => 'simple',
+		'section' => 'display',
 		'options' => array(
 			'wpicp_settings' => $normal_settings,
 		),
 	),
 	'display-advanced.html'    => array(
-		'tab'     => 'display',
-		'title'   => '前台展示 · 高级视图',
+		'tab'     => 'settings',
+		'title'   => '设置 · 展示（高级）',
 		'mode'    => 'advanced',
+		'section' => 'display',
+		'options' => array(
+			'wpicp_settings' => $normal_settings,
+		),
+	),
+	'settings-modules.html'    => array(
+		'tab'     => 'settings',
+		'title'   => '设置 · 功能开关',
+		'mode'    => 'simple',
+		'section' => 'modules',
 		'options' => array(
 			'wpicp_settings' => $normal_settings,
 		),

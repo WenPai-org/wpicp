@@ -746,13 +746,20 @@ wpicp_assert(
 );
 
 // -----------------------------------------------------------------------------
-// 11. Optional Feature Module Switches (Dynamic Tabs & Runtime Gating)
+// 11. Optional Feature Module Switches (Plan A: 3 -> 5 Dynamic Tabs & Gating)
 // -----------------------------------------------------------------------------
+wpicp_assert(
+	'settings' === \WenPai\ICP\Admin\AdminPage::normalize_tab( 'filing' )
+	&& 'settings' === \WenPai\ICP\Admin\AdminPage::normalize_tab( 'display' )
+	&& 'settings' === \WenPai\ICP\Admin\AdminPage::normalize_tab( 'modules' ),
+	'Legacy filing/display/modules tab aliases resolve to settings'
+);
+
 $fresh_shell   = \WenPai\ICP\Admin\AdminPage::shell_args( 'overview', array(), \WenPai\ICP\Options\SettingsStore::defaults() );
 $fresh_tab_ids = array_column( $fresh_shell['tabs'], 'id' );
 wpicp_assert(
-	array( 'overview', 'filing', 'display', 'tools' ) === $fresh_tab_ids,
-	'Fresh defaults show only 4 core tabs (overview, filing, display, tools)'
+	array( 'overview', 'settings', 'tools' ) === $fresh_tab_ids,
+	'Fresh defaults show only 3 core tabs (overview, settings, tools)'
 );
 
 $badges_only_shell = \WenPai\ICP\Admin\AdminPage::shell_args(
@@ -761,8 +768,8 @@ $badges_only_shell = \WenPai\ICP\Admin\AdminPage::shell_args(
 	array_merge( \WenPai\ICP\Options\SettingsStore::defaults(), array( 'module_badges' => true ) )
 );
 wpicp_assert(
-	array( 'overview', 'filing', 'badges', 'display', 'tools' ) === array_column( $badges_only_shell['tabs'], 'id' ),
-	'Enabling module_badges reveals the badges tab (5 tabs)'
+	array( 'overview', 'settings', 'badges', 'tools' ) === array_column( $badges_only_shell['tabs'], 'id' ),
+	'Enabling module_badges reveals the badges tab (4 tabs)'
 );
 
 $all_mods_shell = \WenPai\ICP\Admin\AdminPage::shell_args(
@@ -778,8 +785,8 @@ $all_mods_shell = \WenPai\ICP\Admin\AdminPage::shell_args(
 	)
 );
 wpicp_assert(
-	array( 'overview', 'filing', 'badges', 'display', 'audit', 'tools' ) === array_column( $all_mods_shell['tabs'], 'id' ),
-	'Enabling all optional modules reveals all 6 tabs'
+	array( 'overview', 'settings', 'badges', 'audit', 'tools' ) === array_column( $all_mods_shell['tabs'], 'id' ),
+	'Enabling all optional modules reveals all 5 tabs'
 );
 
 // Disabling module_badges explicitly must stay false even when certificates/badges data exist, and suppress output non-destructively.

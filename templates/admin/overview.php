@@ -2,6 +2,9 @@
 /**
  * Admin Overview Tab (`tab=overview`).
  *
+ * Pure status, compliance feed, quick navigation, and live footer preview —
+ * optional feature switches live cleanly under `设置 → 功能`.
+ *
  * @var Wenpai_Admin_Settings $settings
  * @var array<string, mixed>  $shell
  * @var array<string, string> $display
@@ -18,25 +21,23 @@ use WenPai\ICP\Rest\AuditController;
 
 defined( 'ABSPATH' ) || exit;
 
-$wpicp_is_network     = function_exists( 'is_network_admin' ) && is_network_admin();
-$wpicp_is_ms          = function_exists( 'is_multisite' ) && is_multisite();
-$wpicp_subsite_locked = $wpicp_is_ms && ! $wpicp_is_network && ! SettingsStore::allows_subsite_override();
-$wpicp_effective      = SettingsStore::effective();
-$wpicp_mod_badges     = SettingsStore::module_enabled( 'module_badges', $wpicp_effective );
-$wpicp_mod_access     = SettingsStore::module_enabled( 'module_access', $wpicp_effective );
-$wpicp_mod_adlaw      = SettingsStore::module_enabled( 'module_adlaw', $wpicp_effective );
-$wpicp_audit          = SiteHealthCheck::audit( $wpicp_effective );
-$wpicp_access_snap    = AccessMonitor::last_status();
-$wpicp_home_snap      = isset( $wpicp_access_snap['home'] ) && is_array( $wpicp_access_snap['home'] ) ? $wpicp_access_snap['home'] : array();
-$wpicp_probe_snap     = isset( $wpicp_access_snap['keepalive'] ) && is_array( $wpicp_access_snap['keepalive'] ) ? $wpicp_access_snap['keepalive'] : array();
-$wpicp_keepalive_on   = $wpicp_mod_access && ! empty( $wpicp_effective['keepalive_enabled'] ) && '' !== trim( (string) $wpicp_effective['keepalive_url'] );
-$wpicp_scan_meta      = get_option( AuditController::SUMMARY_OPTION, array() );
-$wpicp_scan_hits      = is_array( $wpicp_scan_meta ) && isset( $wpicp_scan_meta['total_hits'] ) ? (int) $wpicp_scan_meta['total_hits'] : 0;
-$wpicp_has_scan       = is_array( $wpicp_scan_meta ) && ! empty( $wpicp_scan_meta['last_scan_at'] );
+$wpicp_effective    = SettingsStore::effective();
+$wpicp_mod_badges   = SettingsStore::module_enabled( 'module_badges', $wpicp_effective );
+$wpicp_mod_access   = SettingsStore::module_enabled( 'module_access', $wpicp_effective );
+$wpicp_mod_adlaw    = SettingsStore::module_enabled( 'module_adlaw', $wpicp_effective );
+$wpicp_audit        = SiteHealthCheck::audit( $wpicp_effective );
+$wpicp_access_snap  = AccessMonitor::last_status();
+$wpicp_home_snap    = isset( $wpicp_access_snap['home'] ) && is_array( $wpicp_access_snap['home'] ) ? $wpicp_access_snap['home'] : array();
+$wpicp_probe_snap   = isset( $wpicp_access_snap['keepalive'] ) && is_array( $wpicp_access_snap['keepalive'] ) ? $wpicp_access_snap['keepalive'] : array();
+$wpicp_keepalive_on = $wpicp_mod_access && ! empty( $wpicp_effective['keepalive_enabled'] ) && '' !== trim( (string) $wpicp_effective['keepalive_url'] );
+$wpicp_scan_meta    = get_option( AuditController::SUMMARY_OPTION, array() );
+$wpicp_scan_hits    = is_array( $wpicp_scan_meta ) && isset( $wpicp_scan_meta['total_hits'] ) ? (int) $wpicp_scan_meta['total_hits'] : 0;
+$wpicp_has_scan     = is_array( $wpicp_scan_meta ) && ! empty( $wpicp_scan_meta['last_scan_at'] );
 
-$wpicp_filing_url  = AdminPage::shell_tab_url( $shell, 'filing', '#filing' );
+$wpicp_filing_url  = AdminPage::settings_section_url( $shell, 'filing' );
+$wpicp_display_url = AdminPage::settings_section_url( $shell, 'display' );
+$wpicp_modules_url = AdminPage::settings_section_url( $shell, 'modules' );
 $wpicp_badges_url  = AdminPage::shell_tab_url( $shell, 'badges', '#badges' );
-$wpicp_display_url = AdminPage::shell_tab_url( $shell, 'display', '#display' );
 $wpicp_audit_url   = AdminPage::shell_tab_url( $shell, 'audit', '#audit' );
 $wpicp_tools_url   = AdminPage::shell_tab_url( $shell, 'tools', '#tools' );
 $wpicp_help_url    = AdminPage::shell_tab_url( $shell, 'help', '#help' );
@@ -57,7 +58,7 @@ $wpicp_core_synced = isset( $wpicp_audit['suite'][0]['state'] ) && 'ok' === $wpi
 $wpicp_probe_bad   = $wpicp_keepalive_on && ! empty( $wpicp_probe_snap ) && empty( $wpicp_probe_snap['ok'] );
 
 if ( $wpicp_audit['is_empty'] ) {
-	$wpicp_lede = __( '尚未登记站点备案号，填写后将自动同步全站页脚并按需开启扩展功能。', 'wpicp' );
+	$wpicp_lede = __( '尚未登记站点备案号，填写后将自动同步全站页脚并可在设置中按需开启扩展功能。', 'wpicp' );
 } elseif ( $wpicp_probe_bad ) {
 	$wpicp_lede = __( '检测到接入商保活子域名异常，请及时核查 DNS 与服务可达性避免触发取消接入。', 'wpicp' );
 } elseif ( 'bad' === $wpicp_audit['overall_state'] ) {
@@ -137,7 +138,7 @@ if ( $wpicp_audit['is_empty'] ) {
 		array(
 			'icon'    => 'shield-check',
 			'title'   => __( '尚未登记站点备案与主体资质', 'wpicp' ),
-			'desc'    => __( '一处填写 ICP 备案号、公安联网备案号与主体全称，自动同步全站页脚与文派生态；证照、保活与巡检功能可在下方按需开启。', 'wpicp' ),
+			'desc'    => __( '一处填写 ICP 备案号、公安联网备案号与主体全称，自动同步全站页脚与文派生态；证照、保活与巡检功能可在「设置 → 功能」按需开启。', 'wpicp' ),
 			'actions' => array(
 				array(
 					'label'   => __( '填写备案信息', 'wpicp' ),
@@ -145,8 +146,8 @@ if ( $wpicp_audit['is_empty'] ) {
 					'variant' => 'primary',
 				),
 				array(
-					'label'   => __( '调整展示版式', 'wpicp' ),
-					'href'    => $wpicp_display_url,
+					'label'   => __( '按需开启扩展功能', 'wpicp' ),
+					'href'    => $wpicp_modules_url,
 					'variant' => 'ghost',
 				),
 			),
@@ -206,25 +207,43 @@ if ( $wpicp_audit['is_empty'] ) {
 	);
 }
 
-// Compute stat_hub values (honest & quiet when modules are disabled or unconfigured).
-if ( ! $wpicp_mod_access ) {
-	$wpicp_home_val  = __( '未开启', 'wpicp' );
-	$wpicp_home_unit = __( '按需启用', 'wpicp' );
-	$wpicp_keep_val  = __( '未开启', 'wpicp' );
-	$wpicp_keep_unit = __( '按需启用', 'wpicp' );
-} else {
+// Adaptive 4-slot stat_hub: only core & active-module metrics (never clutter with "未开启" placeholders).
+$wpicp_active_style = in_array( (string) $wpicp_effective['footer_style'], array( 'minimal', 'standard', 'badges' ), true )
+	? (string) $wpicp_effective['footer_style']
+	: 'standard';
+
+$wpicp_style_labels = array(
+	'minimal'  => __( '极简单行', 'wpicp' ),
+	'standard' => __( '标准双行', 'wpicp' ),
+	'badges'   => __( '含信任徽章', 'wpicp' ),
+);
+
+$wpicp_stats = array(
+	array(
+		'label' => __( '已登记资质', 'wpicp' ),
+		'value' => (string) $wpicp_audit['filled_count'],
+		'unit'  => __( '项', 'wpicp' ),
+	),
+);
+
+if ( $wpicp_mod_access ) {
 	$wpicp_home_val  = __( '未检', 'wpicp' );
 	$wpicp_home_unit = '';
 	if ( ! empty( $wpicp_home_snap ) && isset( $wpicp_home_snap['passed'], $wpicp_home_snap['total'] ) ) {
 		$wpicp_home_val  = ! empty( $wpicp_home_snap['ok'] ) ? __( '通过', 'wpicp' ) : __( '待修', 'wpicp' );
 		$wpicp_home_unit = (int) $wpicp_home_snap['passed'] . '/' . (int) $wpicp_home_snap['total'];
 	}
+	$wpicp_stats[] = array(
+		'label' => __( '首页备案自检', 'wpicp' ),
+		'value' => $wpicp_home_val,
+		'unit'  => $wpicp_home_unit,
+	);
 
 	$wpicp_keep_val  = __( '未开启', 'wpicp' );
 	$wpicp_keep_unit = __( '主站直连', 'wpicp' );
 	if ( $wpicp_keepalive_on ) {
 		if ( empty( $wpicp_probe_snap ) ) {
-			$wpicp_keep_val  = __( '待首次探测', 'wpicp' );
+			$wpicp_keep_val  = __( '待探测', 'wpicp' );
 			$wpicp_keep_unit = AccessMonitor::interval_label( (string) $wpicp_effective['keepalive_interval'] );
 		} elseif ( ! empty( $wpicp_probe_snap['ok'] ) ) {
 			$wpicp_keep_val  = __( '正常', 'wpicp' );
@@ -234,122 +253,62 @@ if ( ! $wpicp_mod_access ) {
 			$wpicp_keep_unit = isset( $wpicp_probe_snap['result_label'] ) ? (string) $wpicp_probe_snap['result_label'] : '';
 		}
 	}
+	$wpicp_stats[] = array(
+		'label' => __( '接入商保活', 'wpicp' ),
+		'value' => $wpicp_keep_val,
+		'unit'  => $wpicp_keep_unit,
+	);
+} else {
+	$wpicp_filing_state_val  = $wpicp_audit['is_empty']
+		? __( '待填写', 'wpicp' )
+		: ( 'bad' === $wpicp_audit['overall_state'] ? __( '有异常', 'wpicp' ) : __( '正常', 'wpicp' ) );
+	$wpicp_filing_state_unit = $wpicp_audit['is_empty']
+		? __( '未登记', 'wpicp' )
+		: ( '' !== (string) $wpicp_effective['public_security_code'] ? __( 'ICP + 公安', 'wpicp' ) : __( '已登记 ICP', 'wpicp' ) );
+
+	$wpicp_stats[] = array(
+		'label' => __( '备案格式校验', 'wpicp' ),
+		'value' => $wpicp_filing_state_val,
+		'unit'  => $wpicp_filing_state_unit,
+	);
+	$wpicp_stats[] = array(
+		'label' => __( '前台输出通道', 'wpicp' ),
+		'value' => ! empty( $wpicp_effective['auto_footer'] ) ? __( '自动注入', 'wpicp' ) : __( '手动调用', 'wpicp' ),
+		'unit'  => $wpicp_style_labels[ $wpicp_active_style ],
+	);
 }
 
-$wpicp_adlaw_stat_val  = ! $wpicp_mod_adlaw
-	? __( '未开启', 'wpicp' )
-	: ( $wpicp_has_scan ? (string) $wpicp_scan_hits : __( '未执行', 'wpicp' ) );
-$wpicp_adlaw_stat_unit = ! $wpicp_mod_adlaw
-	? __( '按需启用', 'wpicp' )
-	: ( $wpicp_has_scan ? __( '处', 'wpicp' ) : '' );
+if ( $wpicp_mod_adlaw ) {
+	$wpicp_stats[] = array(
+		'label' => __( '广告法风险', 'wpicp' ),
+		'value' => $wpicp_has_scan ? (string) $wpicp_scan_hits : __( '未执行', 'wpicp' ),
+		'unit'  => $wpicp_has_scan ? __( '处', 'wpicp' ) : '',
+	);
+} elseif ( $wpicp_mod_badges ) {
+	$wpicp_cert_count = is_array( $wpicp_effective['certificates'] ) ? count( $wpicp_effective['certificates'] ) : 0;
+	$wpicp_stats[]    = array(
+		'label' => __( '证照与徽章', 'wpicp' ),
+		'value' => (string) ( $wpicp_audit['badge_count'] + $wpicp_cert_count ),
+		'unit'  => __( '项', 'wpicp' ),
+	);
+} else {
+	$wpicp_stats[] = array(
+		'label' => __( '核心双向同步', 'wpicp' ),
+		'value' => $wpicp_core_synced ? __( '已同步', 'wpicp' ) : __( '待同步', 'wpicp' ),
+		'unit'  => 'WordPress',
+	);
+}
 
 Wenpai_Admin_UI::stat_hub(
 	array(
 		'drawer_id' => 'wpicp-suite-drawer',
-		'stats'     => array(
-			array(
-				'label' => __( '已登记资质', 'wpicp' ),
-				'value' => (string) $wpicp_audit['filled_count'],
-				'unit'  => __( '项', 'wpicp' ),
-			),
-			array(
-				'label' => __( '首页备案自检', 'wpicp' ),
-				'value' => $wpicp_home_val,
-				'unit'  => $wpicp_home_unit,
-			),
-			array(
-				'label' => __( '接入商保活', 'wpicp' ),
-				'value' => $wpicp_keep_val,
-				'unit'  => $wpicp_keep_unit,
-			),
-			array(
-				'label' => __( '广告法风险', 'wpicp' ),
-				'value' => $wpicp_adlaw_stat_val,
-				'unit'  => $wpicp_adlaw_stat_unit,
-			),
-		),
+		'stats'     => $wpicp_stats,
 		'alert'     => array(
 			'visible'      => ! $wpicp_audit['is_empty'] && ! $wpicp_core_synced,
 			'text'         => __( 'WordPress 核心常规备案项尚未与本站配置同步', 'wpicp' ),
 			'action_label' => __( '展开查看', 'wpicp' ),
 		),
 		'channels'  => $wpicp_channels,
-	)
-);
-
-// Optional feature module switches —开启后再在顶栏显示对应标签页并激活后台与前台能力.
-$wpicp_cert_count   = is_array( $wpicp_effective['certificates'] ) ? count( $wpicp_effective['certificates'] ) : 0;
-$wpicp_badge_total  = $wpicp_audit['badge_count'];
-$wpicp_mod_switch   = static function ( $mod_key, $checked, $title_label ) use ( $wpicp_subsite_locked ) {
-	$sw = Wenpai_Admin_Settings::switch_html(
-		array(
-			'id'       => 'wpicp-switch-' . str_replace( '_', '-', $mod_key ),
-			'checked'  => (bool) $checked,
-			'disabled' => (bool) $wpicp_subsite_locked,
-		)
-	);
-	return '<span data-wpicp-module-toggle="' . esc_attr( $mod_key ) . '" data-wpicp-module-label="' . esc_attr( $title_label ) . '">' . $sw . '</span>';
-};
-$wpicp_module_cards = array(
-	array(
-		'title'          => __( '证照与徽章', 'wpicp' ),
-		'desc'           => __( '官方预设信任徽标、自定义徽章、电子证照水印亮照与前台合集页。', 'wpicp' ),
-		'icon'           => 'image',
-		'tone'           => $wpicp_mod_badges ? 'accent' : 'mute',
-		'control_html'   => $wpicp_mod_switch( 'module_badges', $wpicp_mod_badges, __( '证照与徽章', 'wpicp' ) ),
-		'status'         => $wpicp_mod_badges
-			? sprintf(
-				/* translators: 1: badge count, 2: certificate count */
-				__( '已开启 · %1$d 枚徽章 / %2$d 份证照', 'wpicp' ),
-				$wpicp_badge_total,
-				$wpicp_cert_count
-			)
-			: __( '未开启 · 顶栏隐藏「证照」', 'wpicp' ),
-		'status_tone'    => $wpicp_mod_badges ? 'ok' : 'mute',
-		'action_label'   => $wpicp_mod_badges ? __( '配置', 'wpicp' ) : '',
-		'action_url'     => $wpicp_mod_badges ? $wpicp_badges_url : '',
-		'action_variant' => 'ghost',
-	),
-	array(
-		'title'          => __( '备案与接入保活', 'wpicp' ),
-		'desc'           => __( '首页备案定时自检、接入商 DNS/IP 核查与子域名低频保活访问。', 'wpicp' ),
-		'icon'           => 'shield-check',
-		'tone'           => $wpicp_mod_access ? ( $wpicp_probe_bad ? 'bad' : 'accent' ) : 'mute',
-		'control_html'   => $wpicp_mod_switch( 'module_access', $wpicp_mod_access, __( '备案与接入保活', 'wpicp' ) ),
-		'status'         => $wpicp_mod_access
-			? ( $wpicp_probe_bad ? __( '已开启 · 保活异常', 'wpicp' ) : ( $wpicp_keepalive_on ? __( '已开启 · 首页自检与保活', 'wpicp' ) : __( '已开启 · 首页定时自检', 'wpicp' ) ) )
-			: __( '未开启 · 零后台定时探测', 'wpicp' ),
-		'status_tone'    => $wpicp_mod_access ? ( $wpicp_probe_bad ? 'bad' : 'ok' ) : 'mute',
-		'action_label'   => $wpicp_mod_access ? __( '配置', 'wpicp' ) : '',
-		'action_url'     => $wpicp_mod_access ? $wpicp_access_url : '',
-		'action_variant' => 'ghost',
-	),
-	array(
-		'title'          => __( '广告法极限词巡检', 'wpicp' ),
-		'desc'           => __( '离线极限词检查、编辑器发布前提示、全站扫描与无言远程词库同步。', 'wpicp' ),
-		'icon'           => 'search',
-		'tone'           => $wpicp_mod_adlaw ? ( $wpicp_scan_hits > 0 ? 'warn' : 'accent' ) : 'mute',
-		'control_html'   => $wpicp_mod_switch( 'module_adlaw', $wpicp_mod_adlaw, __( '广告法极限词巡检', 'wpicp' ) ),
-		'status'         => $wpicp_mod_adlaw
-			? ( $wpicp_has_scan
-				? sprintf(
-					/* translators: %d: hit count */
-					__( '已开启 · 发现 %d 处待复核', 'wpicp' ),
-					$wpicp_scan_hits
-				)
-				: __( '已开启 · 编辑器与全站巡检', 'wpicp' ) )
-			: __( '未开启 · 零编辑器负载', 'wpicp' ),
-		'status_tone'    => $wpicp_mod_adlaw ? ( $wpicp_scan_hits > 0 ? 'warn' : 'ok' ) : 'mute',
-		'action_label'   => $wpicp_mod_adlaw ? __( '配置', 'wpicp' ) : '',
-		'action_url'     => $wpicp_mod_adlaw ? $wpicp_adlaw_url : '',
-		'action_variant' => 'ghost',
-	),
-);
-
-Wenpai_Admin_UI::module_grid(
-	array(
-		'cols'  => 3,
-		'items' => $wpicp_module_cards,
 	)
 );
 ?>
@@ -359,7 +318,7 @@ Wenpai_Admin_UI::module_grid(
 // Left equal-height card: Homepage filing & provider compliance feed.
 Wenpai_Admin_UI::card_open(
 	array(
-		'title' => __( '首页备案与接入合规体检', 'wpicp' ),
+		'title' => __( '站点备案与合规体检', 'wpicp' ),
 		'tile'  => false,
 		'class' => 'wenpai-card--equal',
 	)
@@ -439,8 +398,8 @@ Wenpai_Admin_UI::card_foot(
 			: $wpicp_audit['summary'],
 		'actions' => array(
 			array(
-				'label'   => $wpicp_mod_access ? __( '进入接入保活', 'wpicp' ) : __( '编辑备案信息', 'wpicp' ),
-				'href'    => $wpicp_mod_access ? $wpicp_access_url : $wpicp_filing_url,
+				'label'   => $wpicp_mod_access ? __( '进入接入保活', 'wpicp' ) : __( '管理扩展功能', 'wpicp' ),
+				'href'    => $wpicp_mod_access ? $wpicp_access_url : $wpicp_modules_url,
 				'variant' => 'ghost',
 				'size'    => 'sm',
 			),
@@ -511,16 +470,16 @@ if ( $wpicp_mod_access || $wpicp_mod_adlaw ) {
 }
 if ( count( $wpicp_shortcut_items ) < 4 ) {
 	$wpicp_shortcut_items[] = array(
-		'icon'  => 'tools',
-		'label' => __( '工具迁移', 'wpicp' ),
-		'href'  => $wpicp_tools_url,
+		'icon'  => 'plug',
+		'label' => __( '功能开关', 'wpicp' ),
+		'href'  => $wpicp_modules_url,
 	);
 }
 if ( count( $wpicp_shortcut_items ) < 4 ) {
 	$wpicp_shortcut_items[] = array(
-		'icon'  => 'help',
-		'label' => __( '使用帮助', 'wpicp' ),
-		'href'  => $wpicp_help_url,
+		'icon'  => 'tools',
+		'label' => __( '工具维护', 'wpicp' ),
+		'href'  => $wpicp_tools_url,
 	);
 }
 
@@ -601,16 +560,6 @@ Wenpai_Admin_UI::card_close();
 
 <?php
 // Row 3: Live Frontend Compliance Bar Preview (matches saved footer_style).
-$wpicp_active_style = in_array( (string) $wpicp_effective['footer_style'], array( 'minimal', 'standard', 'badges' ), true )
-	? (string) $wpicp_effective['footer_style']
-	: 'standard';
-
-$wpicp_style_labels = array(
-	'minimal'  => __( '极简单行', 'wpicp' ),
-	'standard' => __( '标准双行', 'wpicp' ),
-	'badges'   => __( '含信任徽章', 'wpicp' ),
-);
-
 $wpicp_view_tabs = Wenpai_Admin_UI::view_tabs_html(
 	array(
 		'group'      => 'wpicp-bar-preview',

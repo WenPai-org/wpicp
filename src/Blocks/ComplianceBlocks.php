@@ -71,8 +71,8 @@ class ComplianceBlocks {
 		);
 
 		$manage_url = class_exists( 'Wenpai_Admin_Menu', false )
-			? Wenpai_Admin_Menu::url( 'wpicp', array( 'tab' => 'filing' ) )
-			: admin_url( 'options-general.php?page=wpicp&tab=filing' );
+			? Wenpai_Admin_Menu::url( 'wpicp', array( 'tab' => 'settings' ) )
+			: admin_url( 'options-general.php?page=wpicp&tab=settings' );
 		$certs_url  = class_exists( 'Wenpai_Admin_Menu', false )
 			? Wenpai_Admin_Menu::url(
 				'wpicp',

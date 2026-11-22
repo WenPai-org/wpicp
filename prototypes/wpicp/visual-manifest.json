@@ -12,6 +12,7 @@
     { "id": "badges", "state": "certificates", "path": "badges-certificates.html?section=certificates" },
     { "id": "display", "state": "simple", "path": "display.html" },
     { "id": "display", "state": "advanced", "path": "display-advanced.html?mode=advanced" },
+    { "id": "settings", "state": "modules", "path": "settings-modules.html?section=modules" },
     { "id": "audit", "state": "access", "path": "audit.html" },
     { "id": "audit", "state": "adlaw", "path": "audit-adlaw.html?section=adlaw" },
     { "id": "tools", "state": "ok", "path": "tools.html" },
