@@ -8,6 +8,7 @@
  * @package WenPai\ICP
  */
 
+use WenPai\ICP\Admin\AdminPage;
 use WenPai\ICP\Media\CertificateWatermark;
 use WenPai\ICP\Options\BadgeCatalog;
 use WenPai\ICP\Options\SettingsStore;
@@ -20,8 +21,10 @@ $wpicp_subsite_locked = $wpicp_is_ms && ! $wpicp_is_network && ! SettingsStore::
 $wpicp_option_name    = $settings->option();
 $wpicp_effective      = SettingsStore::effective();
 
-$wpicp_base_url = isset( $shell['tabs'][2]['url'] ) ? (string) $shell['tabs'][2]['url'] : '#badges';
-$wpicp_is_proto = false !== strpos( $wpicp_base_url, '.html' );
+$wpicp_base_url     = AdminPage::shell_tab_url( $shell, 'badges', '#badges' );
+$wpicp_overview_url = AdminPage::shell_tab_url( $shell, 'overview', '#overview' );
+$wpicp_is_proto     = false !== strpos( $wpicp_base_url, '.html' );
+$wpicp_mod_enabled  = SettingsStore::module_enabled( 'module_badges', $wpicp_effective );
 
 $wpicp_groups  = array(
 	'presets'      => __( '官方预设徽章', 'wpicp' ),
@@ -82,6 +85,33 @@ if ( $wpicp_is_network && isset( $_GET['updated'] ) && 'true' === $_GET['updated
 			'text'  => __( '多站点网络默认证照与徽章设置已保存。', 'wpicp' ),
 		)
 	);
+}
+
+if ( ! $wpicp_mod_enabled ) {
+	$wpicp_gate_actions = array();
+	if ( ! $wpicp_subsite_locked ) {
+		$wpicp_gate_actions[] = array(
+			'label'   => __( '立即开启此模块', 'wpicp' ),
+			'type'    => 'button',
+			'variant' => 'primary',
+			'attrs'   => array( 'data-wpicp-module-enable' => 'module_badges' ),
+		);
+	}
+	$wpicp_gate_actions[] = array(
+		'label'   => __( '返回概览', 'wpicp' ),
+		'href'    => $wpicp_overview_url,
+		'variant' => 'ghost',
+	);
+	Wenpai_Admin_UI::next(
+		array(
+			'icon'    => 'image',
+			'title'   => __( '「证照与徽章」模块尚未开启', 'wpicp' ),
+			'desc'    => __( '开启后将在顶栏显示「证照」入口，并启用官方信任徽标、自定义徽章、电子证照水印亮照与前台合集页。', 'wpicp' ),
+			'actions' => $wpicp_gate_actions,
+		)
+	);
+	Wenpai_Admin_Shell::close( $shell );
+	return;
 }
 
 if ( $wpicp_subsite_locked ) {

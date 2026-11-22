@@ -283,7 +283,8 @@ class SiteHealthCheck {
 		$wpcy_on    = defined( 'WPCY_VERSION' ) || class_exists( '\\WenPai\\ChinaYes\\Admin\\WhiteLabel' );
 		$wy_cache   = WordYeahClient::cached();
 		$wy_version = '' !== $wy_cache['version'] ? $wy_cache['version'] : __( '内置基础词库', 'wpicp' );
-		$wy_remote  = ! empty( $cfg['ad_law_remote_sync'] );
+		$adlaw_mod  = SettingsStore::module_enabled( 'module_adlaw', $cfg );
+		$wy_remote  = $adlaw_mod && ! empty( $cfg['ad_law_remote_sync'] );
 
 		$suite = array(
 			array(
@@ -295,7 +296,9 @@ class SiteHealthCheck {
 			array(
 				'id'    => 'wordyeah',
 				'label' => __( '无言（WordYeah）合规', 'wpicp' ),
-				'value' => $wy_remote ? $wy_version . ' · api.wpcy.com' : __( '本地内置模式', 'wpicp' ),
+				'value' => ! $adlaw_mod
+					? __( '未开启', 'wpicp' )
+					: ( $wy_remote ? $wy_version . ' · api.wpcy.com' : __( '本地内置模式', 'wpicp' ) ),
 				'state' => $wy_remote ? 'ok' : '',
 			),
 			array(
@@ -312,10 +315,10 @@ class SiteHealthCheck {
 			),
 		);
 
-		// Check expiring certificates (< 30 days).
+		// Check expiring certificates (< 30 days) only when badges module is active.
 		$expiring_certs = array();
 		$now_ts         = time();
-		if ( ! empty( $cfg['certificates'] ) && is_array( $cfg['certificates'] ) ) {
+		if ( SettingsStore::module_enabled( 'module_badges', $cfg ) && ! empty( $cfg['certificates'] ) && is_array( $cfg['certificates'] ) ) {
 			foreach ( $cfg['certificates'] as $cert ) {
 				if ( ! is_array( $cert ) || empty( $cert['expires_at'] ) ) {
 					continue;

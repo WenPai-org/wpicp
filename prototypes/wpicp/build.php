@@ -342,6 +342,9 @@ $normal_settings = array(
 	'ad_law_editor_panel'    => true,
 	'ad_law_scan_post_types' => array( 'post', 'page' ),
 	'ad_law_allowlist'       => array( '第一方数据' ),
+	'module_badges'          => true,
+	'module_access'          => true,
+	'module_adlaw'           => true,
 );
 
 $demo_access_status = array(

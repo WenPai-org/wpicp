@@ -67,7 +67,14 @@ class WordYeahClient {
 			return;
 		}
 		$cfg = SettingsStore::effective();
-		if ( empty( $cfg['ad_law_remote_sync'] ) || 'manual' === (string) $cfg['ad_law_sync_interval'] ) {
+		if ( ! SettingsStore::module_enabled( 'module_adlaw', $cfg )
+			|| empty( $cfg['ad_law_enabled'] )
+			|| empty( $cfg['ad_law_remote_sync'] )
+			|| 'manual' === (string) $cfg['ad_law_sync_interval']
+		) {
+			if ( function_exists( 'wp_clear_scheduled_hook' ) ) {
+				wp_clear_scheduled_hook( self::CRON_HOOK );
+			}
 			return;
 		}
 		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
@@ -96,7 +103,7 @@ class WordYeahClient {
 	 */
 	public static function cron_sync() {
 		$cfg = SettingsStore::effective();
-		if ( ! empty( $cfg['ad_law_enabled'] ) && ! empty( $cfg['ad_law_remote_sync'] ) ) {
+		if ( SettingsStore::module_enabled( 'module_adlaw', $cfg ) && ! empty( $cfg['ad_law_enabled'] ) && ! empty( $cfg['ad_law_remote_sync'] ) ) {
 			self::sync_now( false );
 		}
 	}

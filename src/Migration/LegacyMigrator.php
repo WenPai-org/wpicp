@@ -213,12 +213,21 @@ class LegacyMigrator {
 			? get_site_option( 'wpicp_allow_subsite_override', '1' )
 			: $read( 'wpicp_allow_subsite_override', '1' );
 
-		$ad_law_enabled_raw = $read( 'wpicp_ad_law_enabled', '1' );
+		$ad_law_enabled_raw = $read( 'wpicp_ad_law_enabled', null );
 		$ad_law_allow_raw   = $read( 'wpicp_ad_law_allowlist', array() );
+		$certs_raw          = $read( 'wpicp_certificates', array() );
+		$badges_raw         = $read( 'wpicp_badges', array() );
+		$presets_raw        = $read( 'wpicp_selected_presets', array() );
 
 		// Read `wpicp_tab_visibility` (legacy key #17) so all 17 keys are inspected without loss.
 		$legacy_tabs = $read( 'wpicp_tab_visibility', array() );
 		unset( $legacy_tabs );
+
+		$has_legacy_badges = ( is_array( $certs_raw ) && ! empty( $certs_raw ) )
+			|| ( is_array( $badges_raw ) && ! empty( $badges_raw ) )
+			|| ( is_array( $presets_raw ) && ! empty( $presets_raw ) );
+		$has_legacy_adlaw  = ( null !== $ad_law_enabled_raw && '0' !== (string) $ad_law_enabled_raw )
+			|| ( is_array( $ad_law_allow_raw ) && ! empty( $ad_law_allow_raw ) );
 
 		return SettingsStore::normalize(
 			array(
@@ -231,15 +240,18 @@ class LegacyMigrator {
 				'edi_number'             => (string) $read( 'wpicp_edi', '' ),
 				'app_number'             => (string) $read( 'wpicp_app', '' ),
 				'miniapp_number'         => (string) $read( 'wpicp_miniapp', '' ),
-				'certificates'           => $read( 'wpicp_certificates', array() ),
+				'certificates'           => $certs_raw,
 				'certificates_page'      => absint( $read( 'wpicp_certificates_page', 0 ) ),
-				'badges'                 => $read( 'wpicp_badges', array() ),
-				'selected_presets'       => $read( 'wpicp_selected_presets', array() ),
+				'badges'                 => $badges_raw,
+				'selected_presets'       => $presets_raw,
 				'allow_subsite_override' => '0' !== (string) $allow_override_raw,
 				'default_image_size'     => (string) $read( 'wpicp_default_image_size', 'thumbnail' ),
 				'custom_css_class'       => (string) $read( 'wpicp_custom_css_class', '' ),
-				'ad_law_enabled'         => '0' !== (string) $ad_law_enabled_raw,
+				'ad_law_enabled'         => null === $ad_law_enabled_raw ? true : '0' !== (string) $ad_law_enabled_raw,
 				'ad_law_allowlist'       => $ad_law_allow_raw,
+				'module_badges'          => $has_legacy_badges,
+				'module_access'          => false,
+				'module_adlaw'           => $has_legacy_adlaw,
 			)
 		);
 	}

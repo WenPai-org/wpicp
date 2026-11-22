@@ -43,7 +43,9 @@ class EditorAudit {
 	 */
 	private static function is_active() {
 		$cfg = SettingsStore::effective();
-		return ! empty( $cfg['ad_law_enabled'] ) && ! empty( $cfg['ad_law_editor_panel'] );
+		return SettingsStore::module_enabled( 'module_adlaw', $cfg )
+			&& ! empty( $cfg['ad_law_enabled'] )
+			&& ! empty( $cfg['ad_law_editor_panel'] );
 	}
 
 	/**

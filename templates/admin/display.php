@@ -8,6 +8,7 @@
  * @package WenPai\ICP
  */
 
+use WenPai\ICP\Admin\AdminPage;
 use WenPai\ICP\Frontend\Renderer;
 use WenPai\ICP\Options\SettingsStore;
 
@@ -22,7 +23,7 @@ $wpicp_active_style   = in_array( (string) $wpicp_effective['footer_style'], arr
 	: 'standard';
 
 $wpicp_mode     = Wenpai_Admin_UI::mode();
-$wpicp_base_url = isset( $shell['tabs'][3]['url'] ) ? (string) $shell['tabs'][3]['url'] : '#display';
+$wpicp_base_url = AdminPage::shell_tab_url( $shell, 'display', '#display' );
 $wpicp_is_proto = false !== strpos( $wpicp_base_url, '.html' );
 $wpicp_sim_url  = $wpicp_is_proto ? 'display.html' : remove_query_arg( array( 'mode', 'section' ), $wpicp_base_url );
 $wpicp_adv_url  = $wpicp_is_proto ? 'display-advanced.html?mode=advanced' : add_query_arg( 'mode', 'advanced', remove_query_arg( 'section', $wpicp_base_url ) );

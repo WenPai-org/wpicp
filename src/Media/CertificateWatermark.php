@@ -152,6 +152,9 @@ class CertificateWatermark {
 	public static function serve_certificate_image( WP_REST_Request $request ) {
 		$id  = absint( $request->get_param( 'id' ) );
 		$cfg = SettingsStore::effective();
+		if ( ! SettingsStore::module_enabled( 'module_badges', $cfg ) ) {
+			return new WP_Error( 'wpicp_module_disabled', __( '证照与徽章模块尚未开启。', 'wpicp' ), array( 'status' => 404 ) );
+		}
 
 		// Restrict serving strictly to attachment IDs registered in `certificates`.
 		$allowed = false;

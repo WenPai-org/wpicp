@@ -330,7 +330,7 @@ class AdminPage {
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only tab check.
 		$tab = isset( $_GET['tab'] ) ? self::normalize_tab( wp_unslash( (string) $_GET['tab'] ) ) : 'overview';
-		if ( 'badges' === $tab && function_exists( 'wp_enqueue_media' ) ) {
+		if ( 'badges' === $tab && SettingsStore::module_enabled( 'module_badges' ) && function_exists( 'wp_enqueue_media' ) ) {
 			wp_enqueue_media();
 		}
 
@@ -369,6 +369,8 @@ class AdminPage {
 				'restAllowlistUrl'    => esc_url_raw( rest_url( 'wpicp/v1/ad-law/allowlist' ) ),
 				'restAccessCheckUrl'  => esc_url_raw( rest_url( 'wpicp/v1/access/check' ) ),
 				'restWordYeahSyncUrl' => esc_url_raw( rest_url( 'wpicp/v1/wordyeah/sync' ) ),
+				'restModulesUrl'      => esc_url_raw( rest_url( 'wpicp/v1/modules' ) ),
+				'isNetwork'           => function_exists( 'is_network_admin' ) && is_network_admin(),
 				'restNonce'           => wp_create_nonce( 'wp_rest' ),
 				'siteName'            => '' !== trim( (string) SettingsStore::effective()['icp_site_name'] )
 					? (string) SettingsStore::effective()['icp_site_name']
@@ -403,12 +405,15 @@ class AdminPage {
 		if ( ! is_array( $links ) ) {
 			$links = array();
 		}
-		$set_url   = self::tab_url( 'filing', false );
-		$audit_url = self::tab_url( 'audit', false );
-		$custom    = array(
+		$cfg     = SettingsStore::effective();
+		$set_url = self::tab_url( 'filing', false );
+		$custom  = array(
 			'settings' => '<a href="' . esc_url( $set_url ) . '">' . esc_html__( '设置', 'wpicp' ) . '</a>',
-			'audit'    => '<a href="' . esc_url( $audit_url ) . '">' . esc_html__( '巡检', 'wpicp' ) . '</a>',
 		);
+		if ( SettingsStore::module_enabled( 'module_access', $cfg ) || SettingsStore::module_enabled( 'module_adlaw', $cfg ) ) {
+			$audit_url       = self::tab_url( 'audit', false );
+			$custom['audit'] = '<a href="' . esc_url( $audit_url ) . '">' . esc_html__( '巡检', 'wpicp' ) . '</a>';
+		}
 		return array_merge( $custom, $links );
 	}
 
@@ -503,15 +508,46 @@ class AdminPage {
 	}
 
 	/**
-	 * Build shared `Wenpai_Admin_Shell::open` / `close` configuration with 6 compact tabs.
+	 * Resolve a tab URL from `$shell` by tab id (safe when optional tabs are hidden).
 	 *
-	 * @param string                $current  Active tab (`overview`, `filing`, `badges`, `display`, `audit`, `tools`, `help`).
-	 * @param array<string, string> $tab_urls Optional offline prototype URL map.
+	 * @param array<string, mixed> $shell    Shell config from `shell_args()`.
+	 * @param string               $id       Tab id (`overview`, `filing`, `badges`, `display`, `audit`, `tools`, `help`).
+	 * @param string               $fallback Optional fallback URL.
+	 * @return string
+	 */
+	public static function shell_tab_url( array $shell, $id, $fallback = '' ) {
+		$id = self::normalize_tab( $id );
+		if ( 'help' === $id && ! empty( $shell['help_url'] ) ) {
+			return (string) $shell['help_url'];
+		}
+		if ( isset( $shell['tab_urls'][ $id ] ) && '' !== (string) $shell['tab_urls'][ $id ] ) {
+			return (string) $shell['tab_urls'][ $id ];
+		}
+		if ( isset( $shell['tabs'] ) && is_array( $shell['tabs'] ) ) {
+			foreach ( $shell['tabs'] as $tab ) {
+				if ( is_array( $tab ) && isset( $tab['id'], $tab['url'] ) && (string) $tab['id'] === $id ) {
+					return (string) $tab['url'];
+				}
+			}
+		}
+		return '' !== $fallback ? $fallback : self::tab_url( $id );
+	}
+
+	/**
+	 * Build shared `Wenpai_Admin_Shell::open` / `close` configuration.
+	 *
+	 * Core tabs (`概览`, `备案`, `展示`, `工具`) are always visible; optional module tabs
+	 * (`证照`, `巡检`) appear only when enabled (or when directly navigated to by URL).
+	 *
+	 * @param string                    $current  Active tab (`overview`, `filing`, `badges`, `display`, `audit`, `tools`, `help`).
+	 * @param array<string, string>     $tab_urls Optional offline prototype URL map.
+	 * @param array<string, mixed>|null $settings Optional settings snapshot.
 	 * @return array<string, mixed>
 	 */
-	public static function shell_args( $current, array $tab_urls = array() ) {
+	public static function shell_args( $current, array $tab_urls = array(), ?array $settings = null ) {
 		$current  = self::normalize_tab( $current );
 		$display  = self::display_meta();
+		$cfg      = is_array( $settings ) ? $settings : SettingsStore::effective();
 		$url_for  = static function ( $id ) use ( $tab_urls ) {
 			return isset( $tab_urls[ $id ] ) ? $tab_urls[ $id ] : self::tab_url( $id );
 		};
@@ -521,50 +557,76 @@ class AdminPage {
 		$mark_svg = self::brand_mark_svg();
 		$ver      = defined( 'WPICP_VERSION' ) ? WPICP_VERSION : '4.0.0';
 
+		$show_badges = SettingsStore::module_enabled( 'module_badges', $cfg ) || 'badges' === $current;
+		$show_audit  = SettingsStore::module_enabled( 'module_access', $cfg )
+			|| SettingsStore::module_enabled( 'module_adlaw', $cfg )
+			|| 'audit' === $current;
+
+		$tabs = array(
+			array(
+				'id'        => 'overview',
+				'label'     => __( '概览', 'wpicp' ),
+				'url'       => $url_for( 'overview' ),
+				'icon_html' => $ico( 'overview' ),
+			),
+			array(
+				'id'        => 'filing',
+				'label'     => __( '备案', 'wpicp' ),
+				'url'       => $url_for( 'filing' ),
+				'icon_html' => $ico( 'shield-check' ),
+			),
+		);
+
+		if ( $show_badges ) {
+			$tabs[] = array(
+				'id'        => 'badges',
+				'label'     => __( '证照', 'wpicp' ),
+				'url'       => $url_for( 'badges' ),
+				'icon_html' => $ico( 'image' ),
+			);
+		}
+
+		$tabs[] = array(
+			'id'        => 'display',
+			'label'     => __( '展示', 'wpicp' ),
+			'url'       => $url_for( 'display' ),
+			'icon_html' => $ico( 'equalizer' ),
+		);
+
+		if ( $show_audit ) {
+			$tabs[] = array(
+				'id'        => 'audit',
+				'label'     => __( '巡检', 'wpicp' ),
+				'url'       => $url_for( 'audit' ),
+				'icon_html' => $ico( 'search' ),
+			);
+		}
+
+		$tabs[] = array(
+			'id'        => 'tools',
+			'label'     => __( '工具', 'wpicp' ),
+			'url'       => $url_for( 'tools' ),
+			'icon_html' => $ico( 'tools' ),
+		);
+
+		$all_tab_urls = array(
+			'overview' => $url_for( 'overview' ),
+			'filing'   => $url_for( 'filing' ),
+			'badges'   => $url_for( 'badges' ),
+			'display'  => $url_for( 'display' ),
+			'audit'    => $url_for( 'audit' ),
+			'tools'    => $url_for( 'tools' ),
+			'help'     => $url_for( 'help' ),
+		);
+
 		return array(
 			'slug'               => 'wpicp',
 			'name'               => $display['brand'],
 			'mark_html'          => $mark_svg,
 			'home_url'           => $url_for( 'overview' ),
 			'current'            => $current,
-			'tabs'               => array(
-				array(
-					'id'        => 'overview',
-					'label'     => __( '概览', 'wpicp' ),
-					'url'       => $url_for( 'overview' ),
-					'icon_html' => $ico( 'overview' ),
-				),
-				array(
-					'id'        => 'filing',
-					'label'     => __( '备案', 'wpicp' ),
-					'url'       => $url_for( 'filing' ),
-					'icon_html' => $ico( 'shield-check' ),
-				),
-				array(
-					'id'        => 'badges',
-					'label'     => __( '证照', 'wpicp' ),
-					'url'       => $url_for( 'badges' ),
-					'icon_html' => $ico( 'image' ),
-				),
-				array(
-					'id'        => 'display',
-					'label'     => __( '展示', 'wpicp' ),
-					'url'       => $url_for( 'display' ),
-					'icon_html' => $ico( 'equalizer' ),
-				),
-				array(
-					'id'        => 'audit',
-					'label'     => __( '巡检', 'wpicp' ),
-					'url'       => $url_for( 'audit' ),
-					'icon_html' => $ico( 'search' ),
-				),
-				array(
-					'id'        => 'tools',
-					'label'     => __( '工具', 'wpicp' ),
-					'url'       => $url_for( 'tools' ),
-					'icon_html' => $ico( 'tools' ),
-				),
-			),
+			'tabs'               => $tabs,
+			'tab_urls'           => $all_tab_urls,
 			'help_url'           => $url_for( 'help' ),
 			'help_label'         => __( '帮助', 'wpicp' ),
 			'help_icon_html'     => $ico( 'help' ),

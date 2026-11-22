@@ -154,6 +154,13 @@ class AccessMonitor {
 			return;
 		}
 		$cfg = SettingsStore::effective();
+		if ( ! SettingsStore::module_enabled( 'module_access', $cfg ) ) {
+			if ( function_exists( 'wp_clear_scheduled_hook' ) ) {
+				wp_clear_scheduled_hook( self::CRON_HOME_HOOK );
+				wp_clear_scheduled_hook( self::CRON_PROBE_HOOK );
+			}
+			return;
+		}
 		if ( ! empty( $cfg['home_check_enabled'] ) && ! wp_next_scheduled( self::CRON_HOME_HOOK ) ) {
 			wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', self::CRON_HOME_HOOK );
 		}
@@ -175,6 +182,9 @@ class AccessMonitor {
 		wp_clear_scheduled_hook( self::CRON_HOME_HOOK );
 		wp_clear_scheduled_hook( self::CRON_PROBE_HOOK );
 		$cfg = SettingsStore::effective();
+		if ( ! SettingsStore::module_enabled( 'module_access', $cfg ) ) {
+			return;
+		}
 		if ( ! empty( $cfg['home_check_enabled'] ) ) {
 			wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', self::CRON_HOME_HOOK );
 		}
@@ -191,7 +201,7 @@ class AccessMonitor {
 	 */
 	public static function cron_run_home_check() {
 		$cfg = SettingsStore::effective();
-		if ( ! empty( $cfg['home_check_enabled'] ) ) {
+		if ( SettingsStore::module_enabled( 'module_access', $cfg ) && ! empty( $cfg['home_check_enabled'] ) ) {
 			self::run_all_checks( $cfg, true, false );
 		}
 	}
@@ -203,7 +213,7 @@ class AccessMonitor {
 	 */
 	public static function cron_run_keepalive_probe() {
 		$cfg = SettingsStore::effective();
-		if ( ! empty( $cfg['keepalive_enabled'] ) && '' !== trim( (string) $cfg['keepalive_url'] ) ) {
+		if ( SettingsStore::module_enabled( 'module_access', $cfg ) && ! empty( $cfg['keepalive_enabled'] ) && '' !== trim( (string) $cfg['keepalive_url'] ) ) {
 			self::run_all_checks( $cfg, false, true );
 		}
 	}

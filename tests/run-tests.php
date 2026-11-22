@@ -355,6 +355,13 @@ foreach ( \WenPai\ICP\Compliance\AdLawScanner::safe_compounds() as $safe ) {
 	wpicp_assert( 0 === count( $hits ), "Safe compound produces zero false positives: {$safe}" );
 }
 
+// Fresh install defaults keep optional Ad-Law module disabled until explicitly enabled.
+wpicp_assert( ! \WenPai\ICP\Compliance\AdLawScanner::is_enabled(), 'Ad-Law module is disabled by default on fresh install' );
+wpicp_assert( 0 === count( apply_filters( 'wenpai_ad_law_scan', array(), '<p>全网第一</p>', array() ) ), 'wenpai_ad_law_scan returns empty when module_adlaw is off' );
+
+\WenPai\ICP\Options\SettingsStore::save_site( array( 'module_adlaw' => true ) );
+wpicp_assert( \WenPai\ICP\Compliance\AdLawScanner::is_enabled(), 'Enabling module_adlaw activates AdLawScanner' );
+
 // Script / style / comment stripping + attribute scanning + longest-match-first.
 $complex_html = '<!-- 永久免费 --><script>var x = "全网最低";</script><style>.best{content:"最佳";}</style>'
 	. '<div id="hero" data-bs-id="cta-1"><img alt="全网第一的方案" src="x.png"><input placeholder="第一时间获取"></div>';
@@ -704,6 +711,56 @@ wpicp_assert(
 	false !== strpos( $bar_with_cert_link, '?page_id=18' ),
 	'Compliance bar renders bound certificates directory page link when certificates_page is set'
 );
+
+// -----------------------------------------------------------------------------
+// 11. Optional Feature Module Switches (Dynamic Tabs & Runtime Gating)
+// -----------------------------------------------------------------------------
+$fresh_shell   = \WenPai\ICP\Admin\AdminPage::shell_args( 'overview', array(), \WenPai\ICP\Options\SettingsStore::defaults() );
+$fresh_tab_ids = array_column( $fresh_shell['tabs'], 'id' );
+wpicp_assert(
+	array( 'overview', 'filing', 'display', 'tools' ) === $fresh_tab_ids,
+	'Fresh defaults show only 4 core tabs (overview, filing, display, tools)'
+);
+
+$badges_only_shell = \WenPai\ICP\Admin\AdminPage::shell_args(
+	'overview',
+	array(),
+	array_merge( \WenPai\ICP\Options\SettingsStore::defaults(), array( 'module_badges' => true ) )
+);
+wpicp_assert(
+	array( 'overview', 'filing', 'badges', 'display', 'tools' ) === array_column( $badges_only_shell['tabs'], 'id' ),
+	'Enabling module_badges reveals the badges tab (5 tabs)'
+);
+
+$all_mods_shell = \WenPai\ICP\Admin\AdminPage::shell_args(
+	'overview',
+	array(),
+	array_merge(
+		\WenPai\ICP\Options\SettingsStore::defaults(),
+		array(
+			'module_badges' => true,
+			'module_access' => true,
+			'module_adlaw'  => true,
+		)
+	)
+);
+wpicp_assert(
+	array( 'overview', 'filing', 'badges', 'display', 'audit', 'tools' ) === array_column( $all_mods_shell['tabs'], 'id' ),
+	'Enabling all optional modules reveals all 6 tabs'
+);
+
+// Disabling module_badges explicitly must stay false even when certificates/badges data exist, and suppress output non-destructively.
+\WenPai\ICP\Options\SettingsStore::save_site( array( 'module_badges' => false ) );
+$after_disable = \WenPai\ICP\Options\SettingsStore::effective();
+wpicp_assert(
+	false === $after_disable['module_badges'] && 3 === count( $after_disable['certificates'] ),
+	'Explicit module_badges=false persists while preserving stored certificates data'
+);
+wpicp_assert( '' === do_test_shortcode( 'wpicp_badges' ), '[wpicp_badges] outputs empty when module_badges is off' );
+wpicp_assert( '' === do_test_shortcode( 'wpicp_certificates' ), '[wpicp_certificates] outputs empty when module_badges is off' );
+
+\WenPai\ICP\Options\SettingsStore::save_site( array( 'module_badges' => true ) );
+wpicp_assert( false !== strpos( do_test_shortcode( 'wpicp_certificates' ), 'wpicp-certificates' ), 'Re-enabling module_badges restores certificate output immediately' );
 
 if ( $failed > 0 ) {
 	fwrite( STDERR, "FAILED: {$failed} failed, {$passed} passed\n" );

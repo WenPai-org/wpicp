@@ -8,6 +8,7 @@
  * @package WenPai\ICP
  */
 
+use WenPai\ICP\Admin\AdminPage;
 use WenPai\ICP\Compliance\AccessMonitor;
 use WenPai\ICP\Compliance\AdLawScanner;
 use WenPai\ICP\Compliance\WordYeahClient;
@@ -16,16 +17,25 @@ use WenPai\ICP\Rest\AuditController;
 
 defined( 'ABSPATH' ) || exit;
 
-$wpicp_is_network = function_exists( 'is_network_admin' ) && is_network_admin();
-$wpicp_effective  = SettingsStore::effective();
-$wpicp_base_url   = isset( $shell['tabs'][4]['url'] ) ? (string) $shell['tabs'][4]['url'] : '#audit';
-$wpicp_is_proto   = false !== strpos( $wpicp_base_url, '.html' );
+$wpicp_is_network     = function_exists( 'is_network_admin' ) && is_network_admin();
+$wpicp_is_ms          = function_exists( 'is_multisite' ) && is_multisite();
+$wpicp_subsite_locked = $wpicp_is_ms && ! $wpicp_is_network && ! SettingsStore::allows_subsite_override();
+$wpicp_effective      = SettingsStore::effective();
+$wpicp_base_url       = AdminPage::shell_tab_url( $shell, 'audit', '#audit' );
+$wpicp_overview_url   = AdminPage::shell_tab_url( $shell, 'overview', '#overview' );
+$wpicp_is_proto       = false !== strpos( $wpicp_base_url, '.html' );
+$wpicp_mod_access     = SettingsStore::module_enabled( 'module_access', $wpicp_effective );
+$wpicp_mod_adlaw      = SettingsStore::module_enabled( 'module_adlaw', $wpicp_effective );
 
-$wpicp_sections = array(
-	'access' => __( '备案与接入保活', 'wpicp' ),
-	'adlaw'  => __( '《广告法》极限词巡检', 'wpicp' ),
-);
-$wpicp_section  = Wenpai_Admin_UI::section( $wpicp_sections, 'access' );
+$wpicp_sections = array();
+if ( $wpicp_mod_access ) {
+	$wpicp_sections['access'] = __( '备案与接入保活', 'wpicp' );
+}
+if ( $wpicp_mod_adlaw ) {
+	$wpicp_sections['adlaw'] = __( '《广告法》极限词巡检', 'wpicp' );
+}
+$wpicp_default_sec = $wpicp_mod_access ? 'access' : 'adlaw';
+$wpicp_section     = ! empty( $wpicp_sections ) ? Wenpai_Admin_UI::section( $wpicp_sections, $wpicp_default_sec ) : '';
 
 $wpicp_scan_meta  = get_option( AuditController::SUMMARY_OPTION, array() );
 $wpicp_has_scan   = is_array( $wpicp_scan_meta ) && ! empty( $wpicp_scan_meta['last_scan_at'] );
@@ -40,7 +50,7 @@ $wpicp_form_action = $wpicp_is_network && function_exists( 'network_admin_url' )
 	: 'options.php';
 
 $wpicp_head_action = '';
-if ( ! $wpicp_is_network ) {
+if ( ! $wpicp_is_network && '' !== $wpicp_section ) {
 	if ( 'access' === $wpicp_section ) {
 		$wpicp_head_action = Wenpai_Admin_UI::button_html(
 			array(
@@ -81,6 +91,39 @@ if ( $wpicp_is_network && isset( $_GET['updated'] ) && 'true' === $_GET['updated
 	);
 }
 
+if ( empty( $wpicp_sections ) ) {
+	$wpicp_gate_actions = array();
+	if ( ! $wpicp_subsite_locked ) {
+		$wpicp_gate_actions[] = array(
+			'label'   => __( '开启备案与接入保活', 'wpicp' ),
+			'type'    => 'button',
+			'variant' => 'primary',
+			'attrs'   => array( 'data-wpicp-module-enable' => 'module_access' ),
+		);
+		$wpicp_gate_actions[] = array(
+			'label'   => __( '开启广告法极限词巡检', 'wpicp' ),
+			'type'    => 'button',
+			'variant' => 'secondary',
+			'attrs'   => array( 'data-wpicp-module-enable' => 'module_adlaw' ),
+		);
+	}
+	$wpicp_gate_actions[] = array(
+		'label'   => __( '返回概览', 'wpicp' ),
+		'href'    => $wpicp_overview_url,
+		'variant' => 'ghost',
+	);
+	Wenpai_Admin_UI::next(
+		array(
+			'icon'    => 'search',
+			'title'   => __( '合规巡检模块尚未开启', 'wpicp' ),
+			'desc'    => __( '可按需单独开启「备案与接入保活」或「《广告法》极限词巡检」，未开启时不加载编辑器检测脚本且不运行后台定时探测。', 'wpicp' ),
+			'actions' => $wpicp_gate_actions,
+		)
+	);
+	Wenpai_Admin_Shell::close( $shell );
+	return;
+}
+
 $wpicp_subnav_items = array();
 foreach ( $wpicp_sections as $wpicp_sid => $wpicp_slabel ) {
 	$wpicp_subnav_items[] = array(
@@ -95,12 +138,14 @@ foreach ( $wpicp_sections as $wpicp_sid => $wpicp_slabel ) {
 ?>
 <div class="wenpai-stack"<?php echo 'adlaw' === $wpicp_section ? ' data-wpicp-scanner="1"' : ''; ?>>
 <?php
-Wenpai_Admin_UI::subnav(
-	array(
-		'label' => __( '合规巡检模块', 'wpicp' ),
-		'items' => $wpicp_subnav_items,
-	)
-);
+if ( count( $wpicp_subnav_items ) > 1 ) {
+	Wenpai_Admin_UI::subnav(
+		array(
+			'label' => __( '合规巡检模块', 'wpicp' ),
+			'items' => $wpicp_subnav_items,
+		)
+	);
+}
 
 if ( 'access' === $wpicp_section ) :
 	$wpicp_snap       = AccessMonitor::last_status();

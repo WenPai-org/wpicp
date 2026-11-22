@@ -351,7 +351,10 @@ class Renderer {
 			'wpicp_certificates'
 		);
 
-		$cfg     = SettingsStore::effective();
+		$cfg = SettingsStore::effective();
+		if ( ! SettingsStore::module_enabled( 'module_badges', $cfg ) ) {
+			return '';
+		}
 		$page_id = absint( $cfg['certificates_page'] );
 		$layout  = sanitize_key( (string) $atts['layout'] );
 		if ( '' === $layout && '' === (string) $atts['id'] && '' === (string) $atts['ids'] && $page_id > 0 && function_exists( 'is_page' ) && is_page( $page_id ) ) {
@@ -472,7 +475,10 @@ class Renderer {
 	 * @return string
 	 */
 	public static function render_certificates_directory( array $args = array(), ?array $settings = null ) {
-		$cfg          = is_array( $settings ) ? SettingsStore::normalize( $settings ) : SettingsStore::effective();
+		$cfg = is_array( $settings ) ? SettingsStore::normalize( $settings ) : SettingsStore::effective();
+		if ( empty( $args['demo_fallback'] ) && ! SettingsStore::module_enabled( 'module_badges', $cfg ) ) {
+			return '';
+		}
 		$show_header  = ! array_key_exists( 'show_header', $args ) || ! empty( $args['show_header'] );
 		$show_filters = ! array_key_exists( 'show_filters', $args ) || ! empty( $args['show_filters'] );
 		$show_meta    = ! array_key_exists( 'show_meta', $args ) || ! empty( $args['show_meta'] );
@@ -692,7 +698,10 @@ class Renderer {
 	 * @return string
 	 */
 	public static function render_certificates_link( ?array $settings = null ) {
-		$cfg     = is_array( $settings ) ? SettingsStore::normalize( $settings ) : SettingsStore::effective();
+		$cfg = is_array( $settings ) ? SettingsStore::normalize( $settings ) : SettingsStore::effective();
+		if ( ! SettingsStore::module_enabled( 'module_badges', $cfg ) ) {
+			return '';
+		}
 		$page_id = absint( $cfg['certificates_page'] );
 		if ( $page_id <= 0 || ! function_exists( 'get_permalink' ) ) {
 			return '';
@@ -752,7 +761,10 @@ class Renderer {
 	 * @return string
 	 */
 	public static function render_badges_list( array $args = array(), ?array $settings = null ) {
-		$cfg             = is_array( $settings ) ? SettingsStore::normalize( $settings ) : SettingsStore::effective();
+		$cfg = is_array( $settings ) ? SettingsStore::normalize( $settings ) : SettingsStore::effective();
+		if ( empty( $args['demo_fallback'] ) && ! SettingsStore::module_enabled( 'module_badges', $cfg ) ) {
+			return '';
+		}
 		$include_presets = ! array_key_exists( 'include_presets', $args ) || ! empty( $args['include_presets'] );
 		$size            = ! empty( $args['size'] ) && in_array( (string) $args['size'], array( 'thumbnail', 'full' ), true )
 			? (string) $args['size']

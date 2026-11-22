@@ -8,6 +8,7 @@
  * @package WenPai\ICP
  */
 
+use WenPai\ICP\Admin\AdminPage;
 use WenPai\ICP\Options\SettingsStore;
 
 defined( 'ABSPATH' ) || exit;
@@ -22,7 +23,7 @@ if ( ! is_array( $wpicp_licenses ) ) {
 }
 
 $wpicp_mode     = Wenpai_Admin_UI::mode();
-$wpicp_base_url = isset( $shell['tabs'][1]['url'] ) ? (string) $shell['tabs'][1]['url'] : '#filing';
+$wpicp_base_url = AdminPage::shell_tab_url( $shell, 'filing', '#filing' );
 $wpicp_is_proto = false !== strpos( $wpicp_base_url, '.html' );
 $wpicp_sim_url  = $wpicp_is_proto ? 'filing.html' : remove_query_arg( array( 'mode', 'section' ), $wpicp_base_url );
 $wpicp_adv_url  = $wpicp_is_proto ? 'filing-advanced.html?mode=advanced' : add_query_arg( 'mode', 'advanced', remove_query_arg( 'section', $wpicp_base_url ) );

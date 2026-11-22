@@ -845,10 +845,82 @@
 		}
 	} );
 
+	function initModuleToggles() {
+		function submitModuleToggle( modKey, enabled, label, triggerEl ) {
+			if ( ! cfg.restModulesUrl ) {
+				toast( '当前离线预览不可保存模块开关。' );
+				return;
+			}
+			if ( triggerEl ) {
+				triggerEl.disabled = true;
+			}
+			fetch( cfg.restModulesUrl, {
+				method: 'POST',
+				credentials: 'same-origin',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-WP-Nonce': cfg.restNonce || '',
+				},
+				body: JSON.stringify( {
+					module: modKey,
+					enabled: !! enabled,
+					network: !! cfg.isNetwork,
+				} ),
+			} )
+				.then( function ( r ) {
+					if ( ! r.ok ) {
+						throw new Error( 'HTTP ' + r.status );
+					}
+					return r.json();
+				} )
+				.then( function () {
+					var name = label || modKey;
+					toast( ( enabled ? '已开启「' : '已关闭「' ) + name + '」，正在更新顶栏…' );
+					window.setTimeout( function () {
+						window.location.reload();
+					}, 180 );
+				} )
+				.catch( function () {
+					if ( triggerEl ) {
+						triggerEl.disabled = false;
+						if ( triggerEl.type === 'checkbox' ) {
+							triggerEl.checked = ! enabled;
+						}
+					}
+					toast( '模块开关保存失败，请刷新页面后重试。' );
+				} );
+		}
+
+		document.addEventListener( 'change', function ( e ) {
+			var wrap = e.target && e.target.closest ? e.target.closest( '[data-wpicp-module-toggle]' ) : null;
+			if ( ! wrap || e.target.type !== 'checkbox' ) {
+				return;
+			}
+			var modKey = wrap.getAttribute( 'data-wpicp-module-toggle' ) || '';
+			var label = wrap.getAttribute( 'data-wpicp-module-label' ) || '';
+			if ( modKey ) {
+				submitModuleToggle( modKey, e.target.checked, label, e.target );
+			}
+		} );
+
+		document.addEventListener( 'click', function ( e ) {
+			var btn = e.target && e.target.closest ? e.target.closest( '[data-wpicp-module-enable]' ) : null;
+			if ( ! btn ) {
+				return;
+			}
+			e.preventDefault();
+			var modKey = btn.getAttribute( 'data-wpicp-module-enable' ) || '';
+			if ( modKey ) {
+				submitModuleToggle( modKey, true, ( btn.textContent || '' ).trim(), btn );
+			}
+		} );
+	}
+
 	document.addEventListener( 'DOMContentLoaded', function () {
 		initBadgeCatalog();
 		initCertCatalog();
 		initDisplayWorkbench();
+		initModuleToggles();
 		syncCertWatermarks();
 	} );
 } )();

@@ -72,18 +72,25 @@ class AdLawScanner {
 	 * @return bool
 	 */
 	public static function is_enabled() {
+		if ( class_exists( '\WenPai\ICP\Options\SettingsStore', false ) ) {
+			$cfg = \WenPai\ICP\Options\SettingsStore::effective();
+			return \WenPai\ICP\Options\SettingsStore::module_enabled( 'module_adlaw', $cfg )
+				&& ! empty( $cfg['ad_law_enabled'] );
+		}
+
 		$settings = is_multisite() && '1' !== (string) get_site_option( 'wpicp_allow_subsite_override', '1' )
 			? get_site_option( 'wpicp_network_settings', null )
 			: get_option( 'wpicp_settings', function_exists( 'get_site_option' ) ? get_site_option( 'wpicp_network_settings', null ) : null );
-		if ( is_array( $settings ) && array_key_exists( 'ad_law_enabled', $settings ) ) {
-			return ! empty( $settings['ad_law_enabled'] ) && '0' !== (string) $settings['ad_law_enabled'];
+		if ( is_array( $settings ) ) {
+			if ( array_key_exists( 'module_adlaw', $settings ) && ( empty( $settings['module_adlaw'] ) || '0' === (string) $settings['module_adlaw'] ) ) {
+				return false;
+			}
+			if ( array_key_exists( 'ad_law_enabled', $settings ) ) {
+				return ! empty( $settings['ad_law_enabled'] ) && '0' !== (string) $settings['ad_law_enabled'];
+			}
 		}
 
-		$val = is_multisite() && '1' !== (string) get_site_option( 'wpicp_allow_subsite_override', '1' )
-			? get_site_option( 'wpicp_ad_law_enabled', '1' )
-			: get_option( 'wpicp_ad_law_enabled', function_exists( 'get_site_option' ) ? get_site_option( 'wpicp_ad_law_enabled', '1' ) : '1' );
-
-		return '0' !== (string) $val;
+		return false;
 	}
 
 	/**

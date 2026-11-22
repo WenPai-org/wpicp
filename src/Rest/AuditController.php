@@ -107,6 +107,59 @@ class AuditController {
 				'permission_callback' => array( __CLASS__, 'can_manage_compliance' ),
 			)
 		);
+
+		register_rest_route(
+			self::NAMESPACE_V1,
+			'/modules',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( __CLASS__, 'handle_toggle_module' ),
+				'permission_callback' => array( __CLASS__, 'can_manage_compliance' ),
+			)
+		);
+	}
+
+	/**
+	 * Toggle an optional feature module on/off (`POST /wpicp/v1/modules`).
+	 *
+	 * @param WP_REST_Request $request REST request (`module`, `enabled`, optional `network`).
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function handle_toggle_module( WP_REST_Request $request ) {
+		$module = sanitize_key( (string) $request->get_param( 'module' ) );
+		if ( ! in_array( $module, SettingsStore::optional_modules(), true ) ) {
+			return new WP_Error( 'wpicp_invalid_module', __( '不支持的功能模块标识。', 'wpicp' ), array( 'status' => 400 ) );
+		}
+
+		$raw_enabled = $request->get_param( 'enabled' );
+		$enabled     = ! empty( $raw_enabled ) && '0' !== (string) $raw_enabled && 'false' !== strtolower( (string) $raw_enabled );
+
+		$is_network_req = ! empty( $request->get_param( 'network' ) ) && is_multisite();
+		$is_net_locked  = is_multisite() && ! SettingsStore::allows_subsite_override();
+		if ( $is_network_req || $is_net_locked ) {
+			if ( ! current_user_can( 'manage_network_options' ) ) {
+				return new WP_Error( 'wpicp_forbidden', __( '当前网络配置由超级管理员统一维护。', 'wpicp' ), array( 'status' => 403 ) );
+			}
+			$saved = SettingsStore::save_network( array( $module => $enabled ) );
+		} else {
+			$saved = SettingsStore::save_site( array( $module => $enabled ) );
+		}
+
+		AccessMonitor::sync_schedules();
+		WordYeahClient::sync_schedule();
+
+		return new WP_REST_Response(
+			array(
+				'module'  => $module,
+				'enabled' => (bool) $saved[ $module ],
+				'modules' => array(
+					'module_badges' => (bool) $saved['module_badges'],
+					'module_access' => (bool) $saved['module_access'],
+					'module_adlaw'  => (bool) $saved['module_adlaw'],
+				),
+			),
+			200
+		);
 	}
 
 	/**

@@ -136,7 +136,34 @@ class SettingsStore {
 			'ad_law_editor_panel'    => true,
 			'ad_law_scan_post_types' => array( 'post', 'page' ),
 			'ad_law_allowlist'       => array(),
+			'module_badges'          => false,
+			'module_access'          => false,
+			'module_adlaw'           => false,
 		);
+	}
+
+	/**
+	 * List of optional feature module setting keys.
+	 *
+	 * @return string[]
+	 */
+	public static function optional_modules() {
+		return array( 'module_badges', 'module_access', 'module_adlaw' );
+	}
+
+	/**
+	 * Whether a given optional feature module is currently enabled.
+	 *
+	 * @param string                    $module Module key (`module_badges`, `module_access`, `module_adlaw`).
+	 * @param array<string, mixed>|null $cfg    Optional settings snapshot.
+	 * @return bool
+	 */
+	public static function module_enabled( $module, ?array $cfg = null ) {
+		if ( ! in_array( (string) $module, self::optional_modules(), true ) ) {
+			return false;
+		}
+		$settings = is_array( $cfg ) ? $cfg : self::effective();
+		return ! empty( $settings[ $module ] ) && '0' !== (string) $settings[ $module ];
 	}
 
 	/**
@@ -396,6 +423,27 @@ class SettingsStore {
 			}
 		}
 		$merged['ad_law_allowlist'] = $allowlist;
+
+		if ( array_key_exists( 'module_badges', $raw ) ) {
+			$merged['module_badges'] = ! empty( $raw['module_badges'] ) && '0' !== (string) $raw['module_badges'];
+		} else {
+			$merged['module_badges'] = ! empty( $merged['selected_presets'] )
+				|| ! empty( $merged['badges'] )
+				|| ! empty( $merged['certificates'] );
+		}
+
+		if ( array_key_exists( 'module_access', $raw ) ) {
+			$merged['module_access'] = ! empty( $raw['module_access'] ) && '0' !== (string) $raw['module_access'];
+		} else {
+			$merged['module_access'] = ! empty( $merged['keepalive_enabled'] )
+				|| '' !== trim( (string) $merged['keepalive_url'] );
+		}
+
+		if ( array_key_exists( 'module_adlaw', $raw ) ) {
+			$merged['module_adlaw'] = ! empty( $raw['module_adlaw'] ) && '0' !== (string) $raw['module_adlaw'];
+		} else {
+			$merged['module_adlaw'] = ! empty( $merged['ad_law_allowlist'] );
+		}
 
 		return $merged;
 	}
@@ -1437,6 +1485,27 @@ class SettingsStore {
 					'field' => 'ad_law_enabled',
 					'value' => true,
 				),
+			),
+			'module_badges'          => array(
+				'type'    => 'toggle',
+				'tab'     => 'modules',
+				'default' => $defaults['module_badges'],
+				'label'   => __( '证照与徽章', 'wpicp' ),
+				'desc'    => __( '开启后显示「证照」标签页，支持官方预设徽标、电子证照防盗水印亮照与前台合集页。', 'wpicp' ),
+			),
+			'module_access'          => array(
+				'type'    => 'toggle',
+				'tab'     => 'modules',
+				'default' => $defaults['module_access'],
+				'label'   => __( '备案与接入保活', 'wpicp' ),
+				'desc'    => __( '开启后显示「巡检」入口，提供首页备案合规定时自检与接入商子域名低频保活探测。', 'wpicp' ),
+			),
+			'module_adlaw'           => array(
+				'type'    => 'toggle',
+				'tab'     => 'modules',
+				'default' => $defaults['module_adlaw'],
+				'label'   => __( '广告法极限词巡检', 'wpicp' ),
+				'desc'    => __( '开启后显示「巡检」入口，提供编辑器发布前风险提示、全站扫描与无言远程词库同步。', 'wpicp' ),
 			),
 		);
 
