@@ -11,6 +11,7 @@ namespace WenPai\ICP\Rest;
 use WenPai\ICP\Compliance\AccessMonitor;
 use WenPai\ICP\Compliance\AdLawScanner;
 use WenPai\ICP\Compliance\WordYeahClient;
+use WenPai\ICP\Compliance\WpmindReviewer;
 use WenPai\ICP\Options\SettingsStore;
 use WP_Error;
 use WP_Query;
@@ -239,13 +240,14 @@ class AuditController {
 		}
 
 		$merged_allow = array_merge( AdLawScanner::get_site_allowlist(), $extra );
-		$raw_hits     = AdLawScanner::scan_html( implode( "\n", $fragments ), $merged_allow );
+		$raw_hits     = AdLawScanner::scan_with_review( implode( "\n", $fragments ), $merged_allow );
 		$enriched     = self::enrich_findings( $raw_hits );
 
 		return new WP_REST_Response(
 			array(
 				'enabled'         => true,
-				'wpmindAvailable' => function_exists( 'wpmind_is_available' ) && wpmind_is_available(),
+				'wpmindAvailable' => WpmindReviewer::is_wpmind_available(),
+				'aiReviewActive'  => WpmindReviewer::is_active(),
 				'canManageAllow'  => self::can_manage_compliance(),
 				'count'           => count( $enriched ),
 				'findings'        => $enriched,
@@ -278,7 +280,7 @@ class AuditController {
 			$blog_name = (string) get_option( 'blogname', '' );
 			$blog_desc = (string) get_option( 'blogdescription', '' );
 			$meta_html = '<div id="blogname">' . esc_html( $blog_name ) . '</div><div id="blogdescription">' . esc_html( $blog_desc ) . '</div>';
-			$meta_hits = AdLawScanner::scan_html( $meta_html, $allowlist );
+			$meta_hits = AdLawScanner::scan_with_review( $meta_html, $allowlist );
 			foreach ( self::enrich_findings( $meta_hits ) as $hit ) {
 				$items[] = array_merge(
 					$hit,
@@ -311,7 +313,7 @@ class AuditController {
 			$combined = '<h1 id="post-title">' . esc_html( (string) $post->post_title ) . '</h1>'
 				. "\n" . (string) $post->post_excerpt
 				. "\n" . (string) $post->post_content;
-			$hits     = AdLawScanner::scan_html( $combined, $allowlist );
+			$hits     = AdLawScanner::scan_with_review( $combined, $allowlist );
 			if ( empty( $hits ) ) {
 				continue;
 			}
@@ -427,7 +429,7 @@ class AuditController {
 			return new WP_Error( 'wpicp_empty_excerpt', __( '缺少待改写的文本片段。', 'wpicp' ), array( 'status' => 400 ) );
 		}
 
-		if ( ! function_exists( 'wpmind_is_available' ) || ! wpmind_is_available() || ! function_exists( 'wpmind_chat' ) ) {
+		if ( ! WpmindReviewer::is_wpmind_available() || ! function_exists( 'wpmind_chat' ) ) {
 			return new WP_Error( 'wpicp_wpmind_unavailable', __( '未检测到可用的文派心思（WPMind）AI 通道。', 'wpicp' ), array( 'status' => 400 ) );
 		}
 

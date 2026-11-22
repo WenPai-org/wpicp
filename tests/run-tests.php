@@ -76,6 +76,39 @@ function has_filter( $tag ) {
 	return ! empty( $GLOBALS['_test_filters'][ $tag ] );
 }
 
+function remove_all_filters( $tag ) {
+	unset( $GLOBALS['_test_filters'][ $tag ] );
+	return true;
+}
+
+if ( ! class_exists( 'WP_Error' ) ) {
+	class WP_Error {
+		public $code;
+		public $message;
+		public $data;
+
+		public function __construct( $code = '', $message = '', $data = '' ) {
+			$this->code    = (string) $code;
+			$this->message = (string) $message;
+			$this->data    = $data;
+		}
+
+		public function get_error_code() {
+			return $this->code;
+		}
+
+		public function get_error_message() {
+			return $this->message;
+		}
+	}
+}
+
+if ( ! function_exists( 'is_wp_error' ) ) {
+	function is_wp_error( $thing ) {
+		return $thing instanceof WP_Error;
+	}
+}
+
 function get_option( $key, $fallback = false ) {
 	$pre = apply_filters( 'pre_option_' . $key, false, $key, $fallback );
 	if ( false !== $pre ) {
@@ -761,6 +794,234 @@ wpicp_assert( '' === do_test_shortcode( 'wpicp_certificates' ), '[wpicp_certific
 
 \WenPai\ICP\Options\SettingsStore::save_site( array( 'module_badges' => true ) );
 wpicp_assert( false !== strpos( do_test_shortcode( 'wpicp_certificates' ), 'wpicp-certificates' ), 'Re-enabling module_badges restores certificate output immediately' );
+
+// -----------------------------------------------------------------------------
+// 12. WPMind Semantic Review & Ecosystem Integration (M2-4)
+// -----------------------------------------------------------------------------
+// 12a. Default settings keep ai_engine=offline and ai_review_enabled=false; syncs both keys.
+$wpmind_defaults = \WenPai\ICP\Options\SettingsStore::defaults();
+wpicp_assert(
+	'offline' === $wpmind_defaults['ai_engine'] && false === $wpmind_defaults['ai_review_enabled'],
+	'Defaults keep ai_engine=offline and ai_review_enabled=false'
+);
+
+\WenPai\ICP\Options\SettingsStore::save_site(
+	array(
+		'module_adlaw'      => true,
+		'ad_law_enabled'    => true,
+		'ai_review_enabled' => true,
+	)
+);
+$cfg_ai_on = \WenPai\ICP\Options\SettingsStore::effective();
+wpicp_assert(
+	'wpmind' === $cfg_ai_on['ai_engine'] && true === $cfg_ai_on['ai_review_enabled'],
+	'Saving ai_review_enabled=true syncs ai_engine to wpmind'
+);
+
+\WenPai\ICP\Options\SettingsStore::save_site( array( 'ai_engine' => 'offline' ) );
+$cfg_ai_off = \WenPai\ICP\Options\SettingsStore::effective();
+wpicp_assert(
+	'offline' === $cfg_ai_off['ai_engine'] && false === $cfg_ai_off['ai_review_enabled'],
+	'Saving ai_engine=offline syncs ai_review_enabled to false'
+);
+
+// 12b. Offline-only fallback when WPMind is disabled or unavailable.
+$review_html = '<p>本产品采用全网最低定价，同时引用历史文献中关于“世界第一高峰珠穆朗玛峰”的地理表述。</p>';
+$offline_raw = \WenPai\ICP\Compliance\AdLawScanner::scan_html( $review_html );
+wpicp_assert( 2 === count( $offline_raw ), 'Offline scanner detects both 全网最低 and 世界第一 candidates' );
+
+$fallback_disabled = \WenPai\ICP\Compliance\AdLawScanner::scan_with_review( $review_html );
+wpicp_assert(
+	2 === count( $fallback_disabled ) && ! isset( $fallback_disabled[0]['ai_reviewed'] ),
+	'scan_with_review returns untouched offline hits when ai_engine is offline'
+);
+
+\WenPai\ICP\Options\SettingsStore::save_site( array( 'ai_engine' => 'wpmind' ) );
+$fallback_unavail = \WenPai\ICP\Compliance\AdLawScanner::scan_with_review( $review_html );
+wpicp_assert(
+	2 === count( $fallback_unavail ) && ! isset( $fallback_unavail[0]['ai_reviewed'] ),
+	'scan_with_review falls back cleanly to offline hits when WPMind is unavailable'
+);
+
+// 12c. Capability gate & status payload reflect missing vs available states.
+$gate_missing = \WenPai\ICP\Compliance\WpmindReviewer::choice_gate();
+wpicp_assert( true === $gate_missing['disabled'] && '推荐' === $gate_missing['hint'], 'choice_gate disables wpmind with 推荐 hint when missing' );
+
+// 12d. Semantic review path via wpmind_structured filter (verifies context=wpicp_adlaw, filters false positive, enriches violation).
+$captured_context = '';
+$captured_schema  = array();
+add_filter(
+	'wpmind_is_available',
+	static function () {
+		return true;
+	}
+);
+add_filter(
+	'wpmind_structured',
+	static function ( $fallback, $messages, $schema, $opts ) use ( &$captured_context, &$captured_schema ) {
+		unset( $fallback, $messages );
+		$captured_context = isset( $opts['context'] ) ? (string) $opts['context'] : '';
+		$captured_schema  = is_array( $schema ) ? $schema : array();
+		return array(
+			'data' => array(
+				'items' => array(
+					array(
+						'index'        => 0,
+						'is_violation' => true,
+						'confidence'   => 'high',
+						'reason'       => '商业促销语境中使用绝对化最低价宣传',
+						'suggestion'   => '限时诚意价',
+					),
+					array(
+						'index'        => 1,
+						'is_violation' => false,
+						'confidence'   => 'high',
+						'reason'       => '客观地理事实陈述，非商业广告宣传',
+						'suggestion'   => '',
+					),
+				),
+			),
+		);
+	},
+	10,
+	4
+);
+
+$gate_avail = \WenPai\ICP\Compliance\WpmindReviewer::choice_gate();
+$stat_avail = \WenPai\ICP\Compliance\WpmindReviewer::status_payload();
+wpicp_assert( false === $gate_avail['disabled'] && '' === $gate_avail['hint'], 'choice_gate enables wpmind option when WPMind is available' );
+wpicp_assert( 'ok' === $stat_avail['level'] && '已就绪' === $stat_avail['text'], 'status_payload reports ok/已就绪 when WPMind is available' );
+
+$reviewed_hits = apply_filters( 'wenpai_ad_law_scan', array(), $review_html, array() );
+wpicp_assert( 'wpicp_adlaw' === $captured_context, 'WpmindReviewer passes context=wpicp_adlaw for usage attribution' );
+wpicp_assert( isset( $captured_schema['properties']['items'] ), 'WpmindReviewer passes structured items JSON Schema' );
+wpicp_assert(
+	1 === count( $reviewed_hits )
+	&& '全网最低' === $reviewed_hits[0]['term']
+	&& true === $reviewed_hits[0]['ai_reviewed']
+	&& 'violation' === $reviewed_hits[0]['ai_verdict']
+	&& 'high' === $reviewed_hits[0]['ai_confidence']
+	&& '限时诚意价' === $reviewed_hits[0]['suggestions'][0],
+	'Semantic review filters out factual false positive and enriches genuine violation with AI suggestion'
+);
+
+$kept_fp = \WenPai\ICP\Compliance\AdLawScanner::scan_with_review( $review_html, array(), array( 'keep_false_positives' => true ) );
+wpicp_assert(
+	2 === count( $kept_fp ) && 'false_positive' === $kept_fp[1]['ai_verdict'],
+	'keep_false_positives retains non-violations tagged with ai_verdict=false_positive'
+);
+
+// 12e. Fallback on WP_Error from wpmind_structured.
+remove_all_filters( 'wpmind_structured' );
+add_filter(
+	'wpmind_structured',
+	static function () {
+		return new WP_Error( 'wpmind_timeout', 'Upstream timeout' );
+	},
+	10,
+	4
+);
+$error_fallback = \WenPai\ICP\Compliance\AdLawScanner::scan_with_review( $review_html );
+wpicp_assert(
+	2 === count( $error_fallback ) && ! isset( $error_fallback[0]['ai_reviewed'] ),
+	'WP_Error from wpmind_structured falls back cleanly to original offline findings'
+);
+
+// 12f. Fallback to wpmind_chat (JSON mode with markdown code fence) when wpmind_structured is absent.
+remove_all_filters( 'wpmind_structured' );
+$chat_context = '';
+add_filter(
+	'wpmind_chat',
+	static function ( $fallback, $messages, $opts ) use ( &$chat_context ) {
+		unset( $fallback, $messages );
+		$chat_context = isset( $opts['context'] ) ? (string) $opts['context'] : '';
+		return array(
+			'content' => "```json\n{\"items\":[{\"index\":0,\"is_violation\":true,\"confidence\":\"medium\",\"reason\":\"促销绝对化\",\"suggestion\":\"诚意价\"},{\"index\":1,\"is_violation\":false,\"confidence\":\"high\",\"reason\":\"客观陈述\"}]}\n```",
+		);
+	},
+	10,
+	3
+);
+$chat_reviewed = \WenPai\ICP\Compliance\AdLawScanner::scan_with_review( $review_html );
+wpicp_assert(
+	'wpicp_adlaw' === $chat_context && 1 === count( $chat_reviewed ) && '全网最低' === $chat_reviewed[0]['term'],
+	'wpmind_chat fallback decodes fenced JSON and filters false positive cleanly'
+);
+
+remove_all_filters( 'wpmind_chat' );
+remove_all_filters( 'wpmind_is_available' );
+
+// 12g. wpmind_ecosystem_integrations output when enabled vs disabled.
+$eco_enabled = apply_filters(
+	'wpmind_ecosystem_integrations',
+	array(),
+	array(
+		'wpicp' => array(
+			'requests' => 7,
+			'tokens'   => 1280,
+		),
+	)
+);
+wpicp_assert(
+	1 === count( $eco_enabled )
+	&& 'wpicp' === $eco_enabled[0]['slug']
+	&& true === $eco_enabled[0]['active']
+	&& '广告法语义复核' === $eco_enabled[0]['feature']
+	&& 7 === $eco_enabled[0]['requests']
+	&& 1280 === $eco_enabled[0]['tokens']
+	&& false !== strpos( $eco_enabled[0]['settings_url'], 'tab=audit' )
+	&& false !== strpos( $eco_enabled[0]['settings_url'], 'section=adlaw' ),
+	'wpmind_ecosystem_integrations registers active WPICP entry when AI review is enabled'
+);
+
+// Updating an existing pre-populated wpicp entry must not duplicate it.
+$eco_dedup = apply_filters(
+	'wpmind_ecosystem_integrations',
+	array(
+		array(
+			'slug'   => 'wpslug',
+			'name'   => '文派别名',
+			'active' => true,
+		),
+		array(
+			'slug'    => 'wpicp',
+			'name'    => 'Old Placeholder',
+			'feature' => '旧文案',
+			'active'  => true,
+		),
+	),
+	array()
+);
+wpicp_assert(
+	2 === count( $eco_dedup ) && '广告法语义复核' === $eco_dedup[1]['feature'],
+	'wpmind_ecosystem_integrations updates existing wpicp entry in place without duplicating'
+);
+
+// Disabled ai_engine must not register an active entry and strips zero-request placeholders.
+\WenPai\ICP\Options\SettingsStore::save_site( array( 'ai_engine' => 'offline' ) );
+$eco_disabled = apply_filters(
+	'wpmind_ecosystem_integrations',
+	array(
+		array(
+			'slug'     => 'wpicp',
+			'name'     => 'Stale',
+			'requests' => 0,
+			'active'   => true,
+		),
+	),
+	array()
+);
+wpicp_assert( 0 === count( $eco_disabled ), 'wpmind_ecosystem_integrations omits wpicp when AI review is disabled' );
+
+// Turning off module_adlaw while ai_engine=wpmind also marks integration inactive.
+\WenPai\ICP\Options\SettingsStore::save_site(
+	array(
+		'ai_engine'    => 'wpmind',
+		'module_adlaw' => false,
+	)
+);
+$eco_mod_off = apply_filters( 'wpmind_ecosystem_integrations', array(), array() );
+wpicp_assert( 0 === count( $eco_mod_off ), 'wpmind_ecosystem_integrations returns empty when module_adlaw is disabled' );
 
 if ( $failed > 0 ) {
 	fwrite( STDERR, "FAILED: {$failed} failed, {$passed} passed\n" );

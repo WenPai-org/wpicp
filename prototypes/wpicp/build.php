@@ -262,7 +262,7 @@ spl_autoload_register(
 	}
 );
 
-foreach ( array( 'icons', 'menu', 'ui', 'action', 'settings', 'tools', 'shell' ) as $part ) {
+foreach ( array( 'icons', 'menu', 'ui', 'action', 'capability', 'settings', 'tools', 'shell' ) as $part ) {
 	require_once $kit_root . '/php/class-wenpai-admin-' . $part . '.php';
 }
 

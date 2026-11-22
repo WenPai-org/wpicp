@@ -8,6 +8,7 @@
 namespace WenPai\ICP\Options;
 
 use WenPai\ICP\Compliance\AccessMonitor;
+use WenPai\ICP\Compliance\WpmindReviewer;
 use Wenpai_Admin_Settings;
 use Wenpai_Admin_UI;
 
@@ -136,6 +137,8 @@ class SettingsStore {
 			'ad_law_editor_panel'    => true,
 			'ad_law_scan_post_types' => array( 'post', 'page' ),
 			'ad_law_allowlist'       => array(),
+			'ai_engine'              => 'offline',
+			'ai_review_enabled'      => false,
 			'module_badges'          => false,
 			'module_access'          => false,
 			'module_adlaw'           => false,
@@ -424,6 +427,16 @@ class SettingsStore {
 		}
 		$merged['ad_law_allowlist'] = $allowlist;
 
+		if ( array_key_exists( 'ai_engine', $raw ) ) {
+			$ai_engine = 'wpmind' === (string) $raw['ai_engine'] ? 'wpmind' : 'offline';
+		} elseif ( array_key_exists( 'ai_review_enabled', $raw ) ) {
+			$ai_engine = ( ! empty( $raw['ai_review_enabled'] ) && '0' !== (string) $raw['ai_review_enabled'] ) ? 'wpmind' : 'offline';
+		} else {
+			$ai_engine = 'wpmind' === (string) $merged['ai_engine'] ? 'wpmind' : 'offline';
+		}
+		$merged['ai_engine']         = $ai_engine;
+		$merged['ai_review_enabled'] = 'wpmind' === $ai_engine;
+
 		if ( array_key_exists( 'module_badges', $raw ) ) {
 			$merged['module_badges'] = ! empty( $raw['module_badges'] ) && '0' !== (string) $raw['module_badges'];
 		} else {
@@ -551,6 +564,11 @@ class SettingsStore {
 	 * @return array<string, mixed> Normalized stored settings.
 	 */
 	public static function save_site( array $values ) {
+		if ( array_key_exists( 'ai_review_enabled', $values ) && ! array_key_exists( 'ai_engine', $values ) ) {
+			$values['ai_engine'] = ( ! empty( $values['ai_review_enabled'] ) && '0' !== (string) $values['ai_review_enabled'] ) ? 'wpmind' : 'offline';
+		} elseif ( array_key_exists( 'ai_engine', $values ) && ! array_key_exists( 'ai_review_enabled', $values ) ) {
+			$values['ai_review_enabled'] = 'wpmind' === (string) $values['ai_engine'];
+		}
 		$current = get_option( self::OPTION_SITE, array() );
 		$merged  = is_array( $current ) ? array_merge( $current, $values ) : $values;
 		$clean   = self::normalize( $merged );
@@ -566,6 +584,11 @@ class SettingsStore {
 	 * @return array<string, mixed> Normalized stored settings.
 	 */
 	public static function save_network( array $values ) {
+		if ( array_key_exists( 'ai_review_enabled', $values ) && ! array_key_exists( 'ai_engine', $values ) ) {
+			$values['ai_engine'] = ( ! empty( $values['ai_review_enabled'] ) && '0' !== (string) $values['ai_review_enabled'] ) ? 'wpmind' : 'offline';
+		} elseif ( array_key_exists( 'ai_engine', $values ) && ! array_key_exists( 'ai_review_enabled', $values ) ) {
+			$values['ai_review_enabled'] = 'wpmind' === (string) $values['ai_engine'];
+		}
 		$current = function_exists( 'get_site_option' ) ? get_site_option( self::OPTION_NETWORK, array() ) : array();
 		$merged  = is_array( $current ) ? array_merge( $current, $values ) : $values;
 		$clean   = self::normalize( $merged );
@@ -1413,6 +1436,50 @@ class SettingsStore {
 				'default'    => $defaults['ad_law_remote_sync'],
 				'label'      => __( '启用无言（WordYeah）远程词库', 'wpicp' ),
 				'desc'       => __( '从 api.wpcy.com 单向拉取无言（WordYeah）维护的最新极限词与安全复合词清单至本地缓存。', 'wpicp' ),
+				'depends_on' => array(
+					'field' => 'ad_law_enabled',
+					'value' => true,
+				),
+			),
+			'ai_engine'              => array(
+				'type'       => 'choice',
+				'tab'        => 'audit_adlaw',
+				'layout'     => 'stack',
+				'default'    => $defaults['ai_engine'],
+				'label'      => __( '极限词复核方式', 'wpicp' ),
+				'desc'       => __( '默认仅用本地词库扫描；启用文派心思后可在离线命中时结合语境甄别客观陈述与误报。', 'wpicp' ),
+				'choices'    => static function () {
+					$choices = array(
+						'offline' => array(
+							'label' => __( '纯离线词库', 'wpicp' ),
+							'desc'  => __( '本地毫秒级匹配无言词库，文章内容不上传外部接口。', 'wpicp' ),
+							'icon'  => 'shield-check',
+						),
+					);
+					$gate    = WpmindReviewer::choice_gate();
+					if ( empty( $gate['hidden'] ) ) {
+						$choices['wpmind'] = array(
+							'label'    => __( '文派心思语义复核', 'wpicp' ),
+							'desc'     => __( '离线命中后由文派心思判断语境剔除误报，不可用时自动退回离线结果。', 'wpicp' ),
+							'icon'     => 'sparkle',
+							'hint'     => (string) ( $gate['hint'] ?? '' ),
+							'disabled' => ! empty( $gate['disabled'] ),
+						);
+					}
+					return $choices;
+				},
+				'depends_on' => array(
+					'field' => 'ad_law_enabled',
+					'value' => true,
+				),
+			),
+			'ai_engine_status'       => array(
+				'type'       => 'status',
+				'tab'        => 'audit_adlaw',
+				'label'      => __( '文派心思通道', 'wpicp' ),
+				'status'     => static function () {
+					return WpmindReviewer::status_payload();
+				},
 				'depends_on' => array(
 					'field' => 'ad_law_enabled',
 					'value' => true,
