@@ -8,6 +8,7 @@
  * @package WenPai\ICP
  */
 
+use WenPai\ICP\Compliance\AccessMonitor;
 use WenPai\ICP\Compliance\SiteHealthCheck;
 use WenPai\ICP\Frontend\Renderer;
 use WenPai\ICP\Migration\LegacyMigrator;
@@ -16,26 +17,27 @@ use WenPai\ICP\Rest\AuditController;
 
 defined( 'ABSPATH' ) || exit;
 
-$wpicp_effective   = SettingsStore::effective();
-$wpicp_audit       = SiteHealthCheck::audit( $wpicp_effective );
-$wpicp_scan_meta   = get_option( AuditController::SUMMARY_OPTION, array() );
-$wpicp_scan_hits   = is_array( $wpicp_scan_meta ) && isset( $wpicp_scan_meta['total_hits'] ) ? (int) $wpicp_scan_meta['total_hits'] : 0;
-$wpicp_has_scan    = is_array( $wpicp_scan_meta ) && ! empty( $wpicp_scan_meta['last_scan_at'] );
+$wpicp_effective    = SettingsStore::effective();
+$wpicp_audit        = SiteHealthCheck::audit( $wpicp_effective );
+$wpicp_access_snap  = AccessMonitor::last_status();
+$wpicp_home_snap    = isset( $wpicp_access_snap['home'] ) && is_array( $wpicp_access_snap['home'] ) ? $wpicp_access_snap['home'] : array();
+$wpicp_probe_snap   = isset( $wpicp_access_snap['keepalive'] ) && is_array( $wpicp_access_snap['keepalive'] ) ? $wpicp_access_snap['keepalive'] : array();
+$wpicp_keepalive_on = ! empty( $wpicp_effective['keepalive_enabled'] ) && '' !== trim( (string) $wpicp_effective['keepalive_url'] );
+$wpicp_scan_meta    = get_option( AuditController::SUMMARY_OPTION, array() );
+$wpicp_scan_hits    = is_array( $wpicp_scan_meta ) && isset( $wpicp_scan_meta['total_hits'] ) ? (int) $wpicp_scan_meta['total_hits'] : 0;
+$wpicp_has_scan     = is_array( $wpicp_scan_meta ) && ! empty( $wpicp_scan_meta['last_scan_at'] );
+
 $wpicp_filing_url  = isset( $shell['tabs'][1]['url'] ) ? (string) $shell['tabs'][1]['url'] : '#filing';
 $wpicp_badges_url  = isset( $shell['tabs'][2]['url'] ) ? (string) $shell['tabs'][2]['url'] : '#badges';
 $wpicp_display_url = isset( $shell['tabs'][3]['url'] ) ? (string) $shell['tabs'][3]['url'] : '#display';
 $wpicp_audit_url   = isset( $shell['tabs'][4]['url'] ) ? (string) $shell['tabs'][4]['url'] : '#audit';
 $wpicp_help_url    = isset( $shell['help_url'] ) ? (string) $shell['help_url'] : '#help';
-$wpicp_adv_url     = false !== strpos( $wpicp_filing_url, '.html' )
-	? str_replace( 'filing.html', 'filing-advanced.html?mode=advanced', $wpicp_filing_url )
-	: add_query_arg( 'mode', 'advanced', $wpicp_filing_url );
+$wpicp_is_proto    = false !== strpos( $wpicp_audit_url, '.html' );
+$wpicp_access_url  = $wpicp_is_proto ? 'audit.html' : add_query_arg( 'section', 'access', $wpicp_audit_url );
+$wpicp_adlaw_url   = $wpicp_is_proto ? 'audit-adlaw.html' : add_query_arg( 'section', 'adlaw', $wpicp_audit_url );
 
-$wpicp_sync_count = 0;
-$wpicp_channels   = array();
+$wpicp_channels = array();
 foreach ( $wpicp_audit['suite'] as $wpicp_item ) {
-	if ( 'ok' === $wpicp_item['state'] ) {
-		++$wpicp_sync_count;
-	}
 	$wpicp_channels[] = array(
 		'label' => $wpicp_item['label'],
 		'value' => $wpicp_item['value'],
@@ -44,15 +46,18 @@ foreach ( $wpicp_audit['suite'] as $wpicp_item ) {
 }
 
 $wpicp_core_synced = isset( $wpicp_audit['suite'][0]['state'] ) && 'ok' === $wpicp_audit['suite'][0]['state'];
+$wpicp_probe_bad   = $wpicp_keepalive_on && ! empty( $wpicp_probe_snap ) && empty( $wpicp_probe_snap['ok'] );
 
 if ( $wpicp_audit['is_empty'] ) {
-	$wpicp_lede = __( '尚未登记站点备案号，填写后将自动同步全站页脚与文派生态。', 'wpicp' );
+	$wpicp_lede = __( '尚未登记站点备案号，填写后将自动同步全站页脚并开启首页合规自检。', 'wpicp' );
+} elseif ( $wpicp_probe_bad ) {
+	$wpicp_lede = __( '检测到接入商保活子域名异常，请及时核查 DNS 与服务可达性避免触发取消接入。', 'wpicp' );
 } elseif ( 'bad' === $wpicp_audit['overall_state'] ) {
 	$wpicp_lede = __( '检测到备案号格式异常，请核对后重新保存。', 'wpicp' );
 } elseif ( $wpicp_scan_hits > 0 ) {
 	$wpicp_lede = sprintf(
 		/* translators: %d: hit count */
-		__( '备案公示已启用，最近一次巡检发现 %d 处《广告法》风险表达。', 'wpicp' ),
+		__( '备案公示正常，最近一次《广告法》巡检发现 %d 处待复核表达。', 'wpicp' ),
 		$wpicp_scan_hits
 	);
 } else {
@@ -69,8 +74,8 @@ $wpicp_head_actions .= Wenpai_Admin_UI::button_html(
 );
 $wpicp_head_actions .= Wenpai_Admin_UI::button_html(
 	array(
-		'label'   => __( '合规巡检', 'wpicp' ),
-		'href'    => $wpicp_audit_url,
+		'label'   => __( '备案与接入体检', 'wpicp' ),
+		'href'    => $wpicp_access_url,
 		'variant' => $wpicp_audit['is_empty'] ? 'secondary' : 'primary',
 	)
 );
@@ -106,7 +111,7 @@ if ( $wpicp_audit['is_empty'] ) {
 		array(
 			'icon'    => 'shield-check',
 			'title'   => __( '尚未登记站点备案与主体资质', 'wpicp' ),
-			'desc'    => __( '一处填写 ICP 备案号、公安联网备案号与主体全称，自动同步全站页脚与文派生态插件。', 'wpicp' ),
+			'desc'    => __( '一处填写 ICP 备案号、公安联网备案号与主体全称，自动同步全站页脚、首页合规检测与文派生态插件。', 'wpicp' ),
 			'actions' => array(
 				array(
 					'label'   => __( '填写备案信息', 'wpicp' ),
@@ -114,9 +119,25 @@ if ( $wpicp_audit['is_empty'] ) {
 					'variant' => 'primary',
 				),
 				array(
-					'label'   => __( '高级资质设置', 'wpicp' ),
-					'href'    => $wpicp_adv_url,
+					'label'   => __( '配置接入商保活', 'wpicp' ),
+					'href'    => $wpicp_access_url,
 					'variant' => 'ghost',
+				),
+			),
+		)
+	);
+} elseif ( $wpicp_probe_bad ) {
+	Wenpai_Admin_UI::next(
+		array(
+			'state'   => 'bad',
+			'icon'    => 'info',
+			'title'   => __( '接入商保活子域名检测异常，存在取消接入风险', 'wpicp' ),
+			'desc'    => isset( $wpicp_probe_snap['summary'] ) ? (string) $wpicp_probe_snap['summary'] : __( '请核查保活子域名 DNS 解析与页面可达性。', 'wpicp' ),
+			'actions' => array(
+				array(
+					'label'   => __( '查看接入核查详情', 'wpicp' ),
+					'href'    => $wpicp_access_url,
+					'variant' => 'secondary',
 				),
 			),
 		)
@@ -151,7 +172,7 @@ if ( $wpicp_audit['is_empty'] ) {
 			'actions' => array(
 				array(
 					'label'   => __( '查看巡检详情', 'wpicp' ),
-					'href'    => $wpicp_audit_url,
+					'href'    => $wpicp_adlaw_url,
 					'variant' => 'secondary',
 				),
 			),
@@ -159,7 +180,29 @@ if ( $wpicp_audit['is_empty'] ) {
 	);
 }
 
-// Row 1: Silent-when-healthy 4-col Stat Hub + Expandable 4-col Ecosystem Sync Drawer.
+// Compute stat_hub values (honest & quiet when unconfigured).
+$wpicp_home_val  = __( '未检', 'wpicp' );
+$wpicp_home_unit = '';
+if ( ! empty( $wpicp_home_snap ) && isset( $wpicp_home_snap['passed'], $wpicp_home_snap['total'] ) ) {
+	$wpicp_home_val  = ! empty( $wpicp_home_snap['ok'] ) ? __( '通过', 'wpicp' ) : __( '待修', 'wpicp' );
+	$wpicp_home_unit = (int) $wpicp_home_snap['passed'] . '/' . (int) $wpicp_home_snap['total'];
+}
+
+$wpicp_keep_val  = __( '未开启', 'wpicp' );
+$wpicp_keep_unit = __( '主站直连', 'wpicp' );
+if ( $wpicp_keepalive_on ) {
+	if ( empty( $wpicp_probe_snap ) ) {
+		$wpicp_keep_val  = __( '待首次探测', 'wpicp' );
+		$wpicp_keep_unit = AccessMonitor::interval_label( (string) $wpicp_effective['keepalive_interval'] );
+	} elseif ( ! empty( $wpicp_probe_snap['ok'] ) ) {
+		$wpicp_keep_val  = __( '正常', 'wpicp' );
+		$wpicp_keep_unit = '200 OK';
+	} else {
+		$wpicp_keep_val  = __( '异常', 'wpicp' );
+		$wpicp_keep_unit = isset( $wpicp_probe_snap['result_label'] ) ? (string) $wpicp_probe_snap['result_label'] : '';
+	}
+}
+
 Wenpai_Admin_UI::stat_hub(
 	array(
 		'drawer_id' => 'wpicp-suite-drawer',
@@ -170,19 +213,19 @@ Wenpai_Admin_UI::stat_hub(
 				'unit'  => __( '项', 'wpicp' ),
 			),
 			array(
-				'label' => __( '证照与徽章', 'wpicp' ),
-				'value' => (string) $wpicp_audit['badge_count'],
-				'unit'  => __( '枚', 'wpicp' ),
+				'label' => __( '首页备案自检', 'wpicp' ),
+				'value' => $wpicp_home_val,
+				'unit'  => $wpicp_home_unit,
 			),
 			array(
-				'label' => __( '巡检风险项', 'wpicp' ),
-				'value' => $wpicp_has_scan ? (string) $wpicp_scan_hits : '0',
-				'unit'  => __( '处', 'wpicp' ),
+				'label' => __( '接入商保活', 'wpicp' ),
+				'value' => $wpicp_keep_val,
+				'unit'  => $wpicp_keep_unit,
 			),
 			array(
-				'label' => __( '协同通道', 'wpicp' ),
-				'value' => (string) $wpicp_sync_count,
-				'unit'  => __( '个', 'wpicp' ),
+				'label' => __( '广告法风险', 'wpicp' ),
+				'value' => $wpicp_has_scan ? (string) $wpicp_scan_hits : __( '未执行', 'wpicp' ),
+				'unit'  => $wpicp_has_scan ? __( '处', 'wpicp' ) : '',
 			),
 		),
 		'alert'     => array(
@@ -193,15 +236,240 @@ Wenpai_Admin_UI::stat_hub(
 		'channels'  => $wpicp_channels,
 	)
 );
+?>
 
-// Row 2: Live Frontend Compliance Bar Preview (matches saved footer_style).
-$wpicp_active_style = in_array( (string) $wpicp_effective['footer_style'], array( 'standard', 'minimal', 'badges' ), true )
+<div class="wenpai-split wenpai-split--equal">
+<?php
+// Left equal-height card: Homepage filing & provider compliance feed.
+Wenpai_Admin_UI::card_open(
+	array(
+		'title' => __( '首页备案与接入合规体检', 'wpicp' ),
+		'tile'  => false,
+		'class' => 'wenpai-card--equal',
+	)
+);
+echo '<div class="wenpai-card__body">';
+
+$wpicp_feed_items = array();
+$wpicp_check_urls = array(
+	'icp'         => $wpicp_filing_url,
+	'mps'         => $wpicp_filing_url,
+	'company'     => $wpicp_filing_url,
+	'policy'      => $wpicp_filing_url,
+	'output'      => $wpicp_display_url,
+	'cert_expiry' => $wpicp_is_proto ? 'badges-certificates.html' : add_query_arg( 'section', 'certificates', $wpicp_badges_url ),
+);
+
+foreach ( $wpicp_audit['checks'] as $wpicp_check ) {
+	$wpicp_state = (string) $wpicp_check['state'];
+	$wpicp_cid   = (string) $wpicp_check['id'];
+	$wpicp_entry = array(
+		'tag'   => 'ok' === $wpicp_state
+			? __( '正常', 'wpicp' )
+			: ( 'bad' === $wpicp_state ? __( '异常', 'wpicp' ) : __( '待补', 'wpicp' ) ),
+		'tone'  => 'ok' === $wpicp_state ? 'ok' : ( 'bad' === $wpicp_state ? 'bad' : 'warn' ),
+		'title' => $wpicp_check['label'],
+	);
+	if ( 'ok' === $wpicp_state ) {
+		$wpicp_entry['when'] = $wpicp_check['value'];
+	} else {
+		$wpicp_entry['note']         = $wpicp_check['detail'];
+		$wpicp_entry['action_label'] = 'bad' === $wpicp_state ? __( '修正', 'wpicp' ) : __( '完善', 'wpicp' );
+		$wpicp_entry['action_url']   = isset( $wpicp_check_urls[ $wpicp_cid ] ) ? $wpicp_check_urls[ $wpicp_cid ] : $wpicp_filing_url;
+	}
+	$wpicp_feed_items[] = $wpicp_entry;
+}
+
+if ( $wpicp_keepalive_on ) {
+	if ( ! empty( $wpicp_probe_snap ) ) {
+		$wpicp_ok           = ! empty( $wpicp_probe_snap['ok'] );
+		$wpicp_feed_items[] = array(
+			'tag'          => $wpicp_ok ? __( '正常', 'wpicp' ) : __( '异常', 'wpicp' ),
+			'tone'         => $wpicp_ok ? 'ok' : 'bad',
+			'title'        => sprintf(
+				/* translators: %s: cloud provider label */
+				__( '接入商保活（%s）', 'wpicp' ),
+				AccessMonitor::provider_label( (string) $wpicp_effective['access_provider'] )
+			),
+			'when'         => $wpicp_ok ? (string) $wpicp_probe_snap['primary_ip'] : '',
+			'note'         => $wpicp_ok ? '' : (string) $wpicp_probe_snap['summary'],
+			'action_label' => $wpicp_ok ? '' : __( '处理', 'wpicp' ),
+			'action_url'   => $wpicp_ok ? '' : $wpicp_access_url,
+		);
+	} else {
+		$wpicp_feed_items[] = array(
+			'tag'          => __( '待检', 'wpicp' ),
+			'tone'         => 'warn',
+			'title'        => __( '接入商子域名保活探测', 'wpicp' ),
+			'note'         => __( '已配置保活地址，尚未执行首次探测。', 'wpicp' ),
+			'action_label' => __( '检测', 'wpicp' ),
+			'action_url'   => $wpicp_access_url,
+		);
+	}
+}
+
+Wenpai_Admin_UI::tag_feed( array( 'items' => array_slice( $wpicp_feed_items, 0, 6 ) ) );
+
+echo '</div>';
+Wenpai_Admin_UI::card_foot(
+	array(
+		'start'   => true,
+		'meta'    => ! empty( $wpicp_access_snap['checked_at'] )
+			? sprintf(
+				/* translators: %s: timestamp */
+				__( '上次首页/接入检测：%s', 'wpicp' ),
+				(string) $wpicp_access_snap['checked_at']
+			)
+			: $wpicp_audit['summary'],
+		'actions' => array(
+			array(
+				'label'   => __( '进入接入保活', 'wpicp' ),
+				'href'    => $wpicp_access_url,
+				'variant' => 'ghost',
+				'size'    => 'sm',
+			),
+		),
+	)
+);
+Wenpai_Admin_UI::card_close();
+
+// Right equal-height card: Quick navigation grid & copyable shortcodes switcher.
+$wpicp_right_tabs = Wenpai_Admin_UI::view_tabs_html(
+	array(
+		'group'      => 'wpicp-quick-box',
+		'aria_label' => __( '切换快捷入口与短代码', 'wpicp' ),
+		'items'      => array(
+			array(
+				'id'         => 'shortcuts',
+				'label'      => __( '快捷入口', 'wpicp' ),
+				'active'     => true,
+				'card_title' => __( '快捷入口', 'wpicp' ),
+			),
+			array(
+				'id'         => 'shortcodes',
+				'label'      => __( '调用代码', 'wpicp' ),
+				'card_title' => __( '短代码调用', 'wpicp' ),
+			),
+		),
+	)
+);
+
+Wenpai_Admin_UI::card_open(
+	array(
+		'title'             => __( '快捷入口', 'wpicp' ),
+		'tile'              => false,
+		'class'             => 'wenpai-card--equal',
+		'head_control_html' => $wpicp_right_tabs,
+	)
+);
+echo '<div class="wenpai-card__body">';
+
+$wpicp_shortcuts_html = Wenpai_Admin_UI::icon_grid_html(
+	array(
+		'columns' => 2,
+		'items'   => array(
+			array(
+				'icon'  => 'shield-check',
+				'label' => __( '备案资质', 'wpicp' ),
+				'href'  => $wpicp_filing_url,
+				'state' => ( 'bad' === $wpicp_audit['overall_state'] || $wpicp_audit['is_empty'] ) ? 'warn' : 'ok',
+			),
+			array(
+				'icon'  => 'image',
+				'label' => __( '证照徽章', 'wpicp' ),
+				'href'  => $wpicp_badges_url,
+				'badge' => $wpicp_audit['badge_count'] > 0 ? (string) $wpicp_audit['badge_count'] : '',
+			),
+			array(
+				'icon'  => 'equalizer',
+				'label' => __( '前台展示', 'wpicp' ),
+				'href'  => $wpicp_display_url,
+			),
+			array(
+				'icon'  => 'search',
+				'label' => __( '合规巡检', 'wpicp' ),
+				'href'  => $wpicp_access_url,
+				'state' => ( $wpicp_scan_hits > 0 || $wpicp_probe_bad ) ? 'warn' : ( $wpicp_has_scan ? 'ok' : '' ),
+			),
+		),
+	)
+);
+
+$wpicp_shortcodes_html = '<div class="wpicp-preview__code">'
+	. '<div class="wpicp-preview__code-item"><span class="meta">' . esc_html__( '完整页脚合规栏', 'wpicp' ) . '</span>'
+	. Wenpai_Admin_UI::code_inline_html(
+		array(
+			'code'   => '[wpicp]',
+			'copy'   => true,
+			'button' => array( 'label' => __( '复制', 'wpicp' ) ),
+		)
+	)
+	. '</div>'
+	. '<div class="wpicp-preview__code-item"><span class="meta">' . esc_html__( '仅输出 ICP 备案号', 'wpicp' ) . '</span>'
+	. Wenpai_Admin_UI::code_inline_html(
+		array(
+			'code'   => '[wpicp field="icp"]',
+			'copy'   => true,
+			'button' => array( 'label' => __( '复制', 'wpicp' ) ),
+		)
+	)
+	. '</div>'
+	. '<div class="wpicp-preview__code-item"><span class="meta">' . esc_html__( '信任徽章与电子证照画廊', 'wpicp' ) . '</span>'
+	. Wenpai_Admin_UI::code_inline_html(
+		array(
+			'code'   => '[wpicp_certificates]',
+			'copy'   => true,
+			'button' => array( 'label' => __( '复制', 'wpicp' ) ),
+		)
+	)
+	. '</div>'
+	. '</div>';
+
+Wenpai_Admin_UI::view_panes(
+	array(
+		'group' => 'wpicp-quick-box',
+		'panes' => array(
+			array(
+				'id'     => 'shortcuts',
+				'active' => true,
+				'html'   => $wpicp_shortcuts_html,
+			),
+			array(
+				'id'   => 'shortcodes',
+				'html' => $wpicp_shortcodes_html,
+			),
+		),
+	)
+);
+
+echo '</div>';
+Wenpai_Admin_UI::card_foot(
+	array(
+		'start'   => true,
+		'meta'    => __( '支持区块编辑器与经典短代码调用', 'wpicp' ),
+		'actions' => array(
+			array(
+				'label'   => __( '帮助文档', 'wpicp' ),
+				'href'    => $wpicp_help_url,
+				'variant' => 'ghost',
+				'size'    => 'sm',
+			),
+		),
+	)
+);
+Wenpai_Admin_UI::card_close();
+?>
+</div>
+
+<?php
+// Row 3: Live Frontend Compliance Bar Preview (matches saved footer_style).
+$wpicp_active_style = in_array( (string) $wpicp_effective['footer_style'], array( 'minimal', 'standard', 'badges' ), true )
 	? (string) $wpicp_effective['footer_style']
 	: 'standard';
 
 $wpicp_style_labels = array(
-	'standard' => __( '标准双行', 'wpicp' ),
 	'minimal'  => __( '极简单行', 'wpicp' ),
+	'standard' => __( '标准双行', 'wpicp' ),
 	'badges'   => __( '含信任徽章', 'wpicp' ),
 );
 
@@ -211,14 +479,14 @@ $wpicp_view_tabs = Wenpai_Admin_UI::view_tabs_html(
 		'aria_label' => __( '切换页脚合规栏预览版式', 'wpicp' ),
 		'items'      => array(
 			array(
-				'id'     => 'standard',
-				'label'  => $wpicp_style_labels['standard'],
-				'active' => 'standard' === $wpicp_active_style,
-			),
-			array(
 				'id'     => 'minimal',
 				'label'  => $wpicp_style_labels['minimal'],
 				'active' => 'minimal' === $wpicp_active_style,
+			),
+			array(
+				'id'     => 'standard',
+				'label'  => $wpicp_style_labels['standard'],
+				'active' => 'standard' === $wpicp_active_style,
 			),
 			array(
 				'id'     => 'badges',
@@ -238,7 +506,7 @@ Wenpai_Admin_UI::card_open(
 );
 
 $wpicp_panes = array();
-foreach ( array( 'standard', 'minimal', 'badges' ) as $wpicp_preset_key ) {
+foreach ( array( 'minimal', 'standard', 'badges' ) as $wpicp_preset_key ) {
 	$wpicp_bar_markup = Renderer::render_compliance_bar(
 		array(
 			'preset'        => $wpicp_preset_key,
@@ -289,194 +557,6 @@ Wenpai_Admin_UI::card_foot(
 );
 Wenpai_Admin_UI::card_close();
 ?>
-
-<div class="wenpai-split wenpai-split--equal">
-<?php
-// Left equal-height card: Compliance checklist rendered as calm micro-tag feed.
-Wenpai_Admin_UI::card_open(
-	array(
-		'title' => __( '备案与公示完备度', 'wpicp' ),
-		'tile'  => false,
-		'class' => 'wenpai-card--equal',
-	)
-);
-echo '<div class="wenpai-card__body">';
-
-$wpicp_feed_items = array();
-$wpicp_check_urls = array(
-	'icp'     => $wpicp_filing_url,
-	'mps'     => $wpicp_filing_url,
-	'company' => $wpicp_filing_url,
-	'policy'  => $wpicp_filing_url,
-	'output'  => $wpicp_display_url,
-);
-
-foreach ( $wpicp_audit['checks'] as $wpicp_check ) {
-	$wpicp_state = (string) $wpicp_check['state'];
-	$wpicp_cid   = (string) $wpicp_check['id'];
-	$wpicp_entry = array(
-		'tag'   => 'ok' === $wpicp_state
-			? __( '正常', 'wpicp' )
-			: ( 'bad' === $wpicp_state ? __( '异常', 'wpicp' ) : __( '待补', 'wpicp' ) ),
-		'tone'  => 'ok' === $wpicp_state ? 'ok' : ( 'bad' === $wpicp_state ? 'bad' : 'warn' ),
-		'title' => $wpicp_check['label'],
-	);
-	if ( 'ok' === $wpicp_state ) {
-		$wpicp_entry['when'] = $wpicp_check['value'];
-	} else {
-		$wpicp_entry['note']         = $wpicp_check['detail'];
-		$wpicp_entry['action_label'] = 'bad' === $wpicp_state ? __( '修正', 'wpicp' ) : __( '完善', 'wpicp' );
-		$wpicp_entry['action_url']   = isset( $wpicp_check_urls[ $wpicp_cid ] ) ? $wpicp_check_urls[ $wpicp_cid ] : $wpicp_filing_url;
-	}
-	$wpicp_feed_items[] = $wpicp_entry;
-}
-
-Wenpai_Admin_UI::tag_feed( array( 'items' => $wpicp_feed_items ) );
-
-echo '</div>';
-Wenpai_Admin_UI::card_foot(
-	array(
-		'start'   => true,
-		'meta'    => $wpicp_audit['summary'],
-		'actions' => array(
-			array(
-				'label'   => __( '核对资质', 'wpicp' ),
-				'href'    => $wpicp_filing_url,
-				'variant' => 'ghost',
-				'size'    => 'sm',
-			),
-		),
-	)
-);
-Wenpai_Admin_UI::card_close();
-
-// Right equal-height card: Quick navigation grid & copyable shortcodes switcher.
-$wpicp_right_tabs = Wenpai_Admin_UI::view_tabs_html(
-	array(
-		'group'      => 'wpicp-quick-box',
-		'aria_label' => __( '切换快捷入口与短代码', 'wpicp' ),
-		'items'      => array(
-			array(
-				'id'         => 'shortcuts',
-				'label'      => __( '快捷入口', 'wpicp' ),
-				'active'     => true,
-				'card_title' => __( '快捷入口', 'wpicp' ),
-			),
-			array(
-				'id'         => 'shortcodes',
-				'label'      => __( '调用代码', 'wpicp' ),
-				'card_title' => __( '短代码调用', 'wpicp' ),
-			),
-		),
-	)
-);
-
-Wenpai_Admin_UI::card_open(
-	array(
-		'title'             => __( '快捷入口', 'wpicp' ),
-		'tile'              => false,
-		'class'             => 'wenpai-card--equal',
-		'head_control_html' => $wpicp_right_tabs,
-	)
-);
-echo '<div class="wenpai-card__body">';
-
-$wpicp_shortcuts_html = Wenpai_Admin_UI::icon_grid_html(
-	array(
-		'columns' => 2,
-		'items'   => array(
-			array(
-				'icon'  => 'shield-check',
-				'label' => __( '备案资质', 'wpicp' ),
-				'href'  => $wpicp_filing_url,
-				'state' => 'bad' === $wpicp_audit['overall_state'] ? 'warn' : ( $wpicp_audit['is_empty'] ? 'warn' : 'ok' ),
-			),
-			array(
-				'icon'  => 'image',
-				'label' => __( '证照徽章', 'wpicp' ),
-				'href'  => $wpicp_badges_url,
-				'badge' => $wpicp_audit['badge_count'] > 0 ? (string) $wpicp_audit['badge_count'] : '',
-			),
-			array(
-				'icon'  => 'equalizer',
-				'label' => __( '前台展示', 'wpicp' ),
-				'href'  => $wpicp_display_url,
-			),
-			array(
-				'icon'  => 'search',
-				'label' => __( '合规巡检', 'wpicp' ),
-				'href'  => $wpicp_audit_url,
-				'state' => $wpicp_scan_hits > 0 ? 'warn' : ( $wpicp_has_scan ? 'ok' : '' ),
-			),
-		),
-	)
-);
-
-$wpicp_shortcodes_html = '<div class="wpicp-code">'
-	. '<div class="wpicp-code__item"><span class="meta">' . esc_html__( '完整页脚合规栏', 'wpicp' ) . '</span>'
-	. Wenpai_Admin_UI::code_inline_html(
-		array(
-			'code'   => '[wpicp]',
-			'copy'   => true,
-			'button' => array( 'label' => __( '复制', 'wpicp' ) ),
-		)
-	)
-	. '</div>'
-	. '<div class="wpicp-code__item"><span class="meta">' . esc_html__( '仅输出 ICP 备案号', 'wpicp' ) . '</span>'
-	. Wenpai_Admin_UI::code_inline_html(
-		array(
-			'code'   => '[wpicp field="icp"]',
-			'copy'   => true,
-			'button' => array( 'label' => __( '复制', 'wpicp' ) ),
-		)
-	)
-	. '</div>'
-	. '<div class="wpicp-code__item"><span class="meta">' . esc_html__( '信任徽章与证照列表', 'wpicp' ) . '</span>'
-	. Wenpai_Admin_UI::code_inline_html(
-		array(
-			'code'   => '[wpicp_badges]',
-			'copy'   => true,
-			'button' => array( 'label' => __( '复制', 'wpicp' ) ),
-		)
-	)
-	. '</div>'
-	. '</div>';
-
-Wenpai_Admin_UI::view_panes(
-	array(
-		'group' => 'wpicp-quick-box',
-		'panes' => array(
-			array(
-				'id'     => 'shortcuts',
-				'active' => true,
-				'html'   => $wpicp_shortcuts_html,
-			),
-			array(
-				'id'   => 'shortcodes',
-				'html' => $wpicp_shortcodes_html,
-			),
-		),
-	)
-);
-
-echo '</div>';
-Wenpai_Admin_UI::card_foot(
-	array(
-		'start'   => true,
-		'meta'    => __( '支持区块编辑器与经典短代码调用', 'wpicp' ),
-		'actions' => array(
-			array(
-				'label'   => __( '帮助文档', 'wpicp' ),
-				'href'    => $wpicp_help_url,
-				'variant' => 'ghost',
-				'size'    => 'sm',
-			),
-		),
-	)
-);
-Wenpai_Admin_UI::card_close();
-?>
-</div>
 </div>
 <?php
 Wenpai_Admin_Shell::close( $shell );

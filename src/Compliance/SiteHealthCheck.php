@@ -280,8 +280,10 @@ class SiteHealthCheck {
 		}
 
 		// Suite Ecosystem Sync Status.
-		$wpcy_on   = defined( 'WPCY_VERSION' ) || class_exists( '\\WenPai\\ChinaYes\\Admin\\WhiteLabel' );
-		$wpmind_on = function_exists( 'wpmind_is_available' ) && wpmind_is_available();
+		$wpcy_on    = defined( 'WPCY_VERSION' ) || class_exists( '\\WenPai\\ChinaYes\\Admin\\WhiteLabel' );
+		$wy_cache   = WordYeahClient::cached();
+		$wy_version = '' !== $wy_cache['version'] ? $wy_cache['version'] : __( '内置基础词库', 'wpicp' );
+		$wy_remote  = ! empty( $cfg['ad_law_remote_sync'] );
 
 		$suite = array(
 			array(
@@ -289,6 +291,12 @@ class SiteHealthCheck {
 				'label' => __( 'WordPress 核心备案项', 'wpicp' ),
 				'value' => __( '双向实时同步', 'wpicp' ),
 				'state' => 'ok',
+			),
+			array(
+				'id'    => 'wordyeah',
+				'label' => __( '无言（WordYeah）合规', 'wpicp' ),
+				'value' => $wy_remote ? $wy_version . ' · api.wpcy.com' : __( '本地内置模式', 'wpicp' ),
+				'state' => $wy_remote ? 'ok' : '',
 			),
 			array(
 				'id'    => 'wpcy',
@@ -302,13 +310,39 @@ class SiteHealthCheck {
 				'value' => $bisheng_on ? __( '资质与词库已共享', 'wpicp' ) : __( '待接入', 'wpicp' ),
 				'state' => $bisheng_on ? 'ok' : '',
 			),
-			array(
-				'id'    => 'wpmind',
-				'label' => __( '文派心思（WPMind）', 'wpicp' ),
-				'value' => $wpmind_on ? __( 'AI 合规改写就绪', 'wpicp' ) : __( '离线规则模式', 'wpicp' ),
-				'state' => $wpmind_on ? 'ok' : '',
-			),
 		);
+
+		// Check expiring certificates (< 30 days).
+		$expiring_certs = array();
+		$now_ts         = time();
+		if ( ! empty( $cfg['certificates'] ) && is_array( $cfg['certificates'] ) ) {
+			foreach ( $cfg['certificates'] as $cert ) {
+				if ( ! is_array( $cert ) || empty( $cert['expires_at'] ) ) {
+					continue;
+				}
+				$exp_str = trim( (string) $cert['expires_at'] );
+				if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $exp_str ) ) {
+					$exp_ts = strtotime( $exp_str . ' 23:59:59' );
+					$day_s  = defined( 'DAY_IN_SECONDS' ) ? DAY_IN_SECONDS : 86400;
+					if ( false !== $exp_ts && ( $exp_ts - $now_ts ) <= ( 30 * $day_s ) ) {
+						$expiring_certs[] = ( '' !== (string) ( $cert['title'] ?? '' ) ? (string) $cert['title'] : __( '电子证照', 'wpicp' ) ) . '（' . $exp_str . '）';
+					}
+				}
+			}
+		}
+		if ( ! empty( $expiring_certs ) ) {
+			$checks[] = array(
+				'id'     => 'cert_expiry',
+				'label'  => __( '电子证照有效期提醒', 'wpicp' ),
+				'value'  => sprintf(
+					/* translators: %d: expiring certificate count */
+					__( '%d 项即将或已到期', 'wpicp' ),
+					count( $expiring_certs )
+				),
+				'state'  => 'warn',
+				'detail' => implode( '、', $expiring_certs ),
+			);
+		}
 
 		$has_bad  = false;
 		$has_warn = false;

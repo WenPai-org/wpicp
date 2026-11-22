@@ -175,6 +175,52 @@
 	cursor: pointer;
 }
 
+.wpicp-certificates__frame {
+	position: relative;
+	display: inline-block;
+	overflow: hidden;
+}
+
+.wpicp-certificates__wm {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	pointer-events: none;
+	user-select: none;
+	color: currentColor;
+	opacity: 0.24;
+	font-size: 0.85em;
+	white-space: nowrap;
+	transform: rotate(-20deg);
+}
+
+.wpicp-certificates__wm.is-center {
+	transform: rotate(-12deg);
+	font-size: 1em;
+}
+
+.wpicp-certificates__wm.is-corner {
+	transform: none;
+	align-items: flex-end;
+	justify-content: flex-end;
+	padding: var(--wenpai-space-2, 0.5em);
+}
+
+.wpicp-certificates__wm.is-light {
+	opacity: 0.16;
+}
+
+.wpicp-certificates__wm.is-strong {
+	opacity: 0.38;
+}
+
+.wpicp-certificates__wm.is-red {
+	color: var(--wenpai-bad, currentColor);
+	opacity: 0.34;
+}
+
 .wpicp-certificates__img {
 	display: block;
 	max-width: 12em;

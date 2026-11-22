@@ -7,6 +7,7 @@
 
 namespace WenPai\ICP\Admin;
 
+use WenPai\ICP\Compliance\AccessMonitor;
 use WenPai\ICP\Migration\LegacyMigrator;
 use WenPai\ICP\Options\SettingsStore;
 use Wenpai_Admin_Action;
@@ -56,6 +57,7 @@ class AdminPage {
 		}
 
 		add_action( 'admin_menu', array( __CLASS__, 'register_site_menu' ) );
+		add_action( 'admin_post_wpicp_export_keepalive_html', array( __CLASS__, 'handle_export_keepalive_html' ) );
 		if ( function_exists( 'is_multisite' ) && is_multisite() ) {
 			add_action( 'network_admin_menu', array( __CLASS__, 'register_network_menu' ) );
 			add_action( 'network_admin_edit_wpicp_save_network', array( __CLASS__, 'handle_network_save' ) );
@@ -210,9 +212,10 @@ class AdminPage {
 			? wp_unslash( $_POST[ SettingsStore::OPTION_NETWORK ] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized via Wenpai_Admin_Settings::sanitize() below.
 			: array();
 
-		$tab = isset( $raw[ Wenpai_Admin_Settings::TAB_KEY ] )
-			? self::normalize_tab( (string) $raw[ Wenpai_Admin_Settings::TAB_KEY ] )
-			: 'filing';
+		$raw_tab = isset( $raw[ Wenpai_Admin_Settings::TAB_KEY ] ) ? sanitize_key( (string) $raw[ Wenpai_Admin_Settings::TAB_KEY ] ) : 'filing';
+		$tab     = in_array( $raw_tab, array( 'audit_access', 'audit_adlaw' ), true )
+			? 'audit'
+			: self::normalize_tab( $raw_tab );
 		if ( ! in_array( $tab, array( 'filing', 'badges', 'display', 'audit', 'tools' ), true ) ) {
 			$tab = 'filing';
 		}
@@ -235,6 +238,26 @@ class AdminPage {
 		}
 
 		wp_safe_redirect( add_query_arg( $args, network_admin_url( 'settings.php' ) ) );
+		exit;
+	}
+
+	/**
+	 * Stream a standalone compliant keepalive `index.html` download for cloud provider verification.
+	 *
+	 * @return void
+	 */
+	public static function handle_export_keepalive_html() {
+		if ( ! current_user_can( 'manage_options' ) && ! current_user_can( 'manage_network_options' ) ) {
+			wp_die( esc_html__( '您没有权限导出保活页面。', 'wpicp' ), 403 );
+		}
+		check_admin_referer( 'wpicp_export_keepalive_html' );
+
+		$html = AccessMonitor::generate_keepalive_html();
+		nocache_headers();
+		header( 'Content-Type: text/html; charset=utf-8' );
+		header( 'Content-Disposition: attachment; filename="index.html"' );
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- self-contained HTML download escaped inside generator.
+		echo $html;
 		exit;
 	}
 
@@ -289,10 +312,17 @@ class AdminPage {
 			'wpicp-admin',
 			'wpicpAdminData',
 			array(
-				'restScanSiteUrl'  => esc_url_raw( rest_url( 'wpicp/v1/ad-law/scan-site' ) ),
-				'restAllowlistUrl' => esc_url_raw( rest_url( 'wpicp/v1/ad-law/allowlist' ) ),
-				'restNonce'        => wp_create_nonce( 'wp_rest' ),
-				'i18n'             => array(
+				'restScanSiteUrl'     => esc_url_raw( rest_url( 'wpicp/v1/ad-law/scan-site' ) ),
+				'restAllowlistUrl'    => esc_url_raw( rest_url( 'wpicp/v1/ad-law/allowlist' ) ),
+				'restAccessCheckUrl'  => esc_url_raw( rest_url( 'wpicp/v1/access/check' ) ),
+				'restWordYeahSyncUrl' => esc_url_raw( rest_url( 'wpicp/v1/wordyeah/sync' ) ),
+				'restNonce'           => wp_create_nonce( 'wp_rest' ),
+				'siteName'            => '' !== trim( (string) SettingsStore::effective()['icp_site_name'] )
+					? (string) SettingsStore::effective()['icp_site_name']
+					: (string) get_bloginfo( 'name' ),
+				'siteDomain'          => (string) wp_parse_url( home_url( '/' ), PHP_URL_HOST ),
+				'todayDate'           => function_exists( 'wp_date' ) ? wp_date( 'Y-m-d' ) : gmdate( 'Y-m-d' ),
+				'i18n'                => array(
 					'scanning'     => __( '正在扫描站点内容…', 'wpicp' ),
 					'doneZero'     => __( '扫描完成，未发现《广告法》极限词风险。', 'wpicp' ),
 					/* translators: %d: number of detected risk expressions */
@@ -303,6 +333,8 @@ class AdminPage {
 					'addedAllow'   => __( '已加入白名单', 'wpicp' ),
 					'pickMedia'    => __( '选择媒体图片', 'wpicp' ),
 					'useMedia'     => __( '使用此图片', 'wpicp' ),
+					'checking'     => __( '检测中…', 'wpicp' ),
+					'syncing'      => __( '同步中…', 'wpicp' ),
 				),
 			)
 		);

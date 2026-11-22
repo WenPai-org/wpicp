@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-21T22:26:13+00:00\n"
+"POT-Creation-Date: 2026-11-22T04:50:41+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wpicp\n"
@@ -36,129 +36,140 @@ msgstr ""
 msgid "WenPai"
 msgstr ""
 
-#: src/Admin/AdminPage.php:94
+#: src/Admin/AdminPage.php:96
 msgid "已重新读取旧版选项与核心备案项并同步至当前设置。"
 msgstr ""
 
 #. translators: %d: number of dropped legacy tables
-#: src/Admin/AdminPage.php:111
+#: src/Admin/AdminPage.php:113
 #, php-format
 msgid "已清理 %d 张 2025 早期版本遗留的废弃数据表。"
 msgstr ""
 
-#: src/Admin/AdminPage.php:127
+#: src/Admin/AdminPage.php:129
 msgid "文派备案"
 msgstr ""
 
-#: src/Admin/AdminPage.php:165
-#: src/Admin/AdminPage.php:187
+#: src/Admin/AdminPage.php:167
+#: src/Admin/AdminPage.php:189
 msgid "备案"
 msgstr ""
 
-#: src/Admin/AdminPage.php:203
+#: src/Admin/AdminPage.php:205
 msgid "您没有权限修改网络备案配置。"
 msgstr ""
 
-#: src/Admin/AdminPage.php:296
+#: src/Admin/AdminPage.php:251
+msgid "您没有权限导出保活页面。"
+msgstr ""
+
+#: src/Admin/AdminPage.php:326
 msgid "正在扫描站点内容…"
 msgstr ""
 
-#: src/Admin/AdminPage.php:297
+#: src/Admin/AdminPage.php:327
 msgid "扫描完成，未发现《广告法》极限词风险。"
 msgstr ""
 
 #. translators: %d: number of detected risk expressions
-#: src/Admin/AdminPage.php:299
+#: src/Admin/AdminPage.php:329
 #, php-format
 msgid "扫描完成，共发现 %d 处风险表达。"
 msgstr ""
 
-#: src/Admin/AdminPage.php:300
+#: src/Admin/AdminPage.php:330
 msgid "巡检请求未完成，请稍后重试。"
 msgstr ""
 
-#: src/Admin/AdminPage.php:301
+#: src/Admin/AdminPage.php:331
 msgid "直达编辑"
 msgstr ""
 
-#: src/Admin/AdminPage.php:302
+#: src/Admin/AdminPage.php:332
 msgid "加入白名单"
 msgstr ""
 
-#: src/Admin/AdminPage.php:303
+#: src/Admin/AdminPage.php:333
 msgid "已加入白名单"
 msgstr ""
 
-#: src/Admin/AdminPage.php:304
+#: src/Admin/AdminPage.php:334
 msgid "选择媒体图片"
 msgstr ""
 
-#: src/Admin/AdminPage.php:305
+#: src/Admin/AdminPage.php:335
 msgid "使用此图片"
 msgstr ""
 
-#: src/Admin/AdminPage.php:324
+#: src/Admin/AdminPage.php:336
+msgid "检测中…"
+msgstr ""
+
+#: src/Admin/AdminPage.php:337
+msgid "同步中…"
+msgstr ""
+
+#: src/Admin/AdminPage.php:356
 msgid "设置"
 msgstr ""
 
-#: src/Admin/AdminPage.php:325
-#: src/Admin/AdminPage.php:472
-#: templates/admin/audit.php:31
-#: templates/admin/overview.php:72
-#: templates/admin/overview.php:407
+#: src/Admin/AdminPage.php:357
+#: src/Admin/AdminPage.php:504
+#: templates/admin/audit.php:67
+#: templates/admin/overview.php:390
 msgid "合规巡检"
 msgstr ""
 
-#: src/Admin/AdminPage.php:342
+#: src/Admin/AdminPage.php:374
 msgid "网络设置"
 msgstr ""
 
-#: src/Admin/AdminPage.php:448
-#: templates/admin/overview.php:81
+#: src/Admin/AdminPage.php:480
+#: templates/admin/overview.php:86
 msgid "概览"
 msgstr ""
 
-#: src/Admin/AdminPage.php:454
-#: templates/admin/filing.php:47
-#: templates/admin/overview.php:390
+#: src/Admin/AdminPage.php:486
+#: templates/admin/filing.php:52
+#: templates/admin/overview.php:373
 msgid "备案资质"
 msgstr ""
 
-#: src/Admin/AdminPage.php:460
-#: templates/admin/badges.php:31
-#: templates/admin/overview.php:396
+#: src/Admin/AdminPage.php:492
+#: templates/admin/badges.php:68
+#: templates/admin/overview.php:379
 msgid "证照徽章"
 msgstr ""
 
-#: src/Admin/AdminPage.php:466
-#: templates/admin/display.php:49
-#: templates/admin/overview.php:402
+#: src/Admin/AdminPage.php:498
+#: templates/admin/display.php:52
+#: templates/admin/overview.php:385
 msgid "前台展示"
 msgstr ""
 
-#: src/Admin/AdminPage.php:478
+#: src/Admin/AdminPage.php:510
 #: templates/admin/tools.php:24
 msgid "工具"
 msgstr ""
 
-#: src/Admin/AdminPage.php:484
+#: src/Admin/AdminPage.php:516
 msgid "帮助"
 msgstr ""
 
-#: src/Admin/AdminPage.php:487
+#: src/Admin/AdminPage.php:519
 msgid "反馈"
 msgstr ""
 
-#: src/Admin/AdminPage.php:491
+#: src/Admin/AdminPage.php:523
 msgid "使用文档"
 msgstr ""
 
-#: src/Admin/AdminPage.php:495
+#: src/Admin/AdminPage.php:527
 #: templates/admin/help.php:119
 msgid "产品主页"
 msgstr ""
 
-#: src/Admin/AdminPage.php:510
+#: src/Admin/AdminPage.php:542
 msgid "您没有权限访问此页面。"
 msgstr ""
 
@@ -180,6 +191,181 @@ msgstr ""
 msgid "命中 %d 处风险词"
 msgstr ""
 
+#: src/Compliance/AccessMonitor.php:71
+#: src/Compliance/AccessMonitor.php:113
+#: src/Options/SettingsStore.php:1327
+msgid "每 3 天 1 次"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:75
+#: src/Compliance/AccessMonitor.php:114
+#: src/Options/SettingsStore.php:1328
+msgid "每周 1 次"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:79
+#: src/Compliance/AccessMonitor.php:115
+#: src/Options/SettingsStore.php:1329
+msgid "每 2 周 1 次"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:112
+#: src/Options/SettingsStore.php:1326
+msgid "每天 1 次"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:128
+msgid "境内接入商"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:138
+msgid "阿里云（Aliyun）"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:139
+msgid "腾讯云（Tencent Cloud）"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:140
+msgid "华为云（Huawei Cloud）"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:141
+msgid "百度智能云"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:142
+msgid "火山引擎"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:143
+msgid "其他境内接入商"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:258
+msgid "首页备案自检存在异常"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:267
+msgid "保活子域名检测未通过"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:310
+msgid "首页 HTTP 可达性（无空壳/阻断页）"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:314
+msgid "检测到疑似阻断页特征词"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:315
+msgid "请核查站点是否可公开访问且未出现云厂商阻断页。"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:319
+msgid "首页底部 ICP 备案号悬挂"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:321
+msgid "未登记备案号"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:321
+msgid "首页未检出"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:322
+msgid "请在「前台展示」开启自动页脚注入或在主题页脚插入 [wpicp]。"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:326
+msgid "工信部官方超链接规范（无旧域名死链）"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:329
+msgid "存在已停用旧域名 miitbeian.gov.cn"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:330
+msgid "缺少官方链接"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:331
+msgid "备案号须链接至 https://beian.miit.gov.cn/，不可使用旧域名。"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:335
+msgid "首页 <title> 与工信部登记名称一致性"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:338
+msgid "未指定核对名"
+msgstr ""
+
+#. translators: %s: registered site name
+#: src/Compliance/AccessMonitor.php:342
+#, php-format
+msgid "含「%s」"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:345
+msgid "标题未含备案名"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:346
+msgid "首页标题建议完整包含工信部登记的网站名称。"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:367
+msgid "首页 4 项备案规范检测全部通过。"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:368
+msgid "首页备案公示或标题一致性存在待修正项。"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:417
+msgid "解析失败"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:448
+msgid "正常 · 含备案号"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:450
+msgid "DNS IP 漂移"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:452
+msgid "命中阻断特征词"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:456
+msgid "未检出校验关键词"
+msgstr ""
+
+#. translators: 1: host, 2: IP
+#: src/Compliance/AccessMonitor.php:477
+#, php-format
+msgid "%1$s 解析至 %2$s 且保活访问 200 OK。"
+msgstr ""
+
+#. translators: 1: host, 2: failure reason
+#: src/Compliance/AccessMonitor.php:483
+#, php-format
+msgid "保活子域名 %1$s 异常：%2$s"
+msgstr ""
+
+#. translators: %s: site name
+#: src/Compliance/AccessMonitor.php:777
+#, php-format
+msgid "[%s] 备案首页自检或接入商保活异常提醒"
+msgstr ""
+
+#: src/Compliance/AccessMonitor.php:780
+msgid "文派备案（WPICP）连续检测到以下合规或接入异常，请在接入商常规整改期内（通常 5 个工作日）及时核对："
+msgstr ""
+
 #: src/Compliance/AdLawScanner.php:134
 msgid "无法证实承诺"
 msgstr ""
@@ -188,7 +374,11 @@ msgstr ""
 msgid "违规权威背书"
 msgstr ""
 
-#: src/Compliance/AdLawScanner.php:139
+#: src/Compliance/AdLawScanner.php:138
+msgid "医疗/金融敏感词"
+msgstr ""
+
+#: src/Compliance/AdLawScanner.php:141
 msgid "绝对化极限词"
 msgstr ""
 
@@ -223,8 +413,8 @@ msgstr ""
 #: src/Compliance/SiteHealthCheck.php:141
 #: src/Compliance/SiteHealthCheck.php:149
 #: src/Compliance/SiteHealthCheck.php:157
-#: src/Options/SettingsStore.php:787
-#: src/Options/SettingsStore.php:1065
+#: src/Options/SettingsStore.php:858
+#: src/Options/SettingsStore.php:1227
 msgid "工信部 ICP 备案号"
 msgstr ""
 
@@ -271,7 +461,7 @@ msgid "14 位联网备案编码规范，已附公安网安徽标与查验链接�
 msgstr ""
 
 #: src/Compliance/SiteHealthCheck.php:202
-#: src/Options/SettingsStore.php:819
+#: src/Options/SettingsStore.php:898
 msgid "主办单位法定全称"
 msgstr ""
 
@@ -325,17 +515,14 @@ msgid "可在 WordPress「设置」中指定合规声明页以便页脚联动显
 msgstr ""
 
 #: src/Compliance/SiteHealthCheck.php:253
-#: src/Options/SettingsStore.php:1008
 msgid "极简文字单行"
 msgstr ""
 
 #: src/Compliance/SiteHealthCheck.php:254
-#: src/Options/SettingsStore.php:1013
 msgid "标准图文双行"
 msgstr ""
 
 #: src/Compliance/SiteHealthCheck.php:255
-#: src/Options/SettingsStore.php:1018
 msgid "完整信任徽章栏"
 msgstr ""
 
@@ -369,117 +556,173 @@ msgstr ""
 msgid "可使用 [wpicp] 短代码、古腾堡合规区块，或在设置中开启页脚自动注入。"
 msgstr ""
 
-#: src/Compliance/SiteHealthCheck.php:289
+#: src/Compliance/SiteHealthCheck.php:285
+msgid "内置基础词库"
+msgstr ""
+
+#: src/Compliance/SiteHealthCheck.php:291
 msgid "WordPress 核心备案项"
 msgstr ""
 
-#: src/Compliance/SiteHealthCheck.php:290
+#: src/Compliance/SiteHealthCheck.php:292
 msgid "双向实时同步"
 msgstr ""
 
-#: src/Compliance/SiteHealthCheck.php:295
+#: src/Compliance/SiteHealthCheck.php:297
+msgid "无言（WordYeah）合规"
+msgstr ""
+
+#: src/Compliance/SiteHealthCheck.php:298
+msgid "本地内置模式"
+msgstr ""
+
+#: src/Compliance/SiteHealthCheck.php:303
 msgid "文派叶子（WPCY）"
 msgstr ""
 
-#: src/Compliance/SiteHealthCheck.php:296
+#: src/Compliance/SiteHealthCheck.php:304
 msgid "服务页已协同"
 msgstr ""
 
-#: src/Compliance/SiteHealthCheck.php:296
+#: src/Compliance/SiteHealthCheck.php:304
+#: templates/admin/audit.php:154
 msgid "未启用"
 msgstr ""
 
-#: src/Compliance/SiteHealthCheck.php:301
+#: src/Compliance/SiteHealthCheck.php:309
 msgid "笔笙（Bisheng HTML）"
 msgstr ""
 
-#: src/Compliance/SiteHealthCheck.php:302
+#: src/Compliance/SiteHealthCheck.php:310
 msgid "资质与词库已共享"
 msgstr ""
 
-#: src/Compliance/SiteHealthCheck.php:302
+#: src/Compliance/SiteHealthCheck.php:310
 msgid "待接入"
 msgstr ""
 
-#: src/Compliance/SiteHealthCheck.php:307
-msgid "文派心思（WPMind）"
+#: src/Compliance/SiteHealthCheck.php:328
+msgid "电子证照"
 msgstr ""
 
-#: src/Compliance/SiteHealthCheck.php:308
-msgid "AI 合规改写就绪"
+#: src/Compliance/SiteHealthCheck.php:336
+msgid "电子证照有效期提醒"
 msgstr ""
 
-#: src/Compliance/SiteHealthCheck.php:308
-msgid "离线规则模式"
+#. translators: %d: expiring certificate count
+#: src/Compliance/SiteHealthCheck.php:339
+#, php-format
+msgid "%d 项即将或已到期"
 msgstr ""
 
-#: src/Compliance/SiteHealthCheck.php:325
+#: src/Compliance/SiteHealthCheck.php:359
 msgid "尚未填写 ICP 备案号与主体信息，请前往设置页完成登记。"
 msgstr ""
 
-#: src/Compliance/SiteHealthCheck.php:327
+#: src/Compliance/SiteHealthCheck.php:361
 msgid "检测到备案编号格式有误，请核对工信部或公安网安备案号。"
 msgstr ""
 
 #. translators: %d: filled item count
-#: src/Compliance/SiteHealthCheck.php:331
+#: src/Compliance/SiteHealthCheck.php:365
 #, php-format
 msgid "已登记 %d 项资质，部分推荐公示项待完善。"
 msgstr ""
 
 #. translators: %d: filled item count
-#: src/Compliance/SiteHealthCheck.php:337
+#: src/Compliance/SiteHealthCheck.php:371
 #, php-format
 msgid "已完整登记 %d 项合规资质并实时同步全站。"
 msgstr ""
 
-#: src/Frontend/Renderer.php:397
+#: src/Compliance/WordYeahClient.php:141
+msgid "当前运行环境不支持 HTTP 同步，已自动使用内置基础词库。"
+msgstr ""
+
+#: src/Compliance/WordYeahClient.php:167
+msgid "暂无法连接无言（WordYeah）词库接口，已继续使用本地缓存/内置词库。"
+msgstr ""
+
+#: src/Compliance/WordYeahClient.php:180
+msgid "本地无言（WordYeah）词库已是最新版本，无需重复下载。"
+msgstr ""
+
+#. translators: %d: HTTP status code
+#: src/Compliance/WordYeahClient.php:192
+#, php-format
+msgid "远程词库接口返回 HTTP %d，已自动回退至本地词库。"
+msgstr ""
+
+#: src/Compliance/WordYeahClient.php:206
+msgid "远程词库返回格式无效，已保留当前本地词库。"
+msgstr ""
+
+#. translators: 1: version string, 2: term count
+#: src/Compliance/WordYeahClient.php:228
+#, php-format
+msgid "已从 api.wpcy.com 同步无言（WordYeah）词库 %1$s（共 %2$d 条远程规则）。"
+msgstr ""
+
+#: src/Frontend/Renderer.php:417
 msgid "电子证照查看"
 msgstr ""
 
-#: src/Frontend/Renderer.php:403
+#: src/Frontend/Renderer.php:425
 msgid "关闭"
 msgstr ""
 
-#: src/Frontend/Renderer.php:574
-#: src/Options/SettingsStore.php:820
+#: src/Frontend/Renderer.php:596
+#: src/Options/SettingsStore.php:899
 msgid "示例科技有限公司"
 msgstr ""
 
-#: src/Frontend/Renderer.php:608
+#: src/Frontend/Renderer.php:630
 msgid "合规声明"
 msgstr ""
 
-#: src/Frontend/Renderer.php:622
+#: src/Frontend/Renderer.php:644
 msgid "增值电信业务经营许可证："
 msgstr ""
 
-#: src/Frontend/Renderer.php:625
+#: src/Frontend/Renderer.php:647
 msgid "生成式人工智能服务备案："
 msgstr ""
 
-#: src/Frontend/Renderer.php:628
+#: src/Frontend/Renderer.php:650
 msgid "互联网算法备案："
 msgstr ""
 
-#: src/Frontend/Renderer.php:631
+#: src/Frontend/Renderer.php:653
 msgid "APP备案："
 msgstr ""
 
-#: src/Frontend/Renderer.php:634
+#: src/Frontend/Renderer.php:656
 msgid "小程序备案："
 msgstr ""
 
-#: src/Frontend/Renderer.php:703
+#: src/Frontend/Renderer.php:725
 msgid "网站备案与合规公示信息"
 msgstr ""
 
-#: src/Frontend/Renderer.php:727
+#: src/Frontend/Renderer.php:749
 msgid "举报邮箱："
 msgstr ""
 
-#: src/Frontend/Renderer.php:730
+#: src/Frontend/Renderer.php:752
 msgid "举报电话："
+msgstr ""
+
+#: src/Media/CertificateWatermark.php:70
+#: src/Options/SettingsStore.php:1051
+msgid "仅供 {site_name} 官网亮照公示使用，他用无效"
+msgstr ""
+
+#: src/Media/CertificateWatermark.php:167
+msgid "未授权的证照图片请求。"
+msgstr ""
+
+#: src/Media/CertificateWatermark.php:172
+msgid "证照原图文件不存在。"
 msgstr ""
 
 #: src/Options/BadgeCatalog.php:27
@@ -647,6 +890,7 @@ msgstr ""
 
 #: src/Options/BadgeCatalog.php:119
 #: src/Options/BadgeCatalog.php:125
+#: templates/admin/badges.php:392
 msgid "主体亮照"
 msgstr ""
 
@@ -703,661 +947,1375 @@ msgstr ""
 msgid "TrustAsia 数字安全认证"
 msgstr ""
 
-#: src/Options/SettingsStore.php:777
+#: src/Options/SettingsStore.php:239
+#: src/Options/SettingsStore.php:1020
+#: templates/admin/badges.php:337
+#: templates/admin/badges.php:390
+msgid "营业执照"
+msgstr ""
+
+#: src/Options/SettingsStore.php:848
 msgid "文章"
 msgstr ""
 
-#: src/Options/SettingsStore.php:778
+#: src/Options/SettingsStore.php:849
 msgid "页面"
 msgstr ""
 
-#: src/Options/SettingsStore.php:789
+#: src/Options/SettingsStore.php:860
 msgid "自动识别主体号与网站序号，跳转工信部公示页。"
 msgstr ""
 
-#: src/Options/SettingsStore.php:799
+#: src/Options/SettingsStore.php:870
+msgid "工信部登记网站名称"
+msgstr ""
+
+#: src/Options/SettingsStore.php:871
+msgid "文派示例站"
+msgstr ""
+
+#: src/Options/SettingsStore.php:872
+msgid "用于首页合规自检核对网页标题是否与备案名称一致。"
+msgstr ""
+
+#: src/Options/SettingsStore.php:878
 msgid "公安联网备案省份"
 msgstr ""
 
-#: src/Options/SettingsStore.php:800
+#: src/Options/SettingsStore.php:879
 msgid "选择备案属地简称，留空时按备案号自动识别。"
 msgstr ""
 
-#: src/Options/SettingsStore.php:807
-#: src/Options/SettingsStore.php:1066
+#: src/Options/SettingsStore.php:886
+#: src/Options/SettingsStore.php:1228
 msgid "公安机关联网备案号"
 msgstr ""
 
-#: src/Options/SettingsStore.php:809
+#: src/Options/SettingsStore.php:888
 msgid "支持填纯数字或完整网安备号，自动提取编码。"
 msgstr ""
 
-#: src/Options/SettingsStore.php:821
+#: src/Options/SettingsStore.php:900
 msgid "与营业执照及工信部备案主体名称保持一致。"
 msgstr ""
 
-#: src/Options/SettingsStore.php:827
-#: src/Options/SettingsStore.php:1067
+#: src/Options/SettingsStore.php:906
+#: src/Options/SettingsStore.php:1229
 msgid "增值电信业务经营许可证"
 msgstr ""
 
-#: src/Options/SettingsStore.php:829
+#: src/Options/SettingsStore.php:908
 msgid "经营性站点填写的 ICP 证或 EDI 许可证编号。"
 msgstr ""
 
-#: src/Options/SettingsStore.php:835
+#: src/Options/SettingsStore.php:914
 msgid "生成式人工智能服务备案号"
 msgstr ""
 
-#: src/Options/SettingsStore.php:837
+#: src/Options/SettingsStore.php:916
 msgid "接入大模型或生成式 AI 服务的网信办备案编号。"
 msgstr ""
 
-#: src/Options/SettingsStore.php:843
-#: src/Options/SettingsStore.php:1069
+#: src/Options/SettingsStore.php:922
+#: src/Options/SettingsStore.php:1231
 msgid "境内互联网算法备案号"
 msgstr ""
 
-#: src/Options/SettingsStore.php:845
+#: src/Options/SettingsStore.php:924
 msgid "互联网信息服务算法推荐管理系统的公示备案号。"
 msgstr ""
 
-#: src/Options/SettingsStore.php:851
-#: src/Options/SettingsStore.php:1070
+#: src/Options/SettingsStore.php:930
+#: src/Options/SettingsStore.php:1232
 msgid "移动应用 APP 备案号"
 msgstr ""
 
-#: src/Options/SettingsStore.php:853
+#: src/Options/SettingsStore.php:932
 msgid "配套移动客户端在工信部登记的 APP 备案号。"
 msgstr ""
 
-#: src/Options/SettingsStore.php:859
-#: src/Options/SettingsStore.php:1071
+#: src/Options/SettingsStore.php:938
+#: src/Options/SettingsStore.php:1233
 msgid "小程序备案号"
 msgstr ""
 
-#: src/Options/SettingsStore.php:861
+#: src/Options/SettingsStore.php:940
 msgid "微信、支付宝或抖音等平台小程序备案编号。"
 msgstr ""
 
-#: src/Options/SettingsStore.php:867
+#: src/Options/SettingsStore.php:946
 msgid "不良信息举报邮箱"
 msgstr ""
 
-#: src/Options/SettingsStore.php:869
+#: src/Options/SettingsStore.php:948
 msgid "用于页脚公示违法和不良信息受理邮箱。"
 msgstr ""
 
-#: src/Options/SettingsStore.php:875
+#: src/Options/SettingsStore.php:954
 msgid "投诉与举报电话"
 msgstr ""
 
-#: src/Options/SettingsStore.php:877
+#: src/Options/SettingsStore.php:956
 msgid "用于页脚公示客户投诉或违法信息举报热线。"
 msgstr ""
 
-#: src/Options/SettingsStore.php:885
-#: src/Options/SettingsStore.php:1072
+#: src/Options/SettingsStore.php:964
+#: src/Options/SettingsStore.php:1234
+#: templates/admin/filing.php:160
 msgid "扩展行业行政许可证"
 msgstr ""
 
-#: src/Options/SettingsStore.php:886
+#: src/Options/SettingsStore.php:965
 msgid "可添加网络文化、广播电视或出版物等行业许可证。"
 msgstr ""
 
-#: src/Options/SettingsStore.php:890
+#: src/Options/SettingsStore.php:969
+#: templates/admin/filing.php:178
+#: templates/admin/filing.php:190
 msgid "证照名称"
 msgstr ""
 
-#: src/Options/SettingsStore.php:891
+#: src/Options/SettingsStore.php:970
+#: templates/admin/filing.php:190
 msgid "网络文化经营许可证"
 msgstr ""
 
-#: src/Options/SettingsStore.php:896
+#: src/Options/SettingsStore.php:975
+#: templates/admin/filing.php:179
+#: templates/admin/filing.php:191
 msgid "许可证编号"
 msgstr ""
 
-#: src/Options/SettingsStore.php:902
+#: src/Options/SettingsStore.php:981
+#: templates/admin/filing.php:180
 msgid "查验链接（选填）"
 msgstr ""
 
-#: src/Options/SettingsStore.php:914
+#: src/Options/SettingsStore.php:993
 msgid "官方监管与信任预设徽章"
 msgstr ""
 
-#: src/Options/SettingsStore.php:915
+#: src/Options/SettingsStore.php:994
 msgid "勾选需要展示的权威机构徽标，外链均采用 HTTPS。"
 msgstr ""
 
-#: src/Options/SettingsStore.php:924
+#: src/Options/SettingsStore.php:1003
 msgid "电子证照亮照列表"
 msgstr ""
 
-#: src/Options/SettingsStore.php:925
+#: src/Options/SettingsStore.php:1004
 msgid "从媒体库选择营业执照或许可证扫描件用于前台亮照。"
 msgstr ""
 
-#: src/Options/SettingsStore.php:929
+#: src/Options/SettingsStore.php:1008
 msgid "证照扫描图片"
 msgstr ""
 
-#: src/Options/SettingsStore.php:934
+#: src/Options/SettingsStore.php:1013
+#: templates/admin/badges.php:364
+#: templates/admin/badges.php:383
 msgid "证照标题"
 msgstr ""
 
-#: src/Options/SettingsStore.php:935
+#: src/Options/SettingsStore.php:1014
 msgid "营业执照电子亮照"
 msgstr ""
 
-#: src/Options/SettingsStore.php:945
-msgid "证照缩略图点击方式"
-msgstr ""
-
-#: src/Options/SettingsStore.php:946
-msgid "选择点击证照后原地灯箱查看或跳转亮照详情页。"
-msgstr ""
-
-#: src/Options/SettingsStore.php:948
-msgid "灯箱放大查看"
-msgstr ""
-
-#: src/Options/SettingsStore.php:949
-msgid "跳转证照详情页"
-msgstr ""
-
-#: src/Options/SettingsStore.php:957
-msgid "电子证照画廊详情页"
-msgstr ""
-
-#: src/Options/SettingsStore.php:958
-msgid "选择放置了证照区块或短代码的已发布页面。"
-msgstr ""
-
-#: src/Options/SettingsStore.php:970
-msgid "自定义合作与认证徽章"
-msgstr ""
-
-#: src/Options/SettingsStore.php:971
-msgid "上传行业协会、云安全或合作伙伴认证图标及链接。"
-msgstr ""
-
-#: src/Options/SettingsStore.php:975
-msgid "徽章图标"
-msgstr ""
-
-#: src/Options/SettingsStore.php:980
-msgid "徽章名称"
-msgstr ""
-
-#: src/Options/SettingsStore.php:981
-msgid "安全认证标识"
-msgstr ""
-
-#: src/Options/SettingsStore.php:986
-msgid "跳转链接"
-msgstr ""
-
-#: src/Options/SettingsStore.php:996
-msgid "自动注入站点页脚"
-msgstr ""
-
-#: src/Options/SettingsStore.php:997
-msgid "免改主题模板，自动在页脚输出合规公示栏。"
-msgstr ""
-
-#: src/Options/SettingsStore.php:1004
-msgid "页脚合规栏版式预设"
-msgstr ""
-
-#: src/Options/SettingsStore.php:1005
-msgid "跟随宿主主题文字颜色，自动适配浅色与深色页脚。"
-msgstr ""
-
-#: src/Options/SettingsStore.php:1009
-msgid "紧凑单行展示主体与核心备案号"
-msgstr ""
-
-#: src/Options/SettingsStore.php:1014
-msgid "含公安网安徽标与扩展许可信息"
-msgstr ""
-
 #: src/Options/SettingsStore.php:1019
-msgid "双行备案信息加底部官方信任徽章"
+#: templates/admin/badges.php:387
+msgid "证照分类"
 msgstr ""
 
-#: src/Options/SettingsStore.php:1033
-msgid "合规栏对齐方式"
+#: src/Options/SettingsStore.php:1024
+#: templates/admin/badges.php:399
+msgid "证照编号"
 msgstr ""
 
-#: src/Options/SettingsStore.php:1035
-msgid "居中对齐"
+#: src/Options/SettingsStore.php:1029
+msgid "有效期"
 msgstr ""
 
-#: src/Options/SettingsStore.php:1036
-msgid "靠左对齐"
+#: src/Options/SettingsStore.php:1034
+msgid "前台显示"
 msgstr ""
 
-#: src/Options/SettingsStore.php:1037
-msgid "两端分散"
+#: src/Options/SettingsStore.php:1043
+msgid "启用亮照输出水印"
 msgstr ""
 
-#: src/Options/SettingsStore.php:1049
-msgid "条目分隔符"
+#: src/Options/SettingsStore.php:1044
+msgid "对营业执照与行政许可证复印件自动叠加防盗水印，防止原图被盗用冒充。"
 msgstr ""
 
-#: src/Options/SettingsStore.php:1051
-msgid "竖线 |"
+#: src/Options/SettingsStore.php:1050
+msgid "水印文字模板"
 msgstr ""
 
 #: src/Options/SettingsStore.php:1052
-msgid "圆点 ·"
+msgid "支持变量：{site_name} 站点名、{domain} 域名、{date} 当日日期。"
 msgstr ""
 
-#: src/Options/SettingsStore.php:1053
-msgid "纯留白"
+#: src/Options/SettingsStore.php:1063
+msgid "水印排布样式"
 msgstr ""
 
-#: src/Options/SettingsStore.php:1061
-msgid "合规栏默认显示项"
+#: src/Options/SettingsStore.php:1065
+msgid "斜向平铺"
 msgstr ""
 
-#: src/Options/SettingsStore.php:1062
-msgid "仅实际填写了内容的项目会在前台输出。"
+#: src/Options/SettingsStore.php:1066
+msgid "居中大字"
 msgstr ""
 
-#: src/Options/SettingsStore.php:1064
-msgid "主办单位名称"
+#: src/Options/SettingsStore.php:1067
+msgid "右下压印"
 msgstr ""
 
-#: src/Options/SettingsStore.php:1068
-msgid "生成式 AI 服务备案号"
+#: src/Options/SettingsStore.php:1079
+msgid "水印浓度与色彩"
 msgstr ""
 
-#: src/Options/SettingsStore.php:1073
-msgid "举报邮箱与投诉电话"
-msgstr ""
-
-#: src/Options/SettingsStore.php:1074
-msgid "站点合规政策声明链接"
+#: src/Options/SettingsStore.php:1081
+msgid "浅灰 16%"
 msgstr ""
 
 #: src/Options/SettingsStore.php:1082
-msgid "证照与徽章默认图幅"
+msgid "标准 24%"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1083
+msgid "深灰 38%"
 msgstr ""
 
 #: src/Options/SettingsStore.php:1084
-msgid "缩略图"
+msgid "防盗红章"
 msgstr ""
 
-#: src/Options/SettingsStore.php:1085
-msgid "原始尺寸"
+#: src/Options/SettingsStore.php:1096
+msgid "水印合成方式"
 msgstr ""
 
-#: src/Options/SettingsStore.php:1092
-msgid "附加 CSS 类名"
+#: src/Options/SettingsStore.php:1097
+msgid "服务端合成通过 GD 动态输出带水印副本并缓存，右键另存同样带水印。"
 msgstr ""
 
-#: src/Options/SettingsStore.php:1094
-msgid "附加到前台短代码与区块外层容器的自定义类名。"
+#: src/Options/SettingsStore.php:1099
+msgid "服务端真图合成（防扒原图）"
 msgstr ""
 
 #: src/Options/SettingsStore.php:1100
-msgid "允许子站点覆盖网络配置"
+msgid "前端图层叠加（零负载）"
 msgstr ""
 
-#: src/Options/SettingsStore.php:1101
-msgid "关闭后全网子站点强制继承网络管理端的备案配置。"
+#: src/Options/SettingsStore.php:1111
+msgid "禁用证照右键另存与拖拽"
 msgstr ""
 
-#: src/Options/SettingsStore.php:1107
-msgid "卸载时清理插件配置"
+#: src/Options/SettingsStore.php:1112
+msgid "在亮照画廊与灯箱大图模式中禁用图片右键菜单与拖拽下载。"
 msgstr ""
 
-#: src/Options/SettingsStore.php:1108
-msgid "仅在开启此项并删除插件时移除本插件保存的设置。"
+#: src/Options/SettingsStore.php:1119
+msgid "证照缩略图点击方式"
 msgstr ""
 
-#: src/Options/SettingsStore.php:1114
-msgid "启用离线《广告法》极限词巡检"
-msgstr ""
-
-#: src/Options/SettingsStore.php:1115
-msgid "本地毫秒级检测违禁词并向生态插件开放巡检钩子。"
-msgstr ""
-
-#: src/Options/SettingsStore.php:1121
-msgid "编辑器实时巡检与发布前提示"
+#: src/Options/SettingsStore.php:1120
+msgid "选择点击证照后原地灯箱查看或跳转亮照详情页。"
 msgstr ""
 
 #: src/Options/SettingsStore.php:1122
-msgid "写作时标出极限词风险与替换建议，不强制阻断发布。"
+msgid "灯箱放大查看"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1123
+msgid "跳转证照详情页"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1131
+msgid "电子证照画廊详情页"
 msgstr ""
 
 #: src/Options/SettingsStore.php:1132
-msgid "全站巡检内容类型"
-msgstr ""
-
-#: src/Options/SettingsStore.php:1133
-msgid "选择全站批量巡检扫描的公开内容类型。"
+msgid "选择放置了证照区块或短代码的已发布页面。"
 msgstr ""
 
 #: src/Options/SettingsStore.php:1144
-msgid "站点自定义豁免词白名单"
+msgid "自定义合作与认证徽章"
 msgstr ""
 
 #: src/Options/SettingsStore.php:1145
+msgid "上传行业协会、云安全或合作伙伴认证图标及链接。"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1149
+#: templates/admin/badges.php:250
+msgid "徽章图标"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1154
+#: templates/admin/badges.php:251
+#: templates/admin/badges.php:273
+msgid "徽章名称"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1155
+msgid "安全认证标识"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1160
+msgid "跳转链接"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1170
+msgid "自动注入站点页脚"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1171
+msgid "免改主题模板，自动在页脚输出合规公示栏。"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1178
+msgid "页脚合规栏版式"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1179
+msgid "跟随宿主主题文字颜色，自动适配浅色与深色页脚。"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1181
+#: templates/admin/overview.php:471
+msgid "极简单行"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1182
+#: templates/admin/overview.php:472
+msgid "标准双行"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1183
+#: templates/admin/overview.php:473
+msgid "含信任徽章"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1195
+msgid "合规栏对齐方式"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1197
+msgid "居中对齐"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1198
+msgid "靠左对齐"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1199
+msgid "两端分散"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1211
+msgid "条目分隔符"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1213
+msgid "竖线 |"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1214
+msgid "圆点 ·"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1215
+msgid "纯留白"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1223
+msgid "合规栏默认显示项"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1224
+msgid "仅实际填写了内容的项目会在前台输出。"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1226
+msgid "主办单位名称"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1230
+msgid "生成式 AI 服务备案号"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1235
+msgid "举报邮箱与投诉电话"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1236
+msgid "站点合规政策声明链接"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1244
+msgid "证照与徽章默认图幅"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1246
+msgid "缩略图"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1247
+msgid "原始尺寸"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1254
+msgid "附加 CSS 类名"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1256
+msgid "附加到前台短代码与区块外层容器的自定义类名。"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1262
+msgid "允许子站点覆盖网络配置"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1263
+msgid "关闭后全网子站点强制继承网络管理端的备案配置。"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1269
+msgid "卸载时清理插件配置"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1270
+msgid "仅在开启此项并删除插件时移除本插件保存的设置。"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1276
+msgid "备案接入服务商"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1277
+msgid "标记当前域名 ICP 备案所在的中国内地云服务商。"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1284
+msgid "启用首页备案定时自检"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1285
+msgid "每日检查首页可达性、底部 ICP 备案号、beian.miit.gov.cn 链接及标题一致性。"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1291
+msgid "启用接入商子域名保活访问"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1292
+msgid "按天或按周低频请求解析至原接入商中国内地服务器 IP 的子域名，核对 DNS 并产生合规访问记录。"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1298
+msgid "保活子域名地址"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1300
+msgid "将该子域名解析到原接入商中国内地服务器并放置含备案号的合规落地页。"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1310
+msgid "预期接入商服务器 IP / CIDR"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1312
+msgid "定期校验 A / AAAA / CNAME 最终落地 IP，脱离该集合即标记接入不符风险。"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1323
+msgid "定时访问与探测频率"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1324
+msgid "按天或按周低频访问即可维持接入活跃与日志，避免触发 WAF 防护。"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1340
+msgid "响应体校验关键词"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1341
+msgid "留空自动使用 ICP 备案号"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1342
+msgid "状态码 200 且正文含该关键词、不含阻断/取消接入提示词才判通过。"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1352
+msgid "异常告警接收邮箱"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1354
+msgid "连续 2 次检测异常时发送提醒，预留 5 个工作日整改缓冲期。"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1360
+msgid "启用《广告法》极限词巡检"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1361
+msgid "本地毫秒级检测违禁词，内容不上传外部接口，向生态插件开放巡检钩子。"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1367
+msgid "启用无言（WordYeah）远程词库"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1368
+msgid "从 api.wpcy.com 单向拉取无言（WordYeah）维护的最新极限词与安全复合词清单至本地缓存。"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1379
+msgid "远程词库更新频率"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1380
+msgid "离线或网络受限时自动回退至插件内置基础词库，不影响本地扫描。"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1382
+msgid "每天同步"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1383
+msgid "每周同步"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1384
+msgid "仅手动同步"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1395
+msgid "无言词库启用分组"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1396
+msgid "按站点所属行业勾选需要巡检的规则分类，减少跨行业误报。"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1398
+msgid "绝对化用语（最/第一/顶级）"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1399
+msgid "无法证实承诺（永久/100%/包治）"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1400
+msgid "违规权威背书（国家级/特供/驰名）"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1401
+msgid "医疗与金融行业敏感词"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1412
+msgid "编辑器实时巡检与发布前提示"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1413
+msgid "写作时标出极限词风险与替换建议，不强制阻断发布。"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1423
+msgid "全站巡检内容类型"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1424
+msgid "选择全站批量巡检扫描的公开内容类型。"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1435
+msgid "站点自定义豁免词白名单"
+msgstr ""
+
+#: src/Options/SettingsStore.php:1436
 msgid "内置 30 条安全复合词，可在此补充品牌专有豁免短语。"
 msgstr ""
 
-#: src/Plugin.php:135
+#: src/Plugin.php:141
 msgid "格式待核"
 msgstr ""
 
-#: src/Plugin.php:135
+#: src/Plugin.php:141
 msgid "已公示"
 msgstr ""
 
-#: src/Plugin.php:138
+#: src/Plugin.php:144
 msgid "已启用文派备案，待填写 ICP 备案与主体资质"
 msgstr ""
 
-#: src/Plugin.php:139
+#: src/Plugin.php:145
 msgid "待填写"
 msgstr ""
 
-#: src/Plugin.php:147
+#: src/Plugin.php:153
 msgid "配置"
 msgstr ""
 
-#: src/Rest/AuditController.php:192
+#: src/Rest/AuditController.php:234
 msgid "站点标题与副标题"
 msgstr ""
 
-#: src/Rest/AuditController.php:193
+#: src/Rest/AuditController.php:235
 msgid "常规设置"
 msgstr ""
 
-#: src/Rest/AuditController.php:290
+#: src/Rest/AuditController.php:332
 msgid "请提供需要加入白名单的词条。"
 msgstr ""
 
-#: src/Rest/AuditController.php:296
+#: src/Rest/AuditController.php:338
 msgid "当前网络配置由超级管理员统一维护。"
 msgstr ""
 
-#: src/Rest/AuditController.php:332
+#: src/Rest/AuditController.php:374
 msgid "缺少待改写的文本片段。"
 msgstr ""
 
-#: src/Rest/AuditController.php:336
+#: src/Rest/AuditController.php:378
 msgid "未检测到可用的文派心思（WPMind）AI 通道。"
 msgstr ""
 
-#: src/Rest/AuditController.php:364
+#: src/Rest/AuditController.php:406
 msgid "AI 未返回有效改写结果，请采用推荐替换词。"
 msgstr ""
 
-#: templates/admin/audit.php:32
-msgid "离线检测《广告法》极限词风险并管理豁免白名单。"
+#: templates/admin/audit.php:25
+msgid "备案与接入保活"
 msgstr ""
 
-#: templates/admin/audit.php:42
-msgid "多站点网络巡检规则已保存。"
+#: templates/admin/audit.php:26
+msgid "《广告法》极限词巡检"
 msgstr ""
 
-#: templates/admin/audit.php:52
-msgid "全站《广告法》极限词分批巡检"
+#: templates/admin/audit.php:47
+msgid "立即执行全部检测"
 msgstr ""
 
-#: templates/admin/audit.php:64
-msgid "内置违禁表达"
-msgstr ""
-
-#: templates/admin/audit.php:68
-msgid "安全复合词"
-msgstr ""
-
-#: templates/admin/audit.php:72
-msgid "自定义白名单"
-msgstr ""
-
-#: templates/admin/audit.php:76
-msgid "上次命中风险"
-msgstr ""
-
-#: templates/admin/audit.php:88
-msgid "全站巡检进度"
-msgstr ""
-
-#: templates/admin/audit.php:98
-msgid "本地毫秒级离线扫描，内容无需发往外部接口"
-msgstr ""
-
-#: templates/admin/audit.php:99
-msgid "自动剥离脚本与样式代码，扫描文章、页面及站点副标题中的绝对化极限词、无法证实承诺与违规权威背书。"
-msgstr ""
-
-#: templates/admin/audit.php:101
-msgid "开始全站巡检"
-msgstr ""
-
-#: templates/admin/audit.php:115
-msgid "命中项支持一键直达编辑页修订，或将专有名词加入豁免白名单。"
-msgstr ""
-
-#: templates/admin/audit.php:118
+#: templates/admin/audit.php:56
 msgid "重新扫描全站"
 msgstr ""
 
+#: templates/admin/audit.php:56
+msgid "开始全站巡检"
+msgstr ""
+
+#: templates/admin/audit.php:68
+msgid "由无言（WordYeah）提供合规规则与核查能力，经 api.wpcy.com 获取远程词库。"
+msgstr ""
+
+#: templates/admin/audit.php:79
+msgid "多站点网络合规巡检配置已保存。"
+msgstr ""
+
+#: templates/admin/audit.php:100
+msgid "合规巡检模块"
+msgstr ""
+
+#: templates/admin/audit.php:123
+msgid "合规边界提示：本模块由无言（WordYeah）提供合规核查能力，用于自查首页备案规范、监测 DNS 漂移与按天/周低频维持原接入商服务器访问日志，不替代新增接入、变更或注销备案法定义务。"
+msgstr ""
+
+#: templates/admin/audit.php:132
+msgid "首页合规检测"
+msgstr ""
+
+#: templates/admin/audit.php:135
+#: templates/admin/audit.php:364
+#: templates/admin/overview.php:227
+msgid "未执行"
+msgstr ""
+
+#: templates/admin/audit.php:136
+#: templates/admin/audit.php:195
+#: templates/admin/audit.php:207
+#: templates/admin/audit.php:214
+#: templates/admin/overview.php:187
+msgid "通过"
+msgstr ""
+
+#: templates/admin/audit.php:136
+#: templates/admin/overview.php:187
+msgid "待修"
+msgstr ""
+
 #: templates/admin/audit.php:139
-msgid "《广告法》巡检规则与白名单配置"
+msgid "保活子域名 DNS"
+msgstr ""
+
+#: templates/admin/audit.php:141
+#: templates/admin/overview.php:191
+msgid "未开启"
+msgstr ""
+
+#: templates/admin/audit.php:143
+msgid "待探测"
+msgstr ""
+
+#: templates/admin/audit.php:144
+msgid "命中"
+msgstr ""
+
+#: templates/admin/audit.php:144
+#: templates/admin/audit.php:207
+msgid "漂移"
+msgstr ""
+
+#: templates/admin/audit.php:145
+#: templates/admin/overview.php:192
+msgid "主站直连"
+msgstr ""
+
+#: templates/admin/audit.php:148
+msgid "近 10 次保活成功"
 msgstr ""
 
 #: templates/admin/audit.php:150
-msgid "内置白名单已默认豁免「第一时间」「第一步」「唯一标识」等 30 个常规复合词。"
+msgid "次"
 msgstr ""
 
 #: templates/admin/audit.php:153
+msgid "保活周期"
+msgstr ""
+
+#. translators: %s: last check time
+#: templates/admin/audit.php:164
+#, php-format
+msgid "上次检测时间：%s · 可随时点击右上角「立即执行全部检测」触发实时核查。"
+msgstr ""
+
+#: templates/admin/audit.php:167
+msgid "尚未执行首页与接入商实时检测，点击右上角「立即执行全部检测」获取首次结果。"
+msgstr ""
+
+#: templates/admin/audit.php:171
+msgid "首页备案与接入商实时体检"
+msgstr ""
+
+#: templates/admin/audit.php:182
+msgid "尚未执行首页备案与接入体检"
+msgstr ""
+
+#: templates/admin/audit.php:183
+msgid "点击右上角「立即执行全部检测」，立即核查首页 ICP 备案号、工信部官方链接、网页标题及保活子域名 DNS 归属。"
+msgstr ""
+
+#: templates/admin/audit.php:186
+msgid "支持每日自动巡检"
+msgstr ""
+
+#: templates/admin/audit.php:195
+#: templates/admin/audit.php:214
+#: templates/admin/overview.php:201
+#: templates/admin/overview.php:269
+#: templates/admin/overview.php:287
+msgid "异常"
+msgstr ""
+
+#: templates/admin/audit.php:195
+#: templates/admin/overview.php:269
+msgid "待补"
+msgstr ""
+
+#: templates/admin/audit.php:209
+msgid "接入商 DNS 解析 IP 校验（A / AAAA / CNAME）"
+msgstr ""
+
+#: templates/admin/audit.php:211
+msgid "未命中预期接入商 IP 段"
+msgstr ""
+
+#: templates/admin/audit.php:216
+msgid "保活子域名定时访问与关键词校验"
+msgstr ""
+
+#: templates/admin/audit.php:218
+msgid "访问失败"
+msgstr ""
+
+#: templates/admin/audit.php:240
+msgid "接入商合规与子域名定时保活配置"
+msgstr ""
+
+#: templates/admin/audit.php:241
+msgid "主站直连原备案服务器时无需开启保活；采用多云或 CDN 时，可配置原接入商内地服务器子域名并按天/周低频探测。"
+msgstr ""
+
+#: templates/admin/audit.php:245
+msgid "导出单文件保活页 (index.html)"
+msgstr ""
+
+#: templates/admin/audit.php:264
+msgid "保活子域名对应页面须展示真实合规的主体与备案号，切勿放空白页或无关内容。"
+msgstr ""
+
+#: templates/admin/audit.php:267
+msgid "保存合规与保活配置"
+msgstr ""
+
+#: templates/admin/audit.php:281
+msgid "最近保活访问与 DNS 核查日志"
+msgstr ""
+
+#: templates/admin/audit.php:287
+msgid "暂无子域名保活访问记录；开启子域名保活并执行探测后，将自动保留最近 10 次记录。"
+msgstr ""
+
+#: templates/admin/audit.php:293
+msgid "时间"
+msgstr ""
+
+#: templates/admin/audit.php:294
+msgid "目标地址"
+msgstr ""
+
+#: templates/admin/audit.php:295
+msgid "DNS 落地 IP"
+msgstr ""
+
+#: templates/admin/audit.php:296
+msgid "HTTP / 耗时"
+msgstr ""
+
+#: templates/admin/audit.php:297
+msgid "校验结果"
+msgstr ""
+
+#: templates/admin/audit.php:305
+msgid "匹配"
+msgstr ""
+
+#: templates/admin/audit.php:305
+msgid "不符"
+msgstr ""
+
+#: templates/admin/audit.php:313
+msgid "连接失败"
+msgstr ""
+
+#: templates/admin/audit.php:340
+msgid "内置版"
+msgstr ""
+
+#: templates/admin/audit.php:341
+msgid "已缓存"
+msgstr ""
+
+#: templates/admin/audit.php:341
+msgid "待同步"
+msgstr ""
+
+#: templates/admin/audit.php:348
+msgid "生效违禁词库"
+msgstr ""
+
+#: templates/admin/audit.php:350
+msgid "条（含远程）"
+msgstr ""
+
+#: templates/admin/audit.php:350
+msgid "条（内置）"
+msgstr ""
+
+#: templates/admin/audit.php:353
+msgid "安全复合词豁免"
+msgstr ""
+
+#: templates/admin/audit.php:355
+msgid "条"
+msgstr ""
+
+#: templates/admin/audit.php:358
+msgid "词库版本（无言）"
+msgstr ""
+
+#: templates/admin/audit.php:363
+msgid "上次巡检结果"
+msgstr ""
+
+#: templates/admin/audit.php:365
+msgid "处风险"
+msgstr ""
+
+#. translators: 1: scan timestamp, 2: post count
+#: templates/admin/audit.php:376
+#, php-format
+msgid "上次扫描时间：%1$s · 共扫描 %2$d 篇公开文章与页面"
+msgstr ""
+
+#: templates/admin/audit.php:380
+msgid "使用无言（WordYeah）本地缓存词库离线扫描，站点内容不上传外部服务器。"
+msgstr ""
+
+#: templates/admin/audit.php:384
+msgid "全站《广告法》极限词巡检结果"
+msgstr ""
+
+#: templates/admin/audit.php:395
+msgid "全站巡检进度"
+msgstr ""
+
+#: templates/admin/audit.php:406
+msgid "尚未执行全站极限词巡检"
+msgstr ""
+
+#: templates/admin/audit.php:407
+msgid "点击右上角「开始全站巡检」，将自动剥离脚本样式并检测文章、页面及站点副标题中的绝对化用语。"
+msgstr ""
+
+#: templates/admin/audit.php:410
+msgid "本地毫秒级离线扫描"
+msgstr ""
+
+#. translators: %d: scanned post count
+#: templates/admin/audit.php:419
+#, php-format
+msgid "已扫描 %d 篇公开内容，未发现《广告法》极限词风险表达。"
+msgstr ""
+
+#. translators: %d: hit count
+#: templates/admin/audit.php:432
+#, php-format
+msgid "上次扫描共发现 %d 处风险表达；点击右上角「重新扫描全站」即可展开逐条高亮摘录、直达编辑与一键加入白名单。"
+msgstr ""
+
+#. translators: 1: endpoint url, 2: sync status, 3: remote count, 4: builtin count
+#: templates/admin/audit.php:446
+#, php-format
+msgid "数据源：%1$s · %2$s（远程 %3$d 条 + 内置 %4$d 条）"
+msgstr ""
+
+#. translators: %s: timestamp
+#: templates/admin/audit.php:451
+#, php-format
+msgid "上次同步：%s"
+msgstr ""
+
+#: templates/admin/audit.php:454
+msgid "尚未同步远程词库，当前使用内置词库"
+msgstr ""
+
+#: templates/admin/audit.php:461
+#: templates/admin/help.php:67
+msgid "无言（WordYeah）合规词库服务"
+msgstr ""
+
+#: templates/admin/audit.php:462
+msgid "词库由合规品牌无言（WordYeah）持续维护，仅单向拉取规则 JSON 至本地缓存，不回传任何站点文章内容。"
+msgstr ""
+
+#. translators: %s: ruleset version
+#: templates/admin/audit.php:472
+#, php-format
+msgid "无言《广告法》极限词与安全复合词库（%s）"
+msgstr ""
+
+#: templates/admin/audit.php:478
+msgid "立即同步远程词库"
+msgstr ""
+
+#: templates/admin/audit.php:499
+msgid "巡检规则与豁免白名单"
+msgstr ""
+
+#: templates/admin/audit.php:513
+msgid "远程词库拉取失败时自动回退至内置基础词库；默认豁免「第一时间」「唯一标识」等安全复合词。"
+msgstr ""
+
+#: templates/admin/audit.php:516
 msgid "保存巡检配置"
 msgstr ""
 
-#: templates/admin/badges.php:23
+#: templates/admin/badges.php:27
 msgid "官方预设徽章"
 msgstr ""
 
-#: templates/admin/badges.php:24
+#: templates/admin/badges.php:28
 msgid "自定义合作徽章"
 msgstr ""
 
-#: templates/admin/badges.php:25
+#: templates/admin/badges.php:29
 msgid "电子证照亮照"
 msgstr ""
 
-#: templates/admin/badges.php:32
-msgid "管理页脚权威信任徽标与电子营业执照亮照。"
+#: templates/admin/badges.php:69
+msgid "管理页脚权威信任徽标与电子营业执照防盗水印亮照。"
 msgstr ""
 
-#: templates/admin/badges.php:42
+#: templates/admin/badges.php:79
 msgid "多站点网络默认证照与徽章设置已保存。"
 msgstr ""
 
-#: templates/admin/badges.php:51
-#: templates/admin/display.php:70
-#: templates/admin/filing.php:68
+#: templates/admin/badges.php:88
+#: templates/admin/display.php:73
+#: templates/admin/filing.php:73
 msgid "前往网络管理中心修改"
 msgstr ""
 
-#: templates/admin/badges.php:59
-#: templates/admin/display.php:78
-#: templates/admin/filing.php:76
+#: templates/admin/badges.php:96
+#: templates/admin/display.php:81
+#: templates/admin/filing.php:81
 msgid "当前子站点继承多站点网络配置"
 msgstr ""
 
-#: templates/admin/badges.php:60
+#: templates/admin/badges.php:97
 msgid "网络超级管理员已关闭子站点独立覆盖，本站自动沿用全网统一的证照与信任徽章。"
 msgstr ""
 
-#: templates/admin/badges.php:95
+#: templates/admin/badges.php:132
 msgid "证照与徽章分类"
 msgstr ""
 
-#: templates/admin/badges.php:106
+#. translators: %d: total preset badge count
+#: templates/admin/badges.php:142
+#, php-format
+msgid "全部 (%d)"
+msgstr ""
+
+#: templates/admin/badges.php:152
 msgid "官方监管与权威信任徽章"
 msgstr ""
 
-#: templates/admin/badges.php:107
-msgid "勾选需要展示的权威机构徽标，外链均自动采用 HTTPS。"
+#: templates/admin/badges.php:153
+msgid "直接点选需要展示的权威徽标卡片，外链均自动采用 HTTPS。"
 msgstr ""
 
-#: templates/admin/badges.php:117
+#. translators: 1: selected count, 2: total count
+#: templates/admin/badges.php:158
+#, php-format
+msgid "已选 %1$d / %2$d"
+msgstr ""
+
+#: templates/admin/badges.php:167
+msgid "按机构分类筛选"
+msgstr ""
+
+#: templates/admin/badges.php:187
+msgid "搜索徽标名称…"
+msgstr ""
+
+#: templates/admin/badges.php:187
+msgid "搜索徽标名称"
+msgstr ""
+
+#: templates/admin/badges.php:188
+msgid "全选"
+msgstr ""
+
+#: templates/admin/badges.php:189
+msgid "清空"
+msgstr ""
+
+#: templates/admin/badges.php:214
 msgid "勾选后即可在页脚「含信任徽章」版式或「信任徽章」区块中输出。"
 msgstr ""
 
-#: templates/admin/badges.php:120
+#: templates/admin/badges.php:217
 msgid "保存预设徽章"
 msgstr ""
 
-#: templates/admin/badges.php:135
+#: templates/admin/badges.php:232
 msgid "自定义合作与安全认证徽章"
 msgstr ""
 
-#: templates/admin/badges.php:136
-msgid "从媒体库选择行业协会、云安全或合作伙伴认证图标及跳转链接。"
+#: templates/admin/badges.php:233
+msgid "点击左侧图标区从媒体库上传或替换图片，外链自动强制升级为 HTTPS。"
 msgstr ""
 
-#: templates/admin/badges.php:146
-msgid "所有外部徽章跳转链接均自动强制升级为 HTTPS。"
+#: templates/admin/badges.php:237
+msgid "添加自定义徽章"
 msgstr ""
 
-#: templates/admin/badges.php:149
+#: templates/admin/badges.php:252
+msgid "核验跳转链接（自动 HTTPS）"
+msgstr ""
+
+#: templates/admin/badges.php:253
+#: templates/admin/filing.php:181
+msgid "操作"
+msgstr ""
+
+#: templates/admin/badges.php:266
+msgid "选择徽章图片"
+msgstr ""
+
+#: templates/admin/badges.php:270
+msgid "选择图片"
+msgstr ""
+
+#: templates/admin/badges.php:273
+msgid "如：ISO 27001 信息安全认证"
+msgstr ""
+
+#: templates/admin/badges.php:274
+msgid "核验跳转链接"
+msgstr ""
+
+#: templates/admin/badges.php:276
+msgid "更换"
+msgstr ""
+
+#: templates/admin/badges.php:277
+#: templates/admin/badges.php:367
+#: templates/admin/filing.php:194
+msgid "移除"
+msgstr ""
+
+#: templates/admin/badges.php:286
+msgid "暂未添加自定义合作徽章"
+msgstr ""
+
+#: templates/admin/badges.php:287
+msgid "可上传行业协会、云安全或合作伙伴认证图标，并配置对应的官方核验链接。"
+msgstr ""
+
+#: templates/admin/badges.php:293
+msgid "添加第一枚徽章"
+msgstr ""
+
+#: templates/admin/badges.php:307
+msgid "自定义徽章将紧随官方预设徽章在页脚与「信任徽章」区块中输出。"
+msgstr ""
+
+#: templates/admin/badges.php:310
 msgid "保存自定义徽章"
 msgstr ""
 
-#: templates/admin/badges.php:164
-msgid "电子营业执照与许可证书亮照"
+#: templates/admin/badges.php:325
+msgid "电子证照与营业执照复印件管理"
 msgstr ""
 
-#: templates/admin/badges.php:165
-msgid "从媒体库选择营业执照或许可证扫描件，支持灯箱放大或跳转独立亮照页。"
+#: templates/admin/badges.php:326
+msgid "集中管理营业执照、ICP/EDI 许可证与行业资质扫描件；缩略图实时预览下方配置的输出水印。"
 msgstr ""
 
-#: templates/admin/badges.php:178
-msgid "可通过「信任徽章与证照」区块或 [wpicp_certificates] 短代码展示画廊。"
+#: templates/admin/badges.php:362
+msgid "长期有效"
 msgstr ""
 
-#: templates/admin/badges.php:181
-msgid "保存证照设置"
+#: templates/admin/badges.php:366
+msgid "编辑信息"
 msgstr ""
 
-#: templates/admin/badges.php:196
+#: templates/admin/badges.php:373
+msgid "上传证照复印件"
+msgstr ""
+
+#: templates/admin/badges.php:379
+msgid "编辑证照台账信息"
+msgstr ""
+
+#: templates/admin/badges.php:391
+msgid "电信许可"
+msgstr ""
+
+#: templates/admin/badges.php:393
+msgid "行业资质"
+msgstr ""
+
+#: templates/admin/badges.php:394
+msgid "荣誉认证"
+msgstr ""
+
+#: templates/admin/badges.php:400
+msgid "统一社会信用代码或许可证号"
+msgstr ""
+
+#: templates/admin/badges.php:403
+msgid "有效期（到期前 30 天提醒）"
+msgstr ""
+
+#: templates/admin/badges.php:404
+msgid "留空为长期有效，或填 YYYY-MM-DD"
+msgstr ""
+
+#: templates/admin/badges.php:407
+msgid "前台画廊展示"
+msgstr ""
+
+#: templates/admin/badges.php:409
+msgid "在亮照画廊与区块中公开展示此证照"
+msgstr ""
+
+#: templates/admin/badges.php:414
+msgid "取消"
+msgstr ""
+
+#: templates/admin/badges.php:415
+msgid "更换扫描件"
+msgstr ""
+
+#: templates/admin/badges.php:416
+msgid "确定更新"
+msgstr ""
+
+#: templates/admin/badges.php:424
+msgid "亮照输出水印与防盗展示设置"
+msgstr ""
+
+#: templates/admin/badges.php:425
+msgid "修改下方水印开关、文案、排布或浓度，上方证照卡片会即时更新水印预览。"
+msgstr ""
+
+#: templates/admin/badges.php:441
+msgid "服务端合成模式会按需输出带水印缓存副本并防止直接保存无水印原图，支持 [wpicp_certificates] 与区块展示。"
+msgstr ""
+
+#: templates/admin/badges.php:444
+msgid "保存证照与水印设置"
+msgstr ""
+
+#: templates/admin/badges.php:459
 msgid "有未保存的证照徽章更改"
 msgstr ""
 
-#: templates/admin/badges.php:197
-#: templates/admin/display.php:188
-#: templates/admin/filing.php:172
+#: templates/admin/badges.php:460
+#: templates/admin/display.php:230
+#: templates/admin/filing.php:242
 msgid "保存设置"
 msgstr ""
 
-#: templates/admin/display.php:31
+#: templates/admin/display.php:34
 msgid "切换简单与高级展示设置"
 msgstr ""
 
-#: templates/admin/display.php:34
-#: templates/admin/filing.php:32
+#: templates/admin/display.php:37
+#: templates/admin/filing.php:37
 msgid "简单"
 msgstr ""
 
-#: templates/admin/display.php:39
-#: templates/admin/filing.php:37
+#: templates/admin/display.php:42
+#: templates/admin/filing.php:42
 msgid "高级"
 msgstr ""
 
-#: templates/admin/display.php:50
-msgid "配置页脚合规公示栏样式、显示条目与多站点策略。"
+#: templates/admin/display.php:53
+msgid "配置页脚合规公示栏版式、显示条目与主题自适应预览。"
 msgstr ""
 
-#: templates/admin/display.php:61
+#: templates/admin/display.php:64
 msgid "多站点网络默认前台展示设置已保存。"
 msgstr ""
 
-#: templates/admin/display.php:79
+#: templates/admin/display.php:82
 msgid "网络超级管理员已关闭子站点独立覆盖，本站自动沿用全网统一的页脚合规栏展示策略。"
 msgstr ""
 
-#: templates/admin/display.php:103
-msgid "页脚合规公示栏版式"
+#: templates/admin/display.php:107
+msgid "浅色页脚"
 msgstr ""
 
-#: templates/admin/display.php:117
-msgid "如需精细勾选页脚条目或设置自定义类名，请切换右上角「高级」视图。"
+#: templates/admin/display.php:119
+msgid "深色页脚"
 msgstr ""
 
-#: templates/admin/display.php:120
-msgid "保存展示版式"
+#: templates/admin/display.php:133
+msgid "页脚合规栏实时预览"
 msgstr ""
 
-#: templates/admin/display.php:137
-msgid "合规栏显示条目与附加类名"
-msgstr ""
-
-#: templates/admin/display.php:149
-msgid "仅已填写具体编号或内容的条目会在前台合规栏中渲染。"
-msgstr ""
-
-#: templates/admin/display.php:152
-msgid "保存展示设置"
+#: templates/admin/display.php:134
+msgid "修改下方版式、对齐或分隔符将实时反馈到预览区；可切换深浅底检验主题对比度。"
 msgstr ""
 
 #: templates/admin/display.php:166
-msgid "当前版式效果预览"
+msgid "页脚输出与排版设置"
 msgstr ""
 
-#: templates/admin/display.php:187
+#: templates/admin/display.php:180
+msgid "如需精细勾选页脚条目或设置自定义类名，请切换右上角「高级」视图。"
+msgstr ""
+
+#: templates/admin/display.php:183
+msgid "保存展示版式"
+msgstr ""
+
+#: templates/admin/display.php:200
+msgid "合规栏显示条目与附加类名"
+msgstr ""
+
+#: templates/admin/display.php:212
+msgid "仅已填写具体编号或内容的条目会在前台合规栏中渲染。"
+msgstr ""
+
+#: templates/admin/display.php:215
+msgid "保存展示设置"
+msgstr ""
+
+#: templates/admin/display.php:229
 msgid "有未保存的前台展示更改"
 msgstr ""
 
-#: templates/admin/filing.php:29
+#: templates/admin/filing.php:34
 msgid "切换简单与高级备案视图"
 msgstr ""
 
-#: templates/admin/filing.php:48
+#: templates/admin/filing.php:53
 msgid "维护站点备案号、主办单位与行业行政许可。"
 msgstr ""
 
-#: templates/admin/filing.php:59
+#: templates/admin/filing.php:64
 msgid "多站点网络默认备案资质已保存。"
 msgstr ""
 
-#: templates/admin/filing.php:77
+#: templates/admin/filing.php:82
 msgid "网络超级管理员已关闭子站点独立覆盖，本站自动沿用全网统一的备案与证照设置。"
 msgstr ""
 
-#: templates/admin/filing.php:101
+#: templates/admin/filing.php:106
 msgid "基础备案与主办单位"
 msgstr ""
 
-#: templates/admin/filing.php:121
-msgid "如需填写增值电信 EDI、生成式 AI 或算法备案，请切换右上角「高级」视图。"
+#: templates/admin/filing.php:127
+msgid "如需填写增值电信 EDI、生成式 AI 或行业行政许可，请切换右上角「高级」视图。"
 msgstr ""
 
-#: templates/admin/filing.php:124
+#: templates/admin/filing.php:130
 msgid "保存备案资质"
 msgstr ""
 
-#: templates/admin/filing.php:141
-msgid "增值电信、AI 算法与扩展许可证"
+#: templates/admin/filing.php:147
+msgid "增值电信、AI 算法与移动端备案"
 msgstr ""
 
-#: templates/admin/filing.php:154
+#: templates/admin/filing.php:161
+msgid "可按需补充网络文化、广播电视、出版物或互联网药品信息等行业许可证。"
+msgstr ""
+
+#: templates/admin/filing.php:165
+#: templates/admin/filing.php:210
+msgid "添加许可证"
+msgstr ""
+
+#: templates/admin/filing.php:192
+msgid "查验链接"
+msgstr ""
+
+#: templates/admin/filing.php:203
+msgid "暂未登记扩展行业行政许可证"
+msgstr ""
+
+#: templates/admin/filing.php:204
+msgid "如站点涉及网络文化、出版物、广电或医疗器械信息服务，可点击右上角按钮逐条登记。"
+msgstr ""
+
+#: templates/admin/filing.php:224
 msgid "保存后自动同步 WordPress 常规备案项，未填写项目不在前台显示。"
 msgstr ""
 
-#: templates/admin/filing.php:157
-msgid "保存备案与许可资质"
+#: templates/admin/filing.php:227
+msgid "保存全部备案与许可"
 msgstr ""
 
-#: templates/admin/filing.php:171
+#: templates/admin/filing.php:241
 msgid "有未保存的备案资质更改"
 msgstr ""
 
@@ -1366,7 +2324,7 @@ msgid "使用帮助"
 msgstr ""
 
 #: templates/admin/help.php:23
-msgid "了解备案同步、短代码调用与巡检规则。"
+msgid "了解备案同步、接入商子域名保活、电子证照水印与无言（WordYeah）合规巡检。"
 msgstr ""
 
 #: templates/admin/help.php:33
@@ -1378,75 +2336,71 @@ msgid "一处维护，核心与生态自动同步"
 msgstr ""
 
 #: templates/admin/help.php:41
-msgid "填写基础备案与主体名称"
+msgid "填写基础备案与网站登记名称"
 msgstr ""
 
 #: templates/admin/help.php:42
-msgid "在「备案资质」页简单模式下填入工信部 ICP 备案号、公安联网备案号及主办单位法定全称。保存后自动双向同步至 WordPress「设置 → 常规」中的 ICP 备案号选项。"
+msgid "在「备案资质」页填入工信部 ICP 备案号、工信部登记网站名称、公安联网备案号及主办单位法定全称。保存后自动双向同步至 WordPress「设置 → 常规」中的 ICP 备案号选项。"
 msgstr ""
 
 #: templates/admin/help.php:45
-msgid "选择零代码前台输出方式"
+msgid "在顶部工作台配置页脚合规栏"
 msgstr ""
 
 #: templates/admin/help.php:46
-msgid "在「前台展示」页可直接打开「自动注入站点页脚」开关并选择单行、双行或含徽章版式；全站编辑区块主题可在页脚模板中插入「备案合规栏」或「信任徽章」区块。"
+msgid "在「前台展示」页顶部预览工作台实时对比浅/深色页脚效果，按需开启自动页脚注入并选择极简单行、标准双行或含信任徽章版式；区块主题可直接插入「备案合规栏」或「信任徽章」区块。"
 msgstr ""
 
 #: templates/admin/help.php:49
-msgid "按需维护高级许可与电子证照"
+msgid "管理电子证照复印件与输出水印"
 msgstr ""
 
 #: templates/admin/help.php:50
-msgid "在「备案资质」页切至「高级」模式可补充增值电信 EDI、生成式 AI 与算法备案；在「证照徽章」页管理官方信任徽标与电子营业执照亮照。"
+msgid "在「证照徽章 → 电子证照亮照」集中管理营业执照与行政许可证扫描件，可登记分类、编号与有效期（到期前 30 天提醒），并开启服务端水印合成与防右键另存保护。"
 msgstr ""
 
 #: templates/admin/help.php:55
-msgid "语义短代码与旧版兼容对照"
+msgid "接入商合规保活与无言（WordYeah）远程词库"
 msgstr ""
 
 #: templates/admin/help.php:56
-msgid "兼容旧版 12 个短代码，老站无缝升级"
+msgid "按天/周低频保活探测与 api.wpcy.com 单向词库同步"
 msgstr ""
 
 #: templates/admin/help.php:63
-msgid "新一代统一短代码"
+msgid "首页备案自检与接入商子域名保活"
 msgstr ""
 
 #: templates/admin/help.php:64
-msgid "输出完整合规公示栏；支持按字段单独调用："
-msgstr ""
-
-#: templates/admin/help.php:67
-msgid "旧版 WPICP License 短代码兼容"
+msgid "每日自动检查首页可达性、底部备案号、beian.miit.gov.cn 官方链接与标题一致性。采用多云或 CDN 时，可导出单文件合规保活页部署至原备案接入商内地服务器，由插件按天或按周低频探测 DNS 归属与 HTTP 200 状态。"
 msgstr ""
 
 #: templates/admin/help.php:68
-msgid "完整保留全部 12 个历史短代码别名："
+msgid "《广告法》极限词库与安全复合词由合规品牌无言（WordYeah）持续维护，插件通过 https://api.wpcy.com/wordyeah/v1/ad-law-rules.json 单向拉取规则 JSON 至本地缓存，不回传任何站点文章内容；网络受限时自动回退至内置基础词库。"
 msgstr ""
 
 #: templates/admin/help.php:73
-msgid "离线《广告法》极限词巡检机制"
+msgid "语义短代码与旧版兼容对照"
 msgstr ""
 
 #: templates/admin/help.php:74
-msgid "本地 DOM 解析，支持复合词豁免与自定义白名单"
+msgid "兼容旧版 12 个短代码，老站无缝升级"
 msgstr ""
 
 #: templates/admin/help.php:81
-msgid "三类风险词与智能白名单脱敏"
+msgid "新一代统一短代码"
 msgstr ""
 
 #: templates/admin/help.php:82
-msgid "扫描核内置 45 条常见违禁表达（绝对化用语、无法证实承诺、违规权威背书），并先行屏蔽「第一时间」「第一步」「唯一标识」等 30 个日常安全复合词，消除误报。"
+msgid "输出完整合规公示栏；支持按字段单独调用："
 msgstr ""
 
 #: templates/admin/help.php:85
-msgid "编辑器实时提醒与文派心思协同"
+msgid "旧版 WPICP License 短代码兼容"
 msgstr ""
 
 #: templates/admin/help.php:86
-msgid "在古腾堡编辑器侧边栏与发布前检查面板中实时提示风险词及 3 个合规替代词（提示不阻断发布）；站点同时启用文派心思（WPMind）时，可一键调用 AI 生成合规改写句。"
+msgid "完整保留全部 12 个历史短代码别名："
 msgstr ""
 
 #: templates/admin/help.php:91
@@ -1479,230 +2433,264 @@ msgstr ""
 msgid "在线文档中心"
 msgstr ""
 
-#: templates/admin/overview.php:49
-msgid "尚未登记站点备案号，填写后将自动同步全站页脚与文派生态。"
+#: templates/admin/overview.php:52
+msgid "尚未登记站点备案号，填写后将自动同步全站页脚并开启首页合规自检。"
 msgstr ""
 
-#: templates/admin/overview.php:51
+#: templates/admin/overview.php:54
+msgid "检测到接入商保活子域名异常，请及时核查 DNS 与服务可达性避免触发取消接入。"
+msgstr ""
+
+#: templates/admin/overview.php:56
 msgid "检测到备案号格式异常，请核对后重新保存。"
 msgstr ""
 
 #. translators: %d: hit count
-#: templates/admin/overview.php:55
+#: templates/admin/overview.php:60
 #, php-format
-msgid "备案公示已启用，最近一次巡检发现 %d 处《广告法》风险表达。"
+msgid "备案公示正常，最近一次《广告法》巡检发现 %d 处待复核表达。"
 msgstr ""
 
-#: templates/admin/overview.php:59
+#: templates/admin/overview.php:64
 msgid "备案公示已启用，单点数据已同步至 WordPress 核心与文派生态。"
 msgstr ""
 
-#: templates/admin/overview.php:65
+#: templates/admin/overview.php:70
 msgid "编辑备案"
 msgstr ""
 
-#: templates/admin/overview.php:87
+#: templates/admin/overview.php:77
+msgid "备案与接入体检"
+msgstr ""
+
+#: templates/admin/overview.php:92
 msgid "生态协同"
 msgstr ""
 
-#: templates/admin/overview.php:88
+#: templates/admin/overview.php:93
 msgid "收起协同"
 msgstr ""
 
-#: templates/admin/overview.php:99
+#: templates/admin/overview.php:104
 msgid "已自动从旧版 WPICP License 无损迁移全部备案与证照配置并停用旧插件。"
 msgstr ""
 
-#: templates/admin/overview.php:108
+#: templates/admin/overview.php:113
 msgid "尚未登记站点备案与主体资质"
 msgstr ""
 
-#: templates/admin/overview.php:109
-msgid "一处填写 ICP 备案号、公安联网备案号与主体全称，自动同步全站页脚与文派生态插件。"
-msgstr ""
-
-#: templates/admin/overview.php:112
-msgid "填写备案信息"
+#: templates/admin/overview.php:114
+msgid "一处填写 ICP 备案号、公安联网备案号与主体全称，自动同步全站页脚、首页合规检测与文派生态插件。"
 msgstr ""
 
 #: templates/admin/overview.php:117
-msgid "高级资质设置"
+msgid "填写备案信息"
 msgstr ""
 
-#: templates/admin/overview.php:129
+#: templates/admin/overview.php:122
+msgid "配置接入商保活"
+msgstr ""
+
+#: templates/admin/overview.php:134
+msgid "接入商保活子域名检测异常，存在取消接入风险"
+msgstr ""
+
+#: templates/admin/overview.php:135
+msgid "请核查保活子域名 DNS 解析与页面可达性。"
+msgstr ""
+
+#: templates/admin/overview.php:138
+msgid "查看接入核查详情"
+msgstr ""
+
+#: templates/admin/overview.php:150
 msgid "备案编号格式存在异常"
 msgstr ""
 
-#: templates/admin/overview.php:133
+#: templates/admin/overview.php:154
 msgid "立即核对修正"
 msgstr ""
 
 #. translators: %d: hit count
-#: templates/admin/overview.php:147
+#: templates/admin/overview.php:168
 #, php-format
 msgid "全站巡检发现 %d 处《广告法》风险表达"
 msgstr ""
 
-#: templates/admin/overview.php:150
+#: templates/admin/overview.php:171
 msgid "建议前往合规巡检页复核修订，或将专有名词加入豁免白名单。"
 msgstr ""
 
-#: templates/admin/overview.php:153
+#: templates/admin/overview.php:174
 msgid "查看巡检详情"
 msgstr ""
 
-#: templates/admin/overview.php:168
-msgid "已登记资质"
+#: templates/admin/overview.php:184
+msgid "未检"
 msgstr ""
 
-#: templates/admin/overview.php:170
-msgid "项"
+#: templates/admin/overview.php:195
+msgid "待首次探测"
 msgstr ""
 
-#: templates/admin/overview.php:173
-msgid "证照与徽章"
-msgstr ""
-
-#: templates/admin/overview.php:175
-msgid "枚"
-msgstr ""
-
-#: templates/admin/overview.php:178
-msgid "巡检风险项"
-msgstr ""
-
-#: templates/admin/overview.php:180
-msgid "处"
-msgstr ""
-
-#: templates/admin/overview.php:183
-msgid "协同通道"
-msgstr ""
-
-#: templates/admin/overview.php:185
-msgid "个"
-msgstr ""
-
-#: templates/admin/overview.php:190
-msgid "WordPress 核心常规备案项尚未与本站配置同步"
-msgstr ""
-
-#: templates/admin/overview.php:191
-msgid "展开查看"
-msgstr ""
-
-#: templates/admin/overview.php:203
-msgid "标准双行"
-msgstr ""
-
-#: templates/admin/overview.php:204
-msgid "极简单行"
-msgstr ""
-
-#: templates/admin/overview.php:205
-msgid "含信任徽章"
+#: templates/admin/overview.php:198
+#: templates/admin/overview.php:268
+#: templates/admin/overview.php:287
+msgid "正常"
 msgstr ""
 
 #: templates/admin/overview.php:211
-msgid "切换页脚合规栏预览版式"
+msgid "已登记资质"
+msgstr ""
+
+#: templates/admin/overview.php:213
+msgid "项"
+msgstr ""
+
+#: templates/admin/overview.php:216
+msgid "首页备案自检"
+msgstr ""
+
+#: templates/admin/overview.php:221
+msgid "接入商保活"
+msgstr ""
+
+#: templates/admin/overview.php:226
+msgid "广告法风险"
+msgstr ""
+
+#: templates/admin/overview.php:228
+msgid "处"
+msgstr ""
+
+#: templates/admin/overview.php:233
+msgid "WordPress 核心常规备案项尚未与本站配置同步"
 msgstr ""
 
 #: templates/admin/overview.php:234
+msgid "展开查看"
+msgstr ""
+
+#: templates/admin/overview.php:246
+msgid "首页备案与接入合规体检"
+msgstr ""
+
+#: templates/admin/overview.php:277
+msgid "修正"
+msgstr ""
+
+#: templates/admin/overview.php:277
+msgid "完善"
+msgstr ""
+
+#. translators: %s: cloud provider label
+#: templates/admin/overview.php:291
+#, php-format
+msgid "接入商保活（%s）"
+msgstr ""
+
+#: templates/admin/overview.php:296
+msgid "处理"
+msgstr ""
+
+#: templates/admin/overview.php:301
+msgid "待检"
+msgstr ""
+
+#: templates/admin/overview.php:303
+msgid "接入商子域名保活探测"
+msgstr ""
+
+#: templates/admin/overview.php:304
+msgid "已配置保活地址，尚未执行首次探测。"
+msgstr ""
+
+#: templates/admin/overview.php:305
+msgid "检测"
+msgstr ""
+
+#. translators: %s: timestamp
+#: templates/admin/overview.php:320
+#, php-format
+msgid "上次首页/接入检测：%s"
+msgstr ""
+
+#: templates/admin/overview.php:326
+msgid "进入接入保活"
+msgstr ""
+
+#: templates/admin/overview.php:340
+msgid "切换快捷入口与短代码"
+msgstr ""
+
+#: templates/admin/overview.php:344
+#: templates/admin/overview.php:346
+#: templates/admin/overview.php:359
+msgid "快捷入口"
+msgstr ""
+
+#: templates/admin/overview.php:350
+msgid "调用代码"
+msgstr ""
+
+#: templates/admin/overview.php:351
+msgid "短代码调用"
+msgstr ""
+
+#: templates/admin/overview.php:399
+msgid "完整页脚合规栏"
+msgstr ""
+
+#: templates/admin/overview.php:404
+#: templates/admin/overview.php:413
+#: templates/admin/overview.php:422
+msgid "复制"
+msgstr ""
+
+#: templates/admin/overview.php:408
+msgid "仅输出 ICP 备案号"
+msgstr ""
+
+#: templates/admin/overview.php:417
+msgid "信任徽章与电子证照画廊"
+msgstr ""
+
+#: templates/admin/overview.php:449
+msgid "支持区块编辑器与经典短代码调用"
+msgstr ""
+
+#: templates/admin/overview.php:452
+msgid "帮助文档"
+msgstr ""
+
+#: templates/admin/overview.php:479
+msgid "切换页脚合规栏预览版式"
+msgstr ""
+
+#: templates/admin/overview.php:502
 msgid "前台合规栏实时预览"
 msgstr ""
 
-#: templates/admin/overview.php:253
+#: templates/admin/overview.php:521
 msgid "当前展示示例效果，填写备案信息后将自动替换为本站真实数据。"
 msgstr ""
 
 #. translators: 1: style label, 2: auto output status
-#: templates/admin/overview.php:271
+#: templates/admin/overview.php:539
 #, php-format
 msgid "默认版式：%1$s · %2$s"
 msgstr ""
 
-#: templates/admin/overview.php:273
+#: templates/admin/overview.php:541
 msgid "页脚自动输出已开启"
 msgstr ""
 
-#: templates/admin/overview.php:273
+#: templates/admin/overview.php:541
 msgid "手动区块或短代码输出"
 msgstr ""
 
-#: templates/admin/overview.php:282
+#: templates/admin/overview.php:550
 msgid "调整展示版式"
-msgstr ""
-
-#: templates/admin/overview.php:298
-msgid "备案与公示完备度"
-msgstr ""
-
-#: templates/admin/overview.php:319
-msgid "正常"
-msgstr ""
-
-#: templates/admin/overview.php:320
-msgid "异常"
-msgstr ""
-
-#: templates/admin/overview.php:320
-msgid "待补"
-msgstr ""
-
-#: templates/admin/overview.php:328
-msgid "修正"
-msgstr ""
-
-#: templates/admin/overview.php:328
-msgid "完善"
-msgstr ""
-
-#: templates/admin/overview.php:343
-msgid "核对资质"
-msgstr ""
-
-#: templates/admin/overview.php:357
-msgid "切换快捷入口与短代码"
-msgstr ""
-
-#: templates/admin/overview.php:361
-#: templates/admin/overview.php:363
-#: templates/admin/overview.php:376
-msgid "快捷入口"
-msgstr ""
-
-#: templates/admin/overview.php:367
-msgid "调用代码"
-msgstr ""
-
-#: templates/admin/overview.php:368
-msgid "短代码调用"
-msgstr ""
-
-#: templates/admin/overview.php:416
-msgid "完整页脚合规栏"
-msgstr ""
-
-#: templates/admin/overview.php:421
-#: templates/admin/overview.php:430
-#: templates/admin/overview.php:439
-msgid "复制"
-msgstr ""
-
-#: templates/admin/overview.php:425
-msgid "仅输出 ICP 备案号"
-msgstr ""
-
-#: templates/admin/overview.php:434
-msgid "信任徽章与证照列表"
-msgstr ""
-
-#: templates/admin/overview.php:466
-msgid "支持区块编辑器与经典短代码调用"
-msgstr ""
-
-#: templates/admin/overview.php:469
-msgid "帮助文档"
 msgstr ""
 
 #: templates/admin/tools.php:25
@@ -1713,46 +2701,42 @@ msgstr ""
 msgid "重置仅恢复本插件默认选项，不会删除媒体库中已上传的证照图片。"
 msgstr ""
 
-#: templates/admin/tools.php:43
-msgid "旧版配置同步"
-msgstr ""
-
-#: templates/admin/tools.php:56
-msgid "从旧版插件或核心备案项重新同步"
+#: templates/admin/tools.php:44
+msgid "迁移与数据维护"
 msgstr ""
 
 #: templates/admin/tools.php:57
+msgid "从旧版插件或核心备案项重新同步"
+msgstr ""
+
+#: templates/admin/tools.php:58
 msgid "扫描旧版 WPICP License 遗留选项与 WordPress 常规设置中的备案号，合并补入当前配置。"
 msgstr ""
 
-#: templates/admin/tools.php:60
+#: templates/admin/tools.php:61
 msgid "重新同步旧版配置"
 msgstr ""
 
-#: templates/admin/tools.php:79
-msgid "清理 2025 早期版本遗留数据表"
-msgstr ""
-
 #: templates/admin/tools.php:80
-msgid "检测到早期测试版遗留的自建表（WPICP 4.0 采用零自定义表设计）："
-msgstr ""
-
-#: templates/admin/tools.php:94
-msgid "我已确认上述旧测试表无需保留，立即移除这些废弃表"
-msgstr ""
-
-#: templates/admin/tools.php:102
-msgid "清理废弃数据表"
-msgstr ""
-
-#: templates/admin/tools.php:126
-msgid "卸载数据策略"
-msgstr ""
-
-#: templates/admin/tools.php:134
 msgid "默认停用或卸载插件时保留已有备案与证照配置。"
 msgstr ""
 
-#: templates/admin/tools.php:137
+#: templates/admin/tools.php:83
 msgid "保存卸载策略"
+msgstr ""
+
+#: templates/admin/tools.php:102
+msgid "清理 2025 早期版本遗留数据表"
+msgstr ""
+
+#: templates/admin/tools.php:103
+msgid "检测到早期测试版遗留的自建表（WPICP 4.0 采用零自定义表设计）："
+msgstr ""
+
+#: templates/admin/tools.php:117
+msgid "我已确认上述旧测试表无需保留，立即移除这些废弃表"
+msgstr ""
+
+#: templates/admin/tools.php:125
+msgid "清理废弃数据表"
 msgstr ""

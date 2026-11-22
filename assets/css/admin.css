@@ -1,7 +1,9 @@
 /**
  * WPICP 4.0 Admin Product Stylesheet (strictly consumes `--wenpai-*` kit tokens).
+ * Keeps total CSS selector families at 6 (<= 8 budget), 0 raw px spacing, 0 raw hex.
  */
 
+/* 1. Preview workbench & copyable shortcodes */
 .wenpai-app .wpicp-preview {
 	display: flex;
 	flex-direction: column;
@@ -9,51 +11,108 @@
 }
 
 .wenpai-app .wpicp-preview__stage {
-	padding: var(--wenpai-space-4) var(--wenpai-space-5);
+	padding: var(--wenpai-space-5) var(--wenpai-space-6);
 	background: var(--wenpai-surface-soft);
 	border: 1px solid var(--wenpai-line-card);
 	border-radius: var(--wenpai-radius-md);
 	color: var(--wenpai-ink-2);
+	transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.wenpai-app .wpicp-code {
+.wenpai-app .wpicp-preview__stage.is-dark {
+	background: var(--wenpai-ink);
+	border-color: var(--wenpai-ink);
+	color: var(--wenpai-card);
+}
+
+.wenpai-app .wpicp-preview__code {
 	display: grid;
 	gap: var(--wenpai-space-3);
 }
 
-.wenpai-app .wpicp-code__item {
+.wenpai-app .wpicp-preview__code-item {
 	display: grid;
 	gap: var(--wenpai-space-1);
 }
 
-.wenpai-app .wpicp-badges__presets .wenpai-checkgroup {
+/* 2. Compact inline editors (licenses table, custom badges strip, inline empty) */
+.wenpai-app .wpicp-editor {
+	display: grid;
+	gap: 0;
+}
+
+.wenpai-app .wpicp-editor__head,
+.wenpai-app .wpicp-editor__row {
+	display: grid;
+	grid-template-columns: 1.05fr 1.2fr 1.35fr auto;
+	gap: var(--wenpai-space-3);
+	align-items: center;
+}
+
+.wenpai-app .wpicp-editor__media-head,
+.wenpai-app .wpicp-editor__media-row {
+	display: grid;
+	grid-template-columns: 5.5rem 1fr 1.25fr auto;
+	gap: var(--wenpai-space-3);
+	align-items: center;
+}
+
+.wenpai-app .wpicp-editor__head,
+.wenpai-app .wpicp-editor__media-head {
+	padding-bottom: var(--wenpai-space-2);
+	border-bottom: 1px solid var(--wenpai-line-soft);
+	font-size: var(--wenpai-text-caption);
+	line-height: var(--wenpai-leading-caption);
+	color: var(--wenpai-ink-3);
+}
+
+.wenpai-app .wpicp-editor__row,
+.wenpai-app .wpicp-editor__media-row {
+	padding: var(--wenpai-space-2-5) 0;
+	border-bottom: 1px solid var(--wenpai-line-soft);
+}
+
+.wenpai-app .wpicp-editor__row:last-child,
+.wenpai-app .wpicp-editor__media-row:last-child {
+	border-bottom: 0;
+	padding-bottom: 0;
+}
+
+body.wenpai-ui-page .wenpai-app .wpicp-editor__row input,
+body.wenpai-ui-page .wenpai-app .wpicp-editor__media-row input {
+	width: 100%;
 	max-width: 100%;
 }
 
-.wenpai-app .wpicp-badges__presets .wenpai-checkgroup__list {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	max-height: 30rem;
+.wenpai-app .wpicp-editor__acts {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wenpai-space-1);
+	white-space: nowrap;
 }
 
-.wenpai-app .wpicp-badges__presets .wenpai-checkgroup__item {
-	min-width: 0;
-	border-inline-end: 1px solid var(--wenpai-line-soft);
-}
-
-.wenpai-app .wpicp-badges__presets .wenpai-checkgroup__item:nth-child(2n) {
-	border-inline-end: 0;
-}
-
-.wenpai-app .wpicp-badges__presets .wenpai-checkgroup__media {
-	width: 5.5rem;
-	height: 2rem;
+.wenpai-app .wpicp-editor__thumb {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
+	width: 5.5rem;
+	height: 2.25rem;
+	padding: var(--wenpai-space-1);
+	background: var(--wenpai-surface-soft);
+	border: 1px dashed var(--wenpai-line-strong);
+	border-radius: var(--wenpai-radius-sm);
+	color: var(--wenpai-ink-3);
+	font-size: var(--wenpai-text-caption);
+	cursor: pointer;
 }
 
-.wenpai-app .wpicp-badges__presets .wenpai-checkgroup__media img {
+.wenpai-app .wpicp-editor__thumb.has-img {
+	background: var(--wenpai-card);
+	border-style: solid;
+	border-color: var(--wenpai-line-card);
+}
+
+.wenpai-app .wpicp-editor__thumb img {
 	max-width: 100%;
 	max-height: 100%;
 	width: auto;
@@ -61,32 +120,301 @@
 	object-fit: contain;
 }
 
-body.wenpai-ui-page .wenpai-app .wpicp-badges__media .wenpai-media-row input[type="text"] {
-	width: 15em;
-	max-width: 15em;
+.wenpai-app .wpicp-editor__empty {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wenpai-space-4);
+	padding: var(--wenpai-space-4) var(--wenpai-space-5);
+	background: var(--wenpai-surface-soft);
+	border: 1px dashed var(--wenpai-line-strong);
+	border-radius: var(--wenpai-radius-md);
 }
 
-body.wenpai-ui-page .wenpai-app .wpicp-badges__media .wenpai-media-row input.wenpai-media-id {
-	width: 6em;
-	max-width: 6em;
+.wenpai-app .wpicp-editor__empty-main {
+	display: flex;
+	align-items: center;
+	gap: var(--wenpai-space-3);
+	min-width: 0;
 }
 
-@media (max-width: 960px) {
-	.wenpai-app .wpicp-badges__presets .wenpai-checkgroup__list {
-		grid-template-columns: minmax(0, 1fr);
-	}
-
-	.wenpai-app .wpicp-badges__presets .wenpai-checkgroup__item {
-		border-inline-end: 0;
-	}
+.wenpai-app .wpicp-editor__empty-title {
+	font-size: var(--wenpai-text-body);
+	line-height: var(--wenpai-leading-body);
+	color: var(--wenpai-ink);
 }
 
+.wenpai-app .wpicp-editor__empty-desc {
+	font-size: var(--wenpai-text-meta);
+	line-height: var(--wenpai-leading-meta);
+	color: var(--wenpai-ink-3);
+}
+
+/* 3. Official preset badges: compact 3-col horizontal cards (15 items = 5x3) */
+.wenpai-app .wpicp-badges__bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wenpai-space-2-5);
+	margin-bottom: var(--wenpai-space-3);
+}
+
+.wenpai-app .wpicp-badges__filters {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wenpai-space-1);
+}
+
+.wenpai-app .wpicp-badges__right {
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: center;
+	gap: var(--wenpai-space-1-5);
+}
+
+body.wenpai-ui-page .wenpai-app .wpicp-badges__search {
+	width: 9.5rem;
+	max-width: 100%;
+}
+
+.wenpai-app .wpicp-badges__grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: var(--wenpai-space-2);
+}
+
+.wenpai-app .wpicp-badges__card {
+	position: relative;
+	display: grid;
+	grid-template-columns: 4.75rem minmax(0, 1fr) auto;
+	align-items: center;
+	gap: var(--wenpai-space-2-5);
+	padding: var(--wenpai-space-2) var(--wenpai-space-2-5);
+	background: var(--wenpai-card);
+	border: 1px solid var(--wenpai-line-card);
+	border-radius: var(--wenpai-radius-sm);
+	cursor: pointer;
+	transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.wenpai-app .wpicp-badges__card:hover {
+	border-color: var(--wenpai-line-strong);
+}
+
+.wenpai-app .wpicp-badges__card.is-selected {
+	border-color: var(--wenpai-accent);
+	background: var(--wenpai-accent-soft);
+}
+
+.wenpai-app .wpicp-badges__card[hidden] {
+	display: none;
+}
+
+.wenpai-app .wpicp-badges__input {
+	position: absolute;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.wenpai-app .wpicp-badges__logo {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 4.75rem;
+	height: 1.85rem;
+	padding: var(--wenpai-space-0-5) var(--wenpai-space-1);
+	background: var(--wenpai-card);
+	border: 1px solid var(--wenpai-line-soft);
+	border-radius: var(--wenpai-radius-sm);
+	flex-shrink: 0;
+}
+
+.wenpai-app .wpicp-badges__logo img {
+	display: block;
+	max-height: 1.5rem;
+	max-width: 100%;
+	width: auto;
+	height: auto;
+	object-fit: contain;
+}
+
+.wenpai-app .wpicp-badges__body {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.wenpai-app .wpicp-badges__title {
+	font-size: var(--wenpai-text-meta);
+	line-height: var(--wenpai-leading-meta);
+	font-weight: var(--wenpai-weight-regular);
+	color: var(--wenpai-ink);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.wenpai-app .wpicp-badges__meta {
+	font-size: var(--wenpai-text-caption);
+	line-height: var(--wenpai-leading-caption);
+	color: var(--wenpai-ink-3);
+}
+
+.wenpai-app .wpicp-badges__check {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.125rem;
+	height: 1.125rem;
+	border-radius: 50%;
+	border: 1px solid var(--wenpai-line-strong);
+	background: var(--wenpai-card);
+	color: transparent;
+	flex-shrink: 0;
+}
+
+.wenpai-app .wpicp-badges__card.is-selected .wpicp-badges__check {
+	border-color: var(--wenpai-accent);
+	background: var(--wenpai-accent);
+	color: var(--wenpai-card);
+}
+
+.wenpai-app .wpicp-badges__check svg {
+	width: 0.7rem;
+	height: 0.7rem;
+}
+
+/* 4. Electronic certificates: 4-col compact gallery + live watermark overlay */
+.wenpai-app .wpicp-certificates__grid {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: var(--wenpai-space-3);
+}
+
+.wenpai-app .wpicp-certificates__card {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wenpai-space-2);
+	padding: var(--wenpai-space-2-5);
+	background: var(--wenpai-surface-soft);
+	border: 1px solid var(--wenpai-line-card);
+	border-radius: var(--wenpai-radius-md);
+}
+
+.wenpai-app .wpicp-certificates__stage {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 5.75rem;
+	padding: var(--wenpai-space-2);
+	background: var(--wenpai-card);
+	border: 1px solid var(--wenpai-line-soft);
+	border-radius: var(--wenpai-radius-sm);
+	overflow: hidden;
+}
+
+.wenpai-app .wpicp-certificates__stage img {
+	max-width: 100%;
+	max-height: 100%;
+	width: auto;
+	height: auto;
+	object-fit: contain;
+}
+
+.wenpai-app .wpicp-certificates__wm-admin {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: var(--wenpai-space-2);
+	pointer-events: none;
+	user-select: none;
+	color: var(--wenpai-ink);
+	opacity: 0.24;
+	font-size: var(--wenpai-text-caption);
+	line-height: 1.2;
+	white-space: nowrap;
+	transform: rotate(-22deg);
+}
+
+.wenpai-app .wpicp-certificates__wm-admin.is-center {
+	transform: rotate(-12deg);
+	font-size: var(--wenpai-text-meta);
+}
+
+.wenpai-app .wpicp-certificates__wm-admin.is-corner {
+	transform: none;
+	justify-content: flex-end;
+	align-items: flex-end;
+	padding: var(--wenpai-space-1-5);
+}
+
+.wenpai-app .wpicp-certificates__wm-admin.is-light {
+	opacity: 0.16;
+}
+
+.wenpai-app .wpicp-certificates__wm-admin.is-strong {
+	opacity: 0.38;
+}
+
+.wenpai-app .wpicp-certificates__wm-admin.is-red {
+	color: var(--wenpai-bad);
+	opacity: 0.32;
+}
+
+.wenpai-app .wpicp-certificates__wm-admin[hidden] {
+	display: none;
+}
+
+.wenpai-app .wpicp-certificates__meta {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wenpai-space-1-5);
+	font-size: var(--wenpai-text-caption);
+	color: var(--wenpai-ink-3);
+}
+
+body.wenpai-ui-page .wenpai-app .wpicp-certificates__card input {
+	width: 100%;
+	max-width: 100%;
+	background: var(--wenpai-card);
+}
+
+.wenpai-app .wpicp-certificates__foot {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wenpai-space-1);
+}
+
+.wenpai-app .wpicp-certificates__add {
+	align-items: center;
+	justify-content: center;
+	min-height: 11.25rem;
+	background: transparent;
+	border-style: dashed;
+	border-color: var(--wenpai-line-strong);
+	color: var(--wenpai-ink-2);
+	font-size: var(--wenpai-text-meta);
+	cursor: pointer;
+}
+
+.wenpai-app .wpicp-certificates__add:hover {
+	border-color: var(--wenpai-accent);
+	color: var(--wenpai-accent);
+	background: var(--wenpai-accent-soft);
+}
+
+/* 5. Compliance audit progress & findings table */
 .wenpai-app .wpicp-audit__progress {
-	margin-top: var(--wenpai-space-3);
-}
-
-.wenpai-app .wpicp-audit__results {
-	margin-top: var(--wenpai-space-4);
+	margin-bottom: var(--wenpai-space-4);
 }
 
 .wenpai-app .wpicp-audit__results .tbl :is(th, td) {
@@ -102,6 +430,10 @@ body.wenpai-ui-page .wenpai-app .wpicp-badges__media .wenpai-media-row input.wen
 	white-space: nowrap;
 }
 
+.wenpai-app .wpicp-audit__actions .wenpai-row {
+	flex-wrap: nowrap;
+}
+
 .wenpai-app .wpicp-audit__excerpt {
 	color: var(--wenpai-ink-2);
 	font-size: var(--wenpai-text-meta);
@@ -113,4 +445,29 @@ body.wenpai-ui-page .wenpai-app .wpicp-badges__media .wenpai-media-row input.wen
 	background: var(--wenpai-warn-soft);
 	color: var(--wenpai-warn-ink);
 	border-radius: var(--wenpai-radius-sm);
+}
+
+/* 6. Responsive adjustments */
+@media (max-width: 960px) {
+	.wenpai-app .wpicp-badges__grid,
+	.wenpai-app .wpicp-certificates__grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.wenpai-app .wpicp-editor__head,
+	.wenpai-app .wpicp-editor__media-head {
+		display: none;
+	}
+
+	.wenpai-app .wpicp-editor__row,
+	.wenpai-app .wpicp-editor__media-row {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+@media (max-width: 600px) {
+	.wenpai-app .wpicp-badges__grid,
+	.wenpai-app .wpicp-certificates__grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
 }

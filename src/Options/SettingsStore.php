@@ -7,6 +7,7 @@
 
 namespace WenPai\ICP\Options;
 
+use WenPai\ICP\Compliance\AccessMonitor;
 use Wenpai_Admin_Settings;
 use Wenpai_Admin_UI;
 
@@ -77,6 +78,7 @@ class SettingsStore {
 	public static function defaults() {
 		return array(
 			'icp_number'             => '',
+			'icp_site_name'          => '',
 			'province_abbr'          => '',
 			'public_security_code'   => '',
 			'public_security_number' => '',
@@ -93,6 +95,12 @@ class SettingsStore {
 			'certificates'           => array(),
 			'certificate_click_mode' => 'lightbox',
 			'certificates_page'      => '',
+			'cert_watermark_enabled' => true,
+			'cert_watermark_text'    => '仅供 {site_name} 官网亮照公示使用，他用无效',
+			'cert_watermark_layout'  => 'tile',
+			'cert_watermark_tone'    => 'standard',
+			'cert_watermark_engine'  => 'server',
+			'cert_anti_save'         => true,
 			'badges'                 => array(),
 			'auto_footer'            => false,
 			'footer_style'           => 'standard',
@@ -112,7 +120,18 @@ class SettingsStore {
 			'custom_css_class'       => '',
 			'allow_subsite_override' => true,
 			'clean_on_uninstall'     => false,
+			'access_provider'        => 'aliyun',
+			'home_check_enabled'     => true,
+			'keepalive_enabled'      => false,
+			'keepalive_url'          => '',
+			'expected_provider_ips'  => '',
+			'keepalive_interval'     => '3d',
+			'keepalive_keyword'      => '',
+			'alert_email'            => '',
 			'ad_law_enabled'         => true,
+			'ad_law_remote_sync'     => true,
+			'ad_law_sync_interval'   => 'weekly',
+			'ad_law_rule_groups'     => array( 'absolute', 'promise', 'authority' ),
 			'ad_law_editor_panel'    => true,
 			'ad_law_scan_post_types' => array( 'post', 'page' ),
 			'ad_law_allowlist'       => array(),
@@ -149,6 +168,7 @@ class SettingsStore {
 			? ( '' !== $resolved_province ? $resolved_province : '' ) . '公网安备' . $mps_info['code'] . '号'
 			: '';
 
+		$merged['icp_site_name']      = sanitize_text_field( (string) $merged['icp_site_name'] );
 		$merged['company_legal_name'] = sanitize_text_field( (string) $merged['company_legal_name'] );
 		$merged['edi_number']         = sanitize_text_field( (string) $merged['edi_number'] );
 		$merged['aigc_number']        = sanitize_text_field( (string) $merged['aigc_number'] );
@@ -204,14 +224,22 @@ class SettingsStore {
 				if ( ! is_array( $cert ) ) {
 					continue;
 				}
-				$img_id = isset( $cert['image_id'] ) ? absint( $cert['image_id'] ) : 0;
-				$title  = isset( $cert['title'] ) ? sanitize_text_field( (string) $cert['title'] ) : '';
+				$img_id  = isset( $cert['image_id'] ) ? absint( $cert['image_id'] ) : 0;
+				$title   = isset( $cert['title'] ) ? sanitize_text_field( (string) $cert['title'] ) : '';
+				$type    = isset( $cert['type'] ) ? sanitize_text_field( (string) $cert['type'] ) : '';
+				$number  = isset( $cert['number'] ) ? sanitize_text_field( (string) $cert['number'] ) : '';
+				$expires = isset( $cert['expires_at'] ) ? sanitize_text_field( (string) $cert['expires_at'] ) : '';
+				$visible = ! array_key_exists( 'visible', $cert ) || ( ! empty( $cert['visible'] ) && '0' !== (string) $cert['visible'] );
 				if ( 0 === $img_id && '' === $title ) {
 					continue;
 				}
 				$certificates[] = array(
-					'image_id' => $img_id,
-					'title'    => $title,
+					'image_id'   => $img_id,
+					'title'      => $title,
+					'type'       => '' !== $type ? $type : __( '营业执照', 'wpicp' ),
+					'number'     => $number,
+					'expires_at' => $expires,
+					'visible'    => $visible,
 				);
 			}
 		}
@@ -222,6 +250,18 @@ class SettingsStore {
 			: 'lightbox';
 		$page_id                          = absint( $merged['certificates_page'] );
 		$merged['certificates_page']      = $page_id > 0 ? $page_id : '';
+		$merged['cert_watermark_enabled'] = ! empty( $merged['cert_watermark_enabled'] ) && '0' !== (string) $merged['cert_watermark_enabled'];
+		$merged['cert_watermark_text']    = sanitize_text_field( (string) $merged['cert_watermark_text'] );
+		$merged['cert_watermark_layout']  = in_array( (string) $merged['cert_watermark_layout'], array( 'tile', 'center', 'corner' ), true )
+			? (string) $merged['cert_watermark_layout']
+			: 'tile';
+		$merged['cert_watermark_tone']    = in_array( (string) $merged['cert_watermark_tone'], array( 'light', 'standard', 'strong', 'red' ), true )
+			? (string) $merged['cert_watermark_tone']
+			: 'standard';
+		$merged['cert_watermark_engine']  = in_array( (string) $merged['cert_watermark_engine'], array( 'server', 'css' ), true )
+			? (string) $merged['cert_watermark_engine']
+			: 'server';
+		$merged['cert_anti_save']         = ! empty( $merged['cert_anti_save'] ) && '0' !== (string) $merged['cert_anti_save'];
 
 		$badges = array();
 		if ( is_array( $merged['badges'] ) ) {
@@ -293,8 +333,39 @@ class SettingsStore {
 
 		$merged['allow_subsite_override'] = ! empty( $merged['allow_subsite_override'] ) && '0' !== (string) $merged['allow_subsite_override'];
 		$merged['clean_on_uninstall']     = ! empty( $merged['clean_on_uninstall'] ) && '0' !== (string) $merged['clean_on_uninstall'];
+		$merged['access_provider']        = in_array( (string) $merged['access_provider'], array( 'aliyun', 'tencent', 'huawei', 'baidu', 'volc', 'other' ), true )
+			? (string) $merged['access_provider']
+			: 'aliyun';
+		$merged['home_check_enabled']     = ! empty( $merged['home_check_enabled'] ) && '0' !== (string) $merged['home_check_enabled'];
+		$merged['keepalive_enabled']      = ! empty( $merged['keepalive_enabled'] ) && '0' !== (string) $merged['keepalive_enabled'];
+		$merged['keepalive_url']          = '' !== trim( (string) $merged['keepalive_url'] )
+			? esc_url_raw( BadgeCatalog::enforce_https( (string) $merged['keepalive_url'] ) )
+			: '';
+		$merged['expected_provider_ips']  = sanitize_text_field( (string) $merged['expected_provider_ips'] );
+		$merged['keepalive_interval']     = in_array( (string) $merged['keepalive_interval'], array( '1d', '3d', '7d', '14d' ), true )
+			? (string) $merged['keepalive_interval']
+			: '3d';
+		$merged['keepalive_keyword']      = sanitize_text_field( (string) $merged['keepalive_keyword'] );
+		$merged['alert_email']            = function_exists( 'sanitize_email' )
+			? sanitize_email( (string) $merged['alert_email'] )
+			: sanitize_text_field( (string) $merged['alert_email'] );
 		$merged['ad_law_enabled']         = ! empty( $merged['ad_law_enabled'] ) && '0' !== (string) $merged['ad_law_enabled'];
-		$merged['ad_law_editor_panel']    = ! empty( $merged['ad_law_editor_panel'] ) && '0' !== (string) $merged['ad_law_editor_panel'];
+		$merged['ad_law_remote_sync']     = ! empty( $merged['ad_law_remote_sync'] ) && '0' !== (string) $merged['ad_law_remote_sync'];
+		$merged['ad_law_sync_interval']   = in_array( (string) $merged['ad_law_sync_interval'], array( 'daily', 'weekly', 'manual' ), true )
+			? (string) $merged['ad_law_sync_interval']
+			: 'weekly';
+		$allowed_groups                   = array( 'absolute', 'promise', 'authority', 'regulated' );
+		$rule_groups                      = array();
+		if ( is_array( $merged['ad_law_rule_groups'] ) ) {
+			foreach ( $merged['ad_law_rule_groups'] as $grp ) {
+				$clean_grp = sanitize_key( (string) $grp );
+				if ( in_array( $clean_grp, $allowed_groups, true ) && ! in_array( $clean_grp, $rule_groups, true ) ) {
+					$rule_groups[] = $clean_grp;
+				}
+			}
+		}
+		$merged['ad_law_rule_groups']  = $rule_groups;
+		$merged['ad_law_editor_panel'] = ! empty( $merged['ad_law_editor_panel'] ) && '0' !== (string) $merged['ad_law_editor_panel'];
 
 		$post_types = array();
 		if ( is_array( $merged['ad_law_scan_post_types'] ) ) {
@@ -792,6 +863,14 @@ class SettingsStore {
 					return $parsed['normalized'];
 				},
 			),
+			'icp_site_name'          => array(
+				'type'        => 'text',
+				'tab'         => 'filing',
+				'default'     => $defaults['icp_site_name'],
+				'label'       => __( '工信部登记网站名称', 'wpicp' ),
+				'placeholder' => __( '文派示例站', 'wpicp' ),
+				'desc'        => __( '用于首页合规自检核对网页标题是否与备案名称一致。', 'wpicp' ),
+			),
 			'province_abbr'          => array(
 				'type'    => 'select',
 				'tab'     => 'filing',
@@ -924,18 +1003,113 @@ class SettingsStore {
 				'label'    => __( '电子证照亮照列表', 'wpicp' ),
 				'desc'     => __( '从媒体库选择营业执照或许可证扫描件用于前台亮照。', 'wpicp' ),
 				'fields'   => array(
-					'image_id' => array(
+					'image_id'   => array(
 						'type'    => 'media',
 						'label'   => __( '证照扫描图片', 'wpicp' ),
 						'default' => 0,
 					),
-					'title'    => array(
+					'title'      => array(
 						'type'        => 'text',
 						'label'       => __( '证照标题', 'wpicp' ),
 						'placeholder' => __( '营业执照电子亮照', 'wpicp' ),
 						'default'     => '',
 					),
+					'type'       => array(
+						'type'    => 'text',
+						'label'   => __( '证照分类', 'wpicp' ),
+						'default' => __( '营业执照', 'wpicp' ),
+					),
+					'number'     => array(
+						'type'    => 'text',
+						'label'   => __( '证照编号', 'wpicp' ),
+						'default' => '',
+					),
+					'expires_at' => array(
+						'type'    => 'text',
+						'label'   => __( '有效期', 'wpicp' ),
+						'default' => '',
+					),
+					'visible'    => array(
+						'type'    => 'toggle',
+						'label'   => __( '前台显示', 'wpicp' ),
+						'default' => true,
+					),
 				),
+			),
+			'cert_watermark_enabled' => array(
+				'type'    => 'toggle',
+				'tab'     => 'badges',
+				'default' => $defaults['cert_watermark_enabled'],
+				'label'   => __( '启用亮照输出水印', 'wpicp' ),
+				'desc'    => __( '对营业执照与行政许可证复印件自动叠加防盗水印，防止原图被盗用冒充。', 'wpicp' ),
+			),
+			'cert_watermark_text'    => array(
+				'type'        => 'text',
+				'tab'         => 'badges',
+				'default'     => $defaults['cert_watermark_text'],
+				'label'       => __( '水印文字模板', 'wpicp' ),
+				'placeholder' => __( '仅供 {site_name} 官网亮照公示使用，他用无效', 'wpicp' ),
+				'desc'        => __( '支持变量：{site_name} 站点名、{domain} 域名、{date} 当日日期。', 'wpicp' ),
+				'depends_on'  => array(
+					'field' => 'cert_watermark_enabled',
+					'value' => true,
+				),
+			),
+			'cert_watermark_layout'  => array(
+				'type'         => 'radio',
+				'presentation' => 'seg',
+				'tab'          => 'badges',
+				'default'      => $defaults['cert_watermark_layout'],
+				'label'        => __( '水印排布样式', 'wpicp' ),
+				'choices'      => array(
+					'tile'   => __( '斜向平铺', 'wpicp' ),
+					'center' => __( '居中大字', 'wpicp' ),
+					'corner' => __( '右下压印', 'wpicp' ),
+				),
+				'depends_on'   => array(
+					'field' => 'cert_watermark_enabled',
+					'value' => true,
+				),
+			),
+			'cert_watermark_tone'    => array(
+				'type'         => 'radio',
+				'presentation' => 'seg',
+				'tab'          => 'badges',
+				'default'      => $defaults['cert_watermark_tone'],
+				'label'        => __( '水印浓度与色彩', 'wpicp' ),
+				'choices'      => array(
+					'light'    => __( '浅灰 16%', 'wpicp' ),
+					'standard' => __( '标准 24%', 'wpicp' ),
+					'strong'   => __( '深灰 38%', 'wpicp' ),
+					'red'      => __( '防盗红章', 'wpicp' ),
+				),
+				'depends_on'   => array(
+					'field' => 'cert_watermark_enabled',
+					'value' => true,
+				),
+			),
+			'cert_watermark_engine'  => array(
+				'type'         => 'radio',
+				'presentation' => 'seg',
+				'tab'          => 'badges',
+				'default'      => $defaults['cert_watermark_engine'],
+				'label'        => __( '水印合成方式', 'wpicp' ),
+				'desc'         => __( '服务端合成通过 GD 动态输出带水印副本并缓存，右键另存同样带水印。', 'wpicp' ),
+				'choices'      => array(
+					'server' => __( '服务端真图合成（防扒原图）', 'wpicp' ),
+					'css'    => __( '前端图层叠加（零负载）', 'wpicp' ),
+				),
+				'depends_on'   => array(
+					'field' => 'cert_watermark_enabled',
+					'value' => true,
+				),
+			),
+			'cert_anti_save'         => array(
+				'type'    => 'toggle',
+				'tab'     => 'badges',
+				'default' => $defaults['cert_anti_save'],
+				'label'   => __( '禁用证照右键另存与拖拽', 'wpicp' ),
+				'desc'    => __( '在亮照画廊与灯箱大图模式中禁用图片右键菜单与拖拽下载。', 'wpicp' ),
 			),
 			'certificate_click_mode' => array(
 				'type'         => 'radio',
@@ -997,30 +1171,18 @@ class SettingsStore {
 				'desc'    => __( '免改主题模板，自动在页脚输出合规公示栏。', 'wpicp' ),
 			),
 			'footer_style'           => array(
-				'type'       => 'choice',
-				'tab'        => 'display',
-				'layout'     => 'stack',
-				'default'    => $defaults['footer_style'],
-				'label'      => __( '页脚合规栏版式预设', 'wpicp' ),
-				'desc'       => __( '跟随宿主主题文字颜色，自动适配浅色与深色页脚。', 'wpicp' ),
-				'choices'    => array(
-					'minimal'  => array(
-						'label' => __( '极简文字单行', 'wpicp' ),
-						'desc'  => __( '紧凑单行展示主体与核心备案号', 'wpicp' ),
-						'icon'  => 'link',
-					),
-					'standard' => array(
-						'label' => __( '标准图文双行', 'wpicp' ),
-						'desc'  => __( '含公安网安徽标与扩展许可信息', 'wpicp' ),
-						'icon'  => 'shield-check',
-					),
-					'badges'   => array(
-						'label' => __( '完整信任徽章栏', 'wpicp' ),
-						'desc'  => __( '双行备案信息加底部官方信任徽章', 'wpicp' ),
-						'icon'  => 'image',
-					),
+				'type'         => 'radio',
+				'presentation' => 'seg',
+				'tab'          => 'display',
+				'default'      => $defaults['footer_style'],
+				'label'        => __( '页脚合规栏版式', 'wpicp' ),
+				'desc'         => __( '跟随宿主主题文字颜色，自动适配浅色与深色页脚。', 'wpicp' ),
+				'choices'      => array(
+					'minimal'  => __( '极简单行', 'wpicp' ),
+					'standard' => __( '标准双行', 'wpicp' ),
+					'badges'   => __( '含信任徽章', 'wpicp' ),
 				),
-				'depends_on' => array(
+				'depends_on'   => array(
 					'field' => 'auto_footer',
 					'value' => true,
 				),
@@ -1107,16 +1269,145 @@ class SettingsStore {
 				'label'   => __( '卸载时清理插件配置', 'wpicp' ),
 				'desc'    => __( '仅在开启此项并删除插件时移除本插件保存的设置。', 'wpicp' ),
 			),
+			'access_provider'        => array(
+				'type'    => 'select',
+				'tab'     => 'audit_access',
+				'default' => $defaults['access_provider'],
+				'label'   => __( '备案接入服务商', 'wpicp' ),
+				'desc'    => __( '标记当前域名 ICP 备案所在的中国内地云服务商。', 'wpicp' ),
+				'choices' => AccessMonitor::provider_choices(),
+			),
+			'home_check_enabled'     => array(
+				'type'    => 'toggle',
+				'tab'     => 'audit_access',
+				'default' => $defaults['home_check_enabled'],
+				'label'   => __( '启用首页备案定时自检', 'wpicp' ),
+				'desc'    => __( '每日检查首页可达性、底部 ICP 备案号、beian.miit.gov.cn 链接及标题一致性。', 'wpicp' ),
+			),
+			'keepalive_enabled'      => array(
+				'type'    => 'toggle',
+				'tab'     => 'audit_access',
+				'default' => $defaults['keepalive_enabled'],
+				'label'   => __( '启用接入商子域名保活访问', 'wpicp' ),
+				'desc'    => __( '按天或按周低频请求解析至原接入商中国内地服务器 IP 的子域名，核对 DNS 并产生合规访问记录。', 'wpicp' ),
+			),
+			'keepalive_url'          => array(
+				'type'        => 'url',
+				'tab'         => 'audit_access',
+				'default'     => $defaults['keepalive_url'],
+				'label'       => __( '保活子域名地址', 'wpicp' ),
+				'placeholder' => 'https://beian.example.com/',
+				'desc'        => __( '将该子域名解析到原接入商中国内地服务器并放置含备案号的合规落地页。', 'wpicp' ),
+				'depends_on'  => array(
+					'field' => 'keepalive_enabled',
+					'value' => true,
+				),
+			),
+			'expected_provider_ips'  => array(
+				'type'        => 'text',
+				'tab'         => 'audit_access',
+				'default'     => $defaults['expected_provider_ips'],
+				'label'       => __( '预期接入商服务器 IP / CIDR', 'wpicp' ),
+				'placeholder' => '47.115.120.18, 47.115.120.0/24',
+				'desc'        => __( '定期校验 A / AAAA / CNAME 最终落地 IP，脱离该集合即标记接入不符风险。', 'wpicp' ),
+				'depends_on'  => array(
+					'field' => 'keepalive_enabled',
+					'value' => true,
+				),
+			),
+			'keepalive_interval'     => array(
+				'type'         => 'radio',
+				'presentation' => 'seg',
+				'tab'          => 'audit_access',
+				'default'      => $defaults['keepalive_interval'],
+				'label'        => __( '定时访问与探测频率', 'wpicp' ),
+				'desc'         => __( '按天或按周低频访问即可维持接入活跃与日志，避免触发 WAF 防护。', 'wpicp' ),
+				'choices'      => array(
+					'1d'  => __( '每天 1 次', 'wpicp' ),
+					'3d'  => __( '每 3 天 1 次', 'wpicp' ),
+					'7d'  => __( '每周 1 次', 'wpicp' ),
+					'14d' => __( '每 2 周 1 次', 'wpicp' ),
+				),
+				'depends_on'   => array(
+					'field' => 'keepalive_enabled',
+					'value' => true,
+				),
+			),
+			'keepalive_keyword'      => array(
+				'type'        => 'text',
+				'tab'         => 'audit_access',
+				'default'     => $defaults['keepalive_keyword'],
+				'label'       => __( '响应体校验关键词', 'wpicp' ),
+				'placeholder' => __( '留空自动使用 ICP 备案号', 'wpicp' ),
+				'desc'        => __( '状态码 200 且正文含该关键词、不含阻断/取消接入提示词才判通过。', 'wpicp' ),
+				'depends_on'  => array(
+					'field' => 'keepalive_enabled',
+					'value' => true,
+				),
+			),
+			'alert_email'            => array(
+				'type'        => 'email',
+				'tab'         => 'audit_access',
+				'default'     => $defaults['alert_email'],
+				'label'       => __( '异常告警接收邮箱', 'wpicp' ),
+				'placeholder' => 'ops@example.com',
+				'desc'        => __( '连续 2 次检测异常时发送提醒，预留 5 个工作日整改缓冲期。', 'wpicp' ),
+			),
 			'ad_law_enabled'         => array(
 				'type'    => 'toggle',
-				'tab'     => 'audit',
+				'tab'     => 'audit_adlaw',
 				'default' => $defaults['ad_law_enabled'],
-				'label'   => __( '启用离线《广告法》极限词巡检', 'wpicp' ),
-				'desc'    => __( '本地毫秒级检测违禁词并向生态插件开放巡检钩子。', 'wpicp' ),
+				'label'   => __( '启用《广告法》极限词巡检', 'wpicp' ),
+				'desc'    => __( '本地毫秒级检测违禁词，内容不上传外部接口，向生态插件开放巡检钩子。', 'wpicp' ),
+			),
+			'ad_law_remote_sync'     => array(
+				'type'       => 'toggle',
+				'tab'        => 'audit_adlaw',
+				'default'    => $defaults['ad_law_remote_sync'],
+				'label'      => __( '启用无言（WordYeah）远程词库', 'wpicp' ),
+				'desc'       => __( '从 api.wpcy.com 单向拉取无言（WordYeah）维护的最新极限词与安全复合词清单至本地缓存。', 'wpicp' ),
+				'depends_on' => array(
+					'field' => 'ad_law_enabled',
+					'value' => true,
+				),
+			),
+			'ad_law_sync_interval'   => array(
+				'type'         => 'radio',
+				'presentation' => 'seg',
+				'tab'          => 'audit_adlaw',
+				'default'      => $defaults['ad_law_sync_interval'],
+				'label'        => __( '远程词库更新频率', 'wpicp' ),
+				'desc'         => __( '离线或网络受限时自动回退至插件内置基础词库，不影响本地扫描。', 'wpicp' ),
+				'choices'      => array(
+					'daily'  => __( '每天同步', 'wpicp' ),
+					'weekly' => __( '每周同步', 'wpicp' ),
+					'manual' => __( '仅手动同步', 'wpicp' ),
+				),
+				'depends_on'   => array(
+					'field' => 'ad_law_remote_sync',
+					'value' => true,
+				),
+			),
+			'ad_law_rule_groups'     => array(
+				'type'       => 'multicheck',
+				'tab'        => 'audit_adlaw',
+				'default'    => $defaults['ad_law_rule_groups'],
+				'label'      => __( '无言词库启用分组', 'wpicp' ),
+				'desc'       => __( '按站点所属行业勾选需要巡检的规则分类，减少跨行业误报。', 'wpicp' ),
+				'choices'    => array(
+					'absolute'  => __( '绝对化用语（最/第一/顶级）', 'wpicp' ),
+					'promise'   => __( '无法证实承诺（永久/100%/包治）', 'wpicp' ),
+					'authority' => __( '违规权威背书（国家级/特供/驰名）', 'wpicp' ),
+					'regulated' => __( '医疗与金融行业敏感词', 'wpicp' ),
+				),
+				'depends_on' => array(
+					'field' => 'ad_law_enabled',
+					'value' => true,
+				),
 			),
 			'ad_law_editor_panel'    => array(
 				'type'       => 'toggle',
-				'tab'        => 'audit',
+				'tab'        => 'audit_adlaw',
 				'default'    => $defaults['ad_law_editor_panel'],
 				'label'      => __( '编辑器实时巡检与发布前提示', 'wpicp' ),
 				'desc'       => __( '写作时标出极限词风险与替换建议，不强制阻断发布。', 'wpicp' ),
@@ -1127,7 +1418,7 @@ class SettingsStore {
 			),
 			'ad_law_scan_post_types' => array(
 				'type'       => 'multiselect',
-				'tab'        => 'audit',
+				'tab'        => 'audit_adlaw',
 				'default'    => $defaults['ad_law_scan_post_types'],
 				'label'      => __( '全站巡检内容类型', 'wpicp' ),
 				'desc'       => __( '选择全站批量巡检扫描的公开内容类型。', 'wpicp' ),
@@ -1139,7 +1430,7 @@ class SettingsStore {
 			),
 			'ad_law_allowlist'       => array(
 				'type'       => 'tags',
-				'tab'        => 'audit',
+				'tab'        => 'audit_adlaw',
 				'default'    => $defaults['ad_law_allowlist'],
 				'label'      => __( '站点自定义豁免词白名单', 'wpicp' ),
 				'desc'       => __( '内置 30 条安全复合词，可在此补充品牌专有豁免短语。', 'wpicp' ),

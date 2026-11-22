@@ -29,4 +29,16 @@
 			event.target.close();
 		}
 	} );
+
+	document.addEventListener( 'contextmenu', function ( event ) {
+		if ( event.target && event.target.closest && event.target.closest( '[data-wpicp-anti-save="1"]' ) ) {
+			event.preventDefault();
+		}
+	} );
+
+	document.addEventListener( 'dragstart', function ( event ) {
+		if ( event.target && event.target.closest && event.target.closest( '[data-wpicp-anti-save="1"]' ) ) {
+			event.preventDefault();
+		}
+	} );
 } )();

@@ -134,6 +134,8 @@ class AdLawScanner {
 				return __( '无法证实承诺', 'wpicp' );
 			case 'authority':
 				return __( '违规权威背书', 'wpicp' );
+			case 'regulated':
+				return __( '医疗/金融敏感词', 'wpicp' );
 			case 'absolute':
 			default:
 				return __( '绝对化极限词', 'wpicp' );
@@ -179,6 +181,13 @@ class AdLawScanner {
 			'唯一键',
 			'唯一索引',
 		);
+
+		if ( class_exists( __NAMESPACE__ . '\\WordYeahClient' ) ) {
+			$cached = WordYeahClient::cached();
+			if ( ! empty( $cached['safe_compounds'] ) ) {
+				$defaults = array_values( array_unique( array_merge( $defaults, $cached['safe_compounds'] ) ) );
+			}
+		}
 
 		$filtered = apply_filters( 'wenpai_ad_law_safe_compounds', $defaults );
 		return is_array( $filtered ) ? $filtered : $defaults;
@@ -457,7 +466,46 @@ class AdLawScanner {
 	 * @return array<string, array{category:string, suggestions:string[]}>
 	 */
 	private static function ordered_dictionary() {
-		$dict = self::dictionary();
+		$dict     = self::dictionary();
+		$settings = function_exists( 'get_option' ) ? get_option( 'wpicp_settings', array() ) : array();
+		if ( ! is_array( $settings ) ) {
+			$settings = array();
+		}
+
+		$remote_on = ! array_key_exists( 'ad_law_remote_sync', $settings ) || ! empty( $settings['ad_law_remote_sync'] );
+		if ( $remote_on && class_exists( __NAMESPACE__ . '\\WordYeahClient' ) ) {
+			$cached = WordYeahClient::cached();
+			if ( ! empty( $cached['terms'] ) ) {
+				$dict = array_merge( $dict, $cached['terms'] );
+			}
+		}
+
+		if ( function_exists( 'apply_filters' ) ) {
+			$filtered = apply_filters( 'wpicp_ad_law_rules', $dict );
+			if ( is_array( $filtered ) ) {
+				$dict = $filtered;
+			}
+		}
+
+		// Filter by active rule groups when explicitly configured.
+		if ( isset( $settings['ad_law_rule_groups'] ) && is_array( $settings['ad_law_rule_groups'] ) && ! empty( $settings['ad_law_rule_groups'] ) ) {
+			$active = array();
+			foreach ( $settings['ad_law_rule_groups'] as $grp ) {
+				if ( 'promise' === (string) $grp ) {
+					$active[] = 'unverified-promise';
+				} else {
+					$active[] = (string) $grp;
+				}
+			}
+			$dict = array_filter(
+				$dict,
+				static function ( $meta ) use ( $active ) {
+					$cat = is_array( $meta ) && isset( $meta['category'] ) ? (string) $meta['category'] : 'absolute';
+					return in_array( $cat, $active, true );
+				}
+			);
+		}
+
 		$keys = array_keys( $dict );
 		usort(
 			$keys,

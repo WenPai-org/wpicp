@@ -8,7 +8,9 @@
 
 namespace WenPai\ICP\Rest;
 
+use WenPai\ICP\Compliance\AccessMonitor;
 use WenPai\ICP\Compliance\AdLawScanner;
+use WenPai\ICP\Compliance\WordYeahClient;
 use WenPai\ICP\Options\SettingsStore;
 use WP_Error;
 use WP_Query;
@@ -85,6 +87,46 @@ class AuditController {
 				'permission_callback' => array( __CLASS__, 'can_edit_content' ),
 			)
 		);
+
+		register_rest_route(
+			self::NAMESPACE_V1,
+			'/access/check',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( __CLASS__, 'handle_access_check' ),
+				'permission_callback' => array( __CLASS__, 'can_manage_compliance' ),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE_V1,
+			'/wordyeah/sync',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( __CLASS__, 'handle_wordyeah_sync' ),
+				'permission_callback' => array( __CLASS__, 'can_manage_compliance' ),
+			)
+		);
+	}
+
+	/**
+	 * Execute live homepage compliance + keepalive subdomain probe (`POST /wpicp/v1/access/check`).
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function handle_access_check() {
+		$snapshot = AccessMonitor::run_all_checks( null, true, true );
+		return new WP_REST_Response( $snapshot, 200 );
+	}
+
+	/**
+	 * Sync WordYeah remote ruleset from `api.wpcy.com` (`POST /wpicp/v1/wordyeah/sync`).
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function handle_wordyeah_sync() {
+		$res = WordYeahClient::sync_now( true );
+		return new WP_REST_Response( $res, 200 );
 	}
 
 	/**

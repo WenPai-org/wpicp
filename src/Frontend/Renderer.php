@@ -10,6 +10,7 @@
 
 namespace WenPai\ICP\Frontend;
 
+use WenPai\ICP\Media\CertificateWatermark;
 use WenPai\ICP\Options\BadgeCatalog;
 use WenPai\ICP\Options\SettingsStore;
 
@@ -360,7 +361,21 @@ class Renderer {
 		$page_url   = ( $page_id > 0 && function_exists( 'get_permalink' ) ) ? (string) get_permalink( $page_id ) : '';
 		$use_dialog = ! $is_full && ( 'lightbox' === $click_mode || '' === $page_url );
 
-		self::enqueue_assets( $use_dialog );
+		$wm_on       = ! empty( $cfg['cert_watermark_enabled'] );
+		$wm_css_only = $wm_on && 'css' === (string) $cfg['cert_watermark_engine'];
+		$anti_save   = ! empty( $cfg['cert_anti_save'] );
+		$wm_text     = $wm_on ? CertificateWatermark::resolve_text( '', $cfg ) : '';
+		$wm_cls      = array( 'wpicp-certificates__wm' );
+		if ( 'center' === (string) $cfg['cert_watermark_layout'] ) {
+			$wm_cls[] = 'is-center';
+		} elseif ( 'corner' === (string) $cfg['cert_watermark_layout'] ) {
+			$wm_cls[] = 'is-corner';
+		}
+		if ( in_array( (string) $cfg['cert_watermark_tone'], array( 'light', 'strong', 'red' ), true ) ) {
+			$wm_cls[] = 'is-' . (string) $cfg['cert_watermark_tone'];
+		}
+
+		self::enqueue_assets( $use_dialog || $anti_save );
 
 		$classes = array( 'wpicp-certificates' );
 		if ( 'left' === (string) $atts['align'] ) {
@@ -370,15 +385,20 @@ class Renderer {
 			$classes[] = $cfg['custom_css_class'];
 		}
 
-		$out = '<div class="' . esc_attr( implode( ' ', $classes ) ) . '">';
+		$anti_attr = $anti_save ? ' data-wpicp-anti-save="1"' : '';
+		$out       = '<div class="' . esc_attr( implode( ' ', $classes ) ) . '"' . $anti_attr . '>';
 		foreach ( $certs as $idx => $cert ) {
-			$img_id   = isset( $cert['image_id'] ) ? absint( $cert['image_id'] ) : 0;
-			$title    = isset( $cert['title'] ) ? (string) $cert['title'] : '';
-			$img_html = ( $img_id > 0 && function_exists( 'wp_get_attachment_image' ) )
-				? wp_get_attachment_image( $img_id, $size, false, array( 'class' => 'wpicp-certificates__img' ) )
-				: '';
-			$full_url = ( $img_id > 0 && function_exists( 'wp_get_attachment_image_url' ) )
-				? (string) wp_get_attachment_image_url( $img_id, 'full' )
+			if ( array_key_exists( 'visible', $cert ) && ! $cert['visible'] ) {
+				continue;
+			}
+			$img_id    = isset( $cert['image_id'] ) ? absint( $cert['image_id'] ) : 0;
+			$title     = isset( $cert['title'] ) ? (string) $cert['title'] : '';
+			$thumb_url = $img_id > 0 ? CertificateWatermark::image_url( $img_id, $size, $cfg ) : '';
+			$full_url  = $img_id > 0 ? CertificateWatermark::image_url( $img_id, 'full', $cfg ) : '';
+			$img_html  = '' !== $thumb_url
+				? '<span class="wpicp-certificates__frame"><img class="wpicp-certificates__img" src="' . esc_url( $thumb_url ) . '" alt="' . esc_attr( $title ) . '" loading="lazy">'
+					. ( $wm_css_only ? '<span class="' . esc_attr( implode( ' ', $wm_cls ) ) . '" aria-hidden="true">' . esc_html( $wm_text ) . '</span>' : '' )
+					. '</span>'
 				: '';
 
 			if ( '' === $img_html && '' === $title ) {
@@ -394,9 +414,11 @@ class Renderer {
 				$dialog_id = 'wpicp-cert-dialog-' . (int) $idx . '-' . $img_id;
 				$out      .= '<div class="wpicp-certificates__item">';
 				$out      .= '<button type="button" class="wpicp-certificates__trigger" data-wpicp-lightbox="' . esc_attr( $dialog_id ) . '">' . $inner . '</button>';
-				$out      .= '<dialog class="wpicp-certificates__dialog" id="' . esc_attr( $dialog_id ) . '" aria-label="' . esc_attr( '' !== $title ? $title : __( '电子证照查看', 'wpicp' ) ) . '">';
+				$out      .= '<dialog class="wpicp-certificates__dialog" id="' . esc_attr( $dialog_id ) . '" aria-label="' . esc_attr( '' !== $title ? $title : __( '电子证照查看', 'wpicp' ) ) . '"' . $anti_attr . '>';
 				$out      .= '<div class="wpicp-certificates__modal">';
-				$out      .= '<img class="wpicp-certificates__full" src="' . esc_url( $full_url ) . '" alt="' . esc_attr( $title ) . '">';
+				$out      .= '<span class="wpicp-certificates__frame"><img class="wpicp-certificates__full" src="' . esc_url( $full_url ) . '" alt="' . esc_attr( $title ) . '">'
+					. ( $wm_css_only ? '<span class="' . esc_attr( implode( ' ', $wm_cls ) ) . '" aria-hidden="true">' . esc_html( $wm_text ) . '</span>' : '' )
+					. '</span>';
 				if ( '' !== $title ) {
 					$out .= '<p class="wpicp-certificates__caption">' . esc_html( $title ) . '</p>';
 				}

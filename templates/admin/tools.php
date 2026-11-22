@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin Maintenance & Tools Tab (`tab=tools`).
+ * Admin Maintenance & Tools Tab (`tab=tools`, compact 4-card layout).
  *
  * @var Wenpai_Admin_Settings $settings
  * @var array<string, mixed>  $shell
@@ -38,9 +38,10 @@ if ( class_exists( 'Wenpai_Admin_Action', false ) ) {
 		)
 	);
 
+	// Compact 4th card: Legacy migration + uninstall policy merged.
 	Wenpai_Admin_UI::card_open(
 		array(
-			'title' => __( '旧版配置同步', 'wpicp' ),
+			'title' => __( '迁移与数据维护', 'wpicp' ),
 			'tile'  => false,
 		)
 	);
@@ -61,6 +62,28 @@ if ( class_exists( 'Wenpai_Admin_Action', false ) ) {
 						'type'    => 'submit',
 						'variant' => 'secondary',
 					)
+				),
+			)
+		);
+		?>
+	</form>
+	<form method="post" action="<?php echo esc_url( $wpicp_form_action ); ?>">
+		<?php
+		if ( function_exists( 'settings_fields' ) ) {
+			settings_fields( $settings->group() );
+		}
+		echo $settings->tab_input_html( 'tools' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped by kit.
+		$settings->render_field( 'clean_on_uninstall' );
+		Wenpai_Admin_UI::card_foot(
+			array(
+				'start'   => true,
+				'meta'    => __( '默认停用或卸载插件时保留已有备案与证照配置。', 'wpicp' ),
+				'actions' => array(
+					array(
+						'label'   => __( '保存卸载策略', 'wpicp' ),
+						'type'    => 'submit',
+						'variant' => 'secondary',
+					),
 				),
 			)
 		);
@@ -114,36 +137,6 @@ if ( class_exists( 'Wenpai_Admin_Action', false ) ) {
 		Wenpai_Admin_UI::card_close();
 	}
 	?>
-
-	<form method="post" action="<?php echo esc_url( $wpicp_form_action ); ?>">
-		<?php
-		if ( function_exists( 'settings_fields' ) ) {
-			settings_fields( $settings->group() );
-		}
-		echo $settings->tab_input_html( 'tools' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped by kit.
-		Wenpai_Admin_UI::card_open(
-			array(
-				'title' => __( '卸载数据策略', 'wpicp' ),
-				'tile'  => false,
-			)
-		);
-		$settings->render_field( 'clean_on_uninstall' );
-		Wenpai_Admin_UI::card_foot(
-			array(
-				'start'   => true,
-				'meta'    => __( '默认停用或卸载插件时保留已有备案与证照配置。', 'wpicp' ),
-				'actions' => array(
-					array(
-						'label'   => __( '保存卸载策略', 'wpicp' ),
-						'type'    => 'submit',
-						'variant' => 'secondary',
-					),
-				),
-			)
-		);
-		Wenpai_Admin_UI::card_close();
-		?>
-	</form>
 </div>
 <?php
 Wenpai_Admin_Shell::close( $shell );

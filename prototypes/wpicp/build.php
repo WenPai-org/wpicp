@@ -28,6 +28,11 @@ if ( ! defined( 'WPICP_VERSION' ) ) {
 	define( 'WPICP_PLUGIN_BASENAME', 'wpicp/wpicp.php' );
 }
 
+if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
+	define( 'HOUR_IN_SECONDS', 3600 );
+	define( 'DAY_IN_SECONDS', 86400 );
+}
+
 $GLOBALS['_wp_options'] = array();
 
 if ( ! function_exists( 'esc_html' ) ) {
@@ -126,8 +131,15 @@ if ( ! function_exists( 'esc_html' ) ) {
 		unset( $type );
 		return gmdate( 'Y-m-d H:i:s' );
 	}
-	function wp_date( $fmt ) {
-		return gmdate( $fmt );
+	function wp_date( $fmt, $timestamp = null ) {
+		return gmdate( $fmt, null === $timestamp ? time() : (int) $timestamp );
+	}
+	function wp_nonce_url( $url, $action = -1 ) {
+		unset( $action );
+		return (string) $url;
+	}
+	function rest_url( $path = '' ) {
+		return 'https://example.com/wp-json/' . ltrim( (string) $path, '/' );
 	}
 	function wp_unslash( $s ) {
 		return $s;
@@ -270,6 +282,7 @@ $tab_urls = array(
 
 $normal_settings = array(
 	'icp_number'             => '粤ICP备2023091240号-1',
+	'icp_site_name'          => '文派示例站',
 	'province_abbr'          => '粤',
 	'public_security_code'   => '44010602000000',
 	'public_security_number' => '粤公网安备44010602000000号',
@@ -278,25 +291,132 @@ $normal_settings = array(
 	'aigc_number'            => '广东-生成式AI备20250001号',
 	'algorithm_number'       => '网信算备440106123456701240019号',
 	'report_email'           => 'compliance@example.com',
-	'selected_presets'       => array( 'miit', 'psb', '12377', 'dzyyzz' ),
+	'custom_licenses'        => array(
+		array(
+			'label'  => '网络文化经营许可证',
+			'number' => '粤网文〔2025〕0001-001号',
+			'url'    => 'https://zwfw.mct.gov.cn/',
+		),
+	),
+	'selected_presets'       => array( 'miit', 'psb', '12377', 'dzyyzz', 'trustasia' ),
+	'certificates'           => array(
+		array(
+			'image_id'   => 0,
+			'title'      => '企业营业执照副本（亮照）',
+			'type'       => '营业执照',
+			'number'     => '91440106MA9W00001X',
+			'expires_at' => '',
+			'visible'    => true,
+		),
+		array(
+			'image_id'   => 0,
+			'title'      => '增值电信业务经营许可证',
+			'type'       => '电信许可',
+			'number'     => '粤B2-20240001',
+			'expires_at' => '2029-06-30',
+			'visible'    => true,
+		),
+	),
+	'cert_watermark_enabled' => true,
+	'cert_watermark_text'    => '仅供 {site_name} 官网亮照公示使用，他用无效',
+	'cert_watermark_layout'  => 'tile',
+	'cert_watermark_tone'    => 'standard',
+	'cert_watermark_engine'  => 'server',
+	'cert_anti_save'         => true,
 	'auto_footer'            => true,
-	'footer_style'           => 'standard',
+	'footer_style'           => 'badges',
 	'footer_align'           => 'center',
 	'footer_separator'       => '|',
+	'access_provider'        => 'aliyun',
+	'home_check_enabled'     => true,
+	'keepalive_enabled'      => true,
+	'keepalive_url'          => 'https://beian.example.com/',
+	'expected_provider_ips'  => '47.115.120.18, 47.115.120.0/24',
+	'keepalive_interval'     => '3d',
+	'keepalive_keyword'      => '粤ICP备2023091240号-1',
+	'alert_email'            => 'ops@example.com',
 	'ad_law_enabled'         => true,
+	'ad_law_remote_sync'     => true,
+	'ad_law_sync_interval'   => 'weekly',
+	'ad_law_rule_groups'     => array( 'absolute', 'promise', 'authority' ),
 	'ad_law_editor_panel'    => true,
 	'ad_law_scan_post_types' => array( 'post', 'page' ),
 	'ad_law_allowlist'       => array( '第一方数据' ),
 );
 
+$demo_access_status = array(
+	'checked_at' => '2026-11-22 03:15',
+	'home'       => array(
+		'ok'     => true,
+		'passed' => 4,
+		'total'  => 4,
+		'checks' => array(
+			array(
+				'id'     => 'http',
+				'label'  => '首页 HTTP 可达性（无空壳/阻断页）',
+				'state'  => 'ok',
+				'value'  => '200 OK · 84ms',
+				'detail' => '',
+			),
+			array(
+				'id'     => 'icp_present',
+				'label'  => '首页底部 ICP 备案号悬挂',
+				'state'  => 'ok',
+				'value'  => '粤ICP备2023091240号-1',
+				'detail' => '',
+			),
+			array(
+				'id'     => 'miit_link',
+				'label'  => '工信部官方超链接规范（无旧域名死链）',
+				'state'  => 'ok',
+				'value'  => 'https://beian.miit.gov.cn/',
+				'detail' => '',
+			),
+			array(
+				'id'     => 'title_match',
+				'label'  => '首页 <title> 与工信部登记名称一致性',
+				'state'  => 'ok',
+				'value'  => '含「文派示例站」',
+				'detail' => '',
+			),
+		),
+	),
+	'keepalive'  => array(
+		'ok'           => true,
+		'host'         => 'beian.example.com',
+		'primary_ip'   => '47.115.120.18',
+		'ip_matched'   => true,
+		'http_code'    => 200,
+		'latency_ms'   => 79,
+		'keyword_ok'   => true,
+		'blocked'      => false,
+		'result_label' => '正常 · 含备案号',
+		'summary'      => 'beian.example.com 解析至 47.115.120.18 且保活访问 200 OK。',
+	),
+);
+
+$demo_access_logs = array(
+	array(
+		'time'         => '2026-11-22 03:15',
+		'url'          => 'https://beian.example.com/',
+		'primary_ip'   => '47.115.120.18',
+		'ip_matched'   => true,
+		'http_code'    => 200,
+		'latency_ms'   => 79,
+		'ok'           => true,
+		'result_label' => '正常 · 含备案号',
+	),
+);
+
 $pages = array(
-	'overview.html'          => array(
+	'overview.html'            => array(
 		'tab'     => 'overview',
 		'title'   => '概览 · 正常态',
 		'mode'    => 'simple',
 		'options' => array(
 			'wpicp_settings'      => $normal_settings,
 			'_privacy_url'        => 'https://example.com/policy/',
+			'wpicp_access_status' => $demo_access_status,
 			'wpicp_audit_summary' => array(
 				'last_scan_at'  => 1763700000,
 				'scanned_posts' => 36,
@@ -304,7 +424,7 @@ $pages = array(
 			),
 		),
 	),
-	'overview-empty.html'    => array(
+	'overview-empty.html'      => array(
 		'tab'     => 'overview',
 		'title'   => '概览 · 空状态',
 		'mode'    => 'simple',
@@ -313,7 +433,7 @@ $pages = array(
 			'_privacy_url'   => '',
 		),
 	),
-	'overview-error.html'    => array(
+	'overview-error.html'      => array(
 		'tab'     => 'overview',
 		'title'   => '概览 · 格式异常与风险态',
 		'mode'    => 'simple',
@@ -333,7 +453,7 @@ $pages = array(
 			),
 		),
 	),
-	'filing.html'          => array(
+	'filing.html'              => array(
 		'tab'     => 'filing',
 		'title'   => '备案资质 · 简单视图',
 		'mode'    => 'simple',
@@ -341,7 +461,7 @@ $pages = array(
 			'wpicp_settings' => $normal_settings,
 		),
 	),
-	'filing-advanced.html' => array(
+	'filing-advanced.html'     => array(
 		'tab'     => 'filing',
 		'title'   => '备案资质 · 高级视图',
 		'mode'    => 'advanced',
@@ -349,26 +469,65 @@ $pages = array(
 			'wpicp_settings' => $normal_settings,
 		),
 	),
-	'badges.html'          => array(
+	'badges.html'              => array(
 		'tab'     => 'badges',
-		'title'   => '证照徽章',
+		'title'   => '证照徽章 · 官方预设',
 		'mode'    => 'simple',
+		'section' => 'presets',
 		'options' => array(
 			'wpicp_settings' => $normal_settings,
 		),
 	),
-	'display.html'         => array(
+	'badges-custom.html'       => array(
+		'tab'     => 'badges',
+		'title'   => '证照徽章 · 自定义徽章',
+		'mode'    => 'simple',
+		'section' => 'custom',
+		'options' => array(
+			'wpicp_settings' => $normal_settings,
+		),
+	),
+	'badges-certificates.html' => array(
+		'tab'     => 'badges',
+		'title'   => '证照徽章 · 电子证照亮照',
+		'mode'    => 'simple',
+		'section' => 'certificates',
+		'options' => array(
+			'wpicp_settings' => $normal_settings,
+		),
+	),
+	'display.html'             => array(
 		'tab'     => 'display',
-		'title'   => '前台展示',
+		'title'   => '前台展示 · 简单视图',
 		'mode'    => 'simple',
 		'options' => array(
 			'wpicp_settings' => $normal_settings,
 		),
 	),
-	'audit.html'           => array(
+	'display-advanced.html'    => array(
+		'tab'     => 'display',
+		'title'   => '前台展示 · 高级视图',
+		'mode'    => 'advanced',
+		'options' => array(
+			'wpicp_settings' => $normal_settings,
+		),
+	),
+	'audit.html'               => array(
 		'tab'     => 'audit',
-		'title'   => '合规巡检',
+		'title'   => '合规巡检 · 备案与接入保活',
 		'mode'    => 'simple',
+		'section' => 'access',
+		'options' => array(
+			'wpicp_settings'      => $normal_settings,
+			'wpicp_access_status' => $demo_access_status,
+			'wpicp_access_logs'   => $demo_access_logs,
+		),
+	),
+	'audit-adlaw.html'         => array(
+		'tab'     => 'audit',
+		'title'   => '合规巡检 · 广告法巡检',
+		'mode'    => 'simple',
+		'section' => 'adlaw',
 		'options' => array(
 			'wpicp_settings'      => $normal_settings,
 			'_privacy_url'        => 'https://example.com/policy/',
@@ -379,7 +538,7 @@ $pages = array(
 			),
 		),
 	),
-	'tools.html'           => array(
+	'tools.html'               => array(
 		'tab'     => 'tools',
 		'title'   => '工具与迁移',
 		'mode'    => 'simple',
@@ -387,7 +546,7 @@ $pages = array(
 			'wpicp_settings' => $normal_settings,
 		),
 	),
-	'help.html'            => array(
+	'help.html'                => array(
 		'tab'     => 'help',
 		'title'   => '使用帮助',
 		'mode'    => 'simple',
@@ -407,6 +566,9 @@ foreach ( $pages as $filename => $spec ) {
 	);
 	if ( 'advanced' === $spec['mode'] ) {
 		$_GET['mode'] = 'advanced';
+	}
+	if ( ! empty( $spec['section'] ) ) {
+		$_GET['section'] = $spec['section'];
 	}
 
 	$shell = \WenPai\ICP\Admin\AdminPage::shell_args( $spec['tab'], $tab_urls );

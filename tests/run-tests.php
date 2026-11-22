@@ -18,6 +18,10 @@
 $plugin_root = dirname( __DIR__ );
 
 define( 'ABSPATH', $plugin_root . '/' );
+if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
+	define( 'HOUR_IN_SECONDS', 3600 );
+	define( 'DAY_IN_SECONDS', 86400 );
+}
 
 $GLOBALS['_test_options']        = array();
 $GLOBALS['_test_site_options']   = array();
@@ -269,6 +273,12 @@ function network_admin_url( $p = '' ) {
 }
 function home_url( $p = '' ) {
 	return 'https://example.com/' . ltrim( (string) $p, '/' );
+}
+function rest_url( $p = '' ) {
+	return 'https://example.com/wp-json/' . ltrim( (string) $p, '/' );
+}
+function get_bloginfo( $show = '' ) {
+	return 'name' === $show ? '文派示例站' : 'https://example.com';
 }
 function add_query_arg( $args, $url = '' ) {
 	if ( ! is_array( $args ) || empty( $args ) ) {
@@ -530,6 +540,104 @@ $readme_txt_hits = wpicp_scan_ad_law_html( '<pre>' . esc_html( (string) file_get
 $readme_md_hits  = wpicp_scan_ad_law_html( '<pre>' . esc_html( (string) file_get_contents( $plugin_root . '/README.md' ) ) . '</pre>' );
 wpicp_assert( 0 === count( $readme_txt_hits ), 'readme.txt contains zero prohibited Ad-Law superlatives' );
 wpicp_assert( 0 === count( $readme_md_hits ), 'README.md contains zero prohibited Ad-Law superlatives' );
+
+// -----------------------------------------------------------------------------
+// 9. AccessMonitor, WordYeahClient, and CertificateWatermark
+// -----------------------------------------------------------------------------
+wpicp_assert( \WenPai\ICP\Compliance\AccessMonitor::ip_in_rule( '47.115.120.18', '47.115.120.18' ), 'Exact IPv4 match passes' );
+wpicp_assert( \WenPai\ICP\Compliance\AccessMonitor::ip_in_rule( '47.115.120.88', '47.115.120.0/24' ), 'IPv4 CIDR /24 match passes' );
+wpicp_assert( ! \WenPai\ICP\Compliance\AccessMonitor::ip_in_rule( '104.21.12.34', '47.115.120.0/24' ), 'Out-of-range IPv4 fails CIDR match' );
+wpicp_assert( \WenPai\ICP\Compliance\AccessMonitor::ip_in_rule( '2408:4005:100::12', '2408:4005:100::/48' ), 'IPv6 CIDR /48 match passes' );
+
+$home_cfg  = \WenPai\ICP\Options\SettingsStore::normalize(
+	array(
+		'icp_number'         => '粤ICP备2023091240号-1',
+		'icp_site_name'      => '文派示例站',
+		'company_legal_name' => '文派科技有限公司',
+	)
+);
+$good_html = '<!doctype html><html><head><title>文派示例站 - 首页</title></head><body><footer><a href="https://beian.miit.gov.cn/">粤ICP备2023091240号-1</a></footer></body></html>';
+$home_ok   = \WenPai\ICP\Compliance\AccessMonitor::inspect_homepage_html( $good_html, 200, 62, $home_cfg );
+wpicp_assert( true === $home_ok['ok'] && 4 === $home_ok['passed'], 'Valid homepage HTML passes all 4 MIIT checks' );
+
+$legacy_link_html = '<!doctype html><html><head><title>文派示例站</title></head><body><a href="http://www.miitbeian.gov.cn/">粤ICP备2023091240号-1</a></body></html>';
+$home_bad_link    = \WenPai\ICP\Compliance\AccessMonitor::inspect_homepage_html( $legacy_link_html, 200, 70, $home_cfg );
+wpicp_assert( false === $home_bad_link['ok'] && 'bad' === $home_bad_link['checks'][2]['state'], 'Deprecated miitbeian.gov.cn link fails miit_link check' );
+
+$blocked_html = '<!doctype html><html><head><title>提示</title></head><body>该域名因未备案被阻断访问</body></html>';
+$home_blocked = \WenPai\ICP\Compliance\AccessMonitor::inspect_homepage_html( $blocked_html, 200, 30, $home_cfg );
+wpicp_assert( false === $home_blocked['ok'] && 'bad' === $home_blocked['checks'][0]['state'], 'Cloud block splash page fails HTTP reachability check' );
+
+$keepalive_doc = \WenPai\ICP\Compliance\AccessMonitor::generate_keepalive_html( $home_cfg );
+wpicp_assert(
+	false !== strpos( $keepalive_doc, '<title>文派示例站</title>' )
+	&& false !== strpos( $keepalive_doc, '粤ICP备2023091240号-1' )
+	&& false !== strpos( $keepalive_doc, 'https://beian.miit.gov.cn/' ),
+	'Generated standalone keepalive index.html contains site title, ICP number, and MIIT URL'
+);
+
+// WordYeah remote ruleset payload sanitization, merging, and group filtering.
+$wy_parsed = \WenPai\ICP\Compliance\WordYeahClient::sanitize_payload(
+	array(
+		'version'        => '2026.11',
+		'terms'          => array(
+			'无言远程测试词' => array(
+				'category'    => 'regulated',
+				'suggestions' => array( '合规表述' ),
+			),
+		),
+		'safe_compounds' => array( '远程安全词组' ),
+	)
+);
+wpicp_assert( '2026.11' === $wy_parsed['version'] && isset( $wy_parsed['terms']['无言远程测试词'] ), 'WordYeahClient sanitizes remote JSON payload cleanly' );
+
+update_option(
+	\WenPai\ICP\Compliance\WordYeahClient::CACHE_OPTION,
+	array(
+		'version'        => $wy_parsed['version'],
+		'synced_at'      => '2026-11-22 10:00',
+		'etag'           => '"wy-2026-11"',
+		'terms'          => $wy_parsed['terms'],
+		'safe_compounds' => $wy_parsed['safe_compounds'],
+		'source'         => 'wordyeah-remote',
+	)
+);
+\WenPai\ICP\Options\SettingsStore::save_site(
+	array(
+		'ad_law_remote_sync' => true,
+		'ad_law_rule_groups' => array( 'absolute', 'promise', 'authority' ),
+	)
+);
+$hits_without_reg = wpicp_scan_ad_law_html( '<p>包含无言远程测试词的内容</p>' );
+wpicp_assert( 0 === count( $hits_without_reg ), 'Regulated category remote term is skipped when regulated group is unchecked' );
+
+\WenPai\ICP\Options\SettingsStore::save_site(
+	array(
+		'ad_law_rule_groups' => array( 'absolute', 'promise', 'authority', 'regulated' ),
+	)
+);
+$hits_with_reg = wpicp_scan_ad_law_html( '<p>包含无言远程测试词的内容</p>' );
+wpicp_assert( 1 === count( $hits_with_reg ) && 'regulated' === $hits_with_reg[0]['category'], 'Regulated category remote term triggers when regulated group is enabled' );
+
+// CertificateWatermark template interpolation & frontend output URL/anti-save attrs.
+$wm_resolved = \WenPai\ICP\Media\CertificateWatermark::resolve_text( '仅供 {site_name} ({domain}) 于 {date} 使用', $home_cfg );
+wpicp_assert(
+	false !== strpos( $wm_resolved, '文派示例站' ) && false !== strpos( $wm_resolved, 'example.com' ),
+	'CertificateWatermark interpolates {site_name}, {domain}, and {date}'
+);
+\WenPai\ICP\Options\SettingsStore::save_site(
+	array(
+		'cert_watermark_enabled' => true,
+		'cert_watermark_engine'  => 'server',
+		'cert_anti_save'         => true,
+	)
+);
+$wm_certs_html = do_test_shortcode( 'wpicp_certificates' );
+wpicp_assert(
+	false !== strpos( $wm_certs_html, 'wpicp/v1/certificate/42' )
+	&& false !== strpos( $wm_certs_html, 'data-wpicp-anti-save="1"' ),
+	'Certificate gallery routes image through server watermark REST endpoint and sets anti-save attribute'
+);
 
 if ( $failed > 0 ) {
 	fwrite( STDERR, "FAILED: {$failed} failed, {$passed} passed\n" );
