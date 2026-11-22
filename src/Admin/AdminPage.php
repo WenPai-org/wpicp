@@ -407,7 +407,7 @@ class AdminPage {
 		$audit_url = self::tab_url( 'audit', false );
 		$custom    = array(
 			'settings' => '<a href="' . esc_url( $set_url ) . '">' . esc_html__( '设置', 'wpicp' ) . '</a>',
-			'audit'    => '<a href="' . esc_url( $audit_url ) . '">' . esc_html__( '合规巡检', 'wpicp' ) . '</a>',
+			'audit'    => '<a href="' . esc_url( $audit_url ) . '">' . esc_html__( '巡检', 'wpicp' ) . '</a>',
 		);
 		return array_merge( $custom, $links );
 	}
@@ -536,25 +536,25 @@ class AdminPage {
 				),
 				array(
 					'id'        => 'filing',
-					'label'     => __( '备案资质', 'wpicp' ),
+					'label'     => __( '备案', 'wpicp' ),
 					'url'       => $url_for( 'filing' ),
 					'icon_html' => $ico( 'shield-check' ),
 				),
 				array(
 					'id'        => 'badges',
-					'label'     => __( '证照徽章', 'wpicp' ),
+					'label'     => __( '证照', 'wpicp' ),
 					'url'       => $url_for( 'badges' ),
 					'icon_html' => $ico( 'image' ),
 				),
 				array(
 					'id'        => 'display',
-					'label'     => __( '前台展示', 'wpicp' ),
+					'label'     => __( '展示', 'wpicp' ),
 					'url'       => $url_for( 'display' ),
 					'icon_html' => $ico( 'equalizer' ),
 				),
 				array(
 					'id'        => 'audit',
-					'label'     => __( '合规巡检', 'wpicp' ),
+					'label'     => __( '巡检', 'wpicp' ),
 					'url'       => $url_for( 'audit' ),
 					'icon_html' => $ico( 'search' ),
 				),

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-22T05:34:48+00:00\n"
+"POT-Creation-Date: 2026-11-22T05:37:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wpicp\n"
@@ -73,6 +73,7 @@ msgstr ""
 
 #: src/Admin/AdminPage.php:220
 #: src/Admin/AdminPage.php:242
+#: src/Admin/AdminPage.php:539
 msgid "备案"
 msgstr ""
 
@@ -136,9 +137,7 @@ msgstr ""
 
 #: src/Admin/AdminPage.php:410
 #: src/Admin/AdminPage.php:557
-#: templates/admin/audit.php:67
-#: templates/admin/overview.php:390
-msgid "合规巡检"
+msgid "巡检"
 msgstr ""
 
 #: src/Admin/AdminPage.php:427
@@ -150,22 +149,12 @@ msgstr ""
 msgid "概览"
 msgstr ""
 
-#: src/Admin/AdminPage.php:539
-#: templates/admin/filing.php:52
-#: templates/admin/overview.php:373
-msgid "备案资质"
-msgstr ""
-
 #: src/Admin/AdminPage.php:545
-#: templates/admin/badges.php:68
-#: templates/admin/overview.php:379
-msgid "证照徽章"
+msgid "证照"
 msgstr ""
 
 #: src/Admin/AdminPage.php:551
-#: templates/admin/display.php:52
-#: templates/admin/overview.php:385
-msgid "前台展示"
+msgid "展示"
 msgstr ""
 
 #: src/Admin/AdminPage.php:563
@@ -1723,6 +1712,11 @@ msgstr ""
 msgid "开始全站巡检"
 msgstr ""
 
+#: templates/admin/audit.php:67
+#: templates/admin/overview.php:390
+msgid "合规巡检"
+msgstr ""
+
 #: templates/admin/audit.php:68
 msgid "由无言（WordYeah）提供合规规则与核查能力，经 api.wpcy.com 获取远程词库。"
 msgstr ""
@@ -2096,6 +2090,11 @@ msgstr ""
 msgid "电子证照亮照"
 msgstr ""
 
+#: templates/admin/badges.php:68
+#: templates/admin/overview.php:379
+msgid "证照徽章"
+msgstr ""
+
 #: templates/admin/badges.php:69
 msgid "管理页脚权威信任徽标与电子营业执照防盗水印亮照。"
 msgstr ""
@@ -2435,6 +2434,11 @@ msgstr ""
 msgid "高级"
 msgstr ""
 
+#: templates/admin/display.php:52
+#: templates/admin/overview.php:385
+msgid "前台展示"
+msgstr ""
+
 #: templates/admin/display.php:53
 msgid "配置页脚合规公示栏版式、显示条目与主题自适应预览。"
 msgstr ""
@@ -2493,6 +2497,11 @@ msgstr ""
 
 #: templates/admin/filing.php:34
 msgid "切换简单与高级备案视图"
+msgstr ""
+
+#: templates/admin/filing.php:52
+#: templates/admin/overview.php:373
+msgid "备案资质"
 msgstr ""
 
 #: templates/admin/filing.php:53
