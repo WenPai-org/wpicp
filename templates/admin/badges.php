@@ -336,74 +336,6 @@ Wenpai_Admin_UI::subnav(
 			? (string) get_the_title( $wpicp_cert_page_id )
 			: __( '资质与证照公示', 'wpicp' );
 
-		if ( ! $wpicp_is_network ) {
-			Wenpai_Admin_UI::card_open(
-				array(
-					'title' => __( '前台资质与证照公示合集页', 'wpicp' ),
-					'sub'   => __( '适合上传了多张营业执照、行业许可、软著、商标或体系认证的站点，访客可通过页脚「证照公示」入口集中查阅。', 'wpicp' ),
-					'tile'  => false,
-				)
-			);
-			if ( $wpicp_cert_page_ready && '' !== $wpicp_cert_page_url ) {
-				$wpicp_dir_controls = '<div class="wenpai-head-actions">';
-				if ( '' !== $wpicp_cert_page_edit ) {
-					$wpicp_dir_controls .= Wenpai_Admin_UI::button_html(
-						array(
-							'label'   => __( '编辑页面（区块）', 'wpicp' ),
-							'href'    => $wpicp_cert_page_edit,
-							'variant' => 'ghost',
-							'size'    => 'sm',
-						)
-					);
-				}
-				$wpicp_dir_controls .= Wenpai_Admin_UI::button_html(
-					array(
-						'label'   => __( '预览前台合集页', 'wpicp' ),
-						'href'    => $wpicp_cert_page_url,
-						'variant' => 'secondary',
-						'size'    => 'sm',
-						'attrs'   => array(
-							'target' => '_blank',
-							'rel'    => 'noopener noreferrer',
-						),
-					)
-				);
-				$wpicp_dir_controls .= '</div>';
-
-				Wenpai_Admin_UI::row(
-					array(
-						'icon'         => 'shield-check',
-						'state'        => 'ok',
-						'title'        => sprintf(
-							/* translators: %s: bound page title */
-							__( '已绑定合集页：%s', 'wpicp' ),
-							$wpicp_cert_page_title
-						),
-						'desc'         => $wpicp_cert_page_url . ' · ' . __( '内置「文派证照公示合集」区块（支持按分类筛选、水印大图与左右翻页）。', 'wpicp' ),
-						'control_html' => $wpicp_dir_controls,
-					)
-				);
-			} else {
-				Wenpai_Admin_UI::row(
-					array(
-						'icon'         => 'image',
-						'title'        => __( '尚未生成独立的前台证照公示合集页', 'wpicp' ),
-						'desc'         => __( '一键自动创建含「文派证照公示合集」区块的公开页面并绑定，页脚合规栏将同步出现「证照公示」入口。', 'wpicp' ),
-						'control_html' => Wenpai_Admin_UI::button_html(
-							array(
-								'label'   => __( '一键生成公示合集页', 'wpicp' ),
-								'type'    => 'submit',
-								'variant' => 'secondary',
-								'size'    => 'sm',
-								'attrs'   => array( 'form' => 'wpicp-create-cert-page-form' ),
-							)
-						),
-					)
-				);
-			}
-			Wenpai_Admin_UI::card_close();
-		}
-
 		$wpicp_cert_cats = array(
 			/* translators: %d: total uploaded certificate count */
 			'all' => sprintf( __( '全部 (%d)', 'wpicp' ), count( $wpicp_certs ) ),
@@ -415,20 +347,50 @@ Wenpai_Admin_UI::subnav(
 			}
 		}
 
+		$wpicp_cert_head_actions = '<div class="wenpai-head-actions">';
+		if ( ! $wpicp_is_network ) {
+			if ( $wpicp_cert_page_ready && '' !== $wpicp_cert_page_url ) {
+				$wpicp_cert_head_actions .= Wenpai_Admin_UI::button_html(
+					array(
+						'label'   => __( '预览前台合集页', 'wpicp' ),
+						'href'    => $wpicp_cert_page_url,
+						'variant' => 'ghost',
+						'size'    => 'sm',
+						'attrs'   => array(
+							'target' => '_blank',
+							'rel'    => 'noopener noreferrer',
+						),
+					)
+				);
+			} else {
+				$wpicp_cert_head_actions .= Wenpai_Admin_UI::button_html(
+					array(
+						'label'   => __( '一键生成公示合集页', 'wpicp' ),
+						'type'    => 'submit',
+						'variant' => 'ghost',
+						'size'    => 'sm',
+						'attrs'   => array( 'form' => 'wpicp-create-cert-page-form' ),
+					)
+				);
+			}
+		}
+		$wpicp_cert_head_actions .= Wenpai_Admin_UI::button_html(
+			array(
+				'label'   => __( '批量上传证照', 'wpicp' ),
+				'type'    => 'button',
+				'variant' => 'secondary',
+				'size'    => 'sm',
+				'attrs'   => array( 'data-wpicp-add-cert' => '1' ),
+			)
+		);
+		$wpicp_cert_head_actions .= '</div>';
+
 		Wenpai_Admin_UI::card_open(
 			array(
 				'title'             => __( '电子证照与营业执照复印件管理', 'wpicp' ),
-				'sub'               => __( '支持批量上传营业执照、食品/出版/网络文化/医药许可、软著商标与体系认证（最多 100 项）；支持自定义分类与实时水印预览。', 'wpicp' ),
+				'sub'               => __( '支持批量上传营业执照、行业许可、软著商标与体系认证（最多 100 项），可自定义分类并实时预览输出水印。', 'wpicp' ),
 				'tile'              => false,
-				'head_control_html' => Wenpai_Admin_UI::button_html(
-					array(
-						'label'   => __( '批量上传证照', 'wpicp' ),
-						'type'    => 'button',
-						'variant' => 'secondary',
-						'size'    => 'sm',
-						'attrs'   => array( 'data-wpicp-add-cert' => '1' ),
-					)
-				),
+				'head_control_html' => $wpicp_cert_head_actions,
 			)
 		);
 		?>
@@ -557,6 +519,31 @@ Wenpai_Admin_UI::subnav(
 			</div>
 		</dialog>
 		<?php
+		if ( ! $wpicp_is_network ) {
+			$wpicp_cert_foot_actions = array();
+			if ( $wpicp_cert_page_ready && '' !== $wpicp_cert_page_edit ) {
+				$wpicp_cert_foot_actions[] = array(
+					'label'   => __( '编辑合集页区块', 'wpicp' ),
+					'href'    => $wpicp_cert_page_edit,
+					'variant' => 'ghost',
+					'size'    => 'sm',
+				);
+			}
+			Wenpai_Admin_UI::card_foot(
+				array(
+					'start'   => true,
+					'meta'    => $wpicp_cert_page_ready && '' !== $wpicp_cert_page_url
+						? sprintf(
+							/* translators: 1: page title, 2: page url */
+							__( '前台合集页已绑定：%1$s（%2$s）', 'wpicp' ),
+							$wpicp_cert_page_title,
+							$wpicp_cert_page_url
+						)
+						: __( '点击右上角「一键生成公示合集页」可自动建页并在页脚显示「证照公示」入口。', 'wpicp' ),
+					'actions' => $wpicp_cert_foot_actions,
+				)
+			);
+		}
 		Wenpai_Admin_UI::card_close();
 
 		Wenpai_Admin_UI::card_open(
